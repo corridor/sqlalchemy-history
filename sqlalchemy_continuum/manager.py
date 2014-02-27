@@ -360,6 +360,14 @@ class VersioningManager(object):
             mapper, 'after_configured', self.configure_versioned_classes
         )
 
+    def remove_class_configuration_listeners(self, mapper):
+        sa.event.remove(
+            mapper, 'instrument_class', self.instrument_versioned_classes
+        )
+        sa.event.remove(
+            mapper, 'after_configured', self.configure_versioned_classes
+        )
+
     def configure_versioned_classes(self):
         """
         Configures all versioned classes that were collected during

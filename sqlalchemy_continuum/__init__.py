@@ -44,8 +44,12 @@ def make_versioned(
     uow.track_session(session)
     manager.options.update(options)
 
-    sa.event.listen(
-        sa.engine.Engine,
-        'before_cursor_execute',
-        uow.track_association_operations
-    )
+
+def remove_versioning(
+    mapper=sa.orm.mapper,
+    session=sa.orm.session.Session,
+    manager=versioning_manager
+):
+    manager.remove_class_configuration_listeners(mapper)
+    manager.uow.remove_operations_tracking(mapper)
+    manager.uow.remove_session_tracking(session)

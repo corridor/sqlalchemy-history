@@ -66,6 +66,32 @@ class UnitOfWork(object):
         sa.event.listen(
             mapper, 'after_insert', self.track_inserts
         )
+        sa.event.listen(
+            sa.engine.Engine,
+            'before_cursor_execute',
+            self.track_association_operations
+        )
+
+    def remove_operations_tracking(self, mapper):
+        """
+        Remove operation tracking listeners from given mapper.
+
+        :param mapper: mapper to remove the operation tracking listeners from
+        """
+        sa.event.remove(
+            mapper, 'after_delete', self.track_deletes
+        )
+        sa.event.remove(
+            mapper, 'after_update', self.track_updates
+        )
+        sa.event.remove(
+            mapper, 'after_insert', self.track_inserts
+        )
+        sa.event.remove(
+            sa.engine.Engine,
+            'before_cursor_execute',
+            self.track_association_operations
+        )
 
     def track_session(self, session):
         """
@@ -85,6 +111,26 @@ class UnitOfWork(object):
             session, 'after_commit', self.clear
         )
         sa.event.listen(
+            session, 'after_rollback', self.clear
+        )
+
+    def remove_session_tracking(self, session):
+        """
+        Remove session tracking listeners from given session.
+
+        :param session:
+            SQLAlchemy session to remove the tracking listeners from
+        """
+        sa.event.remove(
+            session, 'after_flush', self.after_flush
+        )
+        sa.event.remove(
+            session, 'before_commit', self.before_commit
+        )
+        sa.event.remove(
+            session, 'after_commit', self.clear
+        )
+        sa.event.remove(
             session, 'after_rollback', self.clear
         )
 
