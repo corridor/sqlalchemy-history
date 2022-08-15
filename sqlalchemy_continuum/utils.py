@@ -9,6 +9,7 @@ from sqlalchemy_utils.functions import (
     get_primary_keys,
     identity,
     naturally_equivalent,
+    get_mapper
 )
 
 from .exc import ClassNotVersioned
@@ -133,17 +134,20 @@ def version_table(table):
 
     :param table: SQLAlchemy Table object
     """
+    mapped_class = get_mapper(table).class_
+    table_name_format = option(mapped_class, 'table_name')  # '%s_version' by default
+    suffixed_table_name = table_name_format % table.name
     if table.schema:
         return table.metadata.tables[
-            table.schema + '.' + table.name + '_version'
+            table.schema + '.' + suffixed_table_name
         ]
     elif table.metadata.schema:
         return table.metadata.tables[
-            table.metadata.schema + '.' + table.name + '_version'
+            table.metadata.schema + '.' + suffixed_table_name
         ]
     else:
         return table.metadata.tables[
-            table.name + '_version'
+            suffixed_table_name
         ]
 
 
