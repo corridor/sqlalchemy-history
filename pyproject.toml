@@ -24,6 +24,7 @@ python = "^3.6"
 
 SQLAlchemy = ">=1.4,<2"
 SQLAlchemy-Utils = ">=0.30.12"
+cached-property = "*"
 
 [tool.poetry.dev-dependencies]
 black = {version = "*", allow-prereleases = true}
