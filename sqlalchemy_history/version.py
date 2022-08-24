@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from cached_property import cached_property
 
 from sqlalchemy_history.reverter import Reverter
 from sqlalchemy_history.utils import (
@@ -9,7 +10,7 @@ from sqlalchemy_history.utils import (
 
 
 class VersionClassBase(object):
-    @property
+    @cached_property
     def previous(self):
         """Returns the previous version relative to this version in the version
         history. If current version is the first version this method returns
@@ -19,7 +20,7 @@ class VersionClassBase(object):
         """
         return get_versioning_manager(self).fetcher(parent_class(self.__class__)).previous(self)
 
-    @property
+    @cached_property
     def next(self):
         """Returns the next version relative to this version in the version
         history. If current version is the last version this method returns
@@ -29,7 +30,7 @@ class VersionClassBase(object):
         """
         return get_versioning_manager(self).fetcher(parent_class(self.__class__)).next(self)
 
-    @property
+    @cached_property
     def index(self):
         """ """
         return get_versioning_manager(self).fetcher(parent_class(self.__class__)).index(self)
