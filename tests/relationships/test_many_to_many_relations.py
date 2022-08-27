@@ -1,4 +1,5 @@
 import pytest
+import datetime
 from pytest import mark
 import sqlalchemy as sa
 from sqlalchemy_history import versioning_manager
@@ -27,6 +28,13 @@ class ManyToManyRelationshipsTestCase(TestCase):
                 primary_key=True,
             ),
             sa.Column("tag_id", sa.Integer, sa.ForeignKey("tag.id"), primary_key=True),
+            sa.Column(
+                "created_date",
+                sa.DateTime,
+                nullable=False,
+                server_default=sa.func.current_timestamp(),
+                default=datetime.datetime.utcnow,
+            ),
         )
 
         class Tag(self.Model):
