@@ -3,7 +3,8 @@ SQLAlchemy-Continuum
 
 |Build Status| |Version Status| |Downloads|
 
-Versioning and auditing extension for SQLAlchemy.
+sqlalchemy-history is versioning and auditing extension for SQLAlchemy to track changes in database supporting multiple Database (oracle, postgres, sqlite, mysql, mssql).
+
 
 
 Features
