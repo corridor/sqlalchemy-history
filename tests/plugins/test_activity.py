@@ -1,7 +1,7 @@
 import pytest
 import sqlalchemy as sa
-from sqlalchemy_continuum import versioning_manager
-from sqlalchemy_continuum.plugins import ActivityPlugin
+from sqlalchemy_history import versioning_manager
+from sqlalchemy_history.plugins import ActivityPlugin
 from tests import TestCase, QueryPool, uses_native_versioning
 
 

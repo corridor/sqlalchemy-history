@@ -1,5 +1,5 @@
 """
-SQLAlchemy-Continuum
+SQLAlchemy-History
 --------------------
 
 Versioning and auditing extension for SQLAlchemy.
@@ -16,7 +16,7 @@ PY3 = sys.version_info[0] == 3
 
 
 def get_version():
-    filename = os.path.join(HERE, 'sqlalchemy_continuum', '__init__.py')
+    filename = os.path.join(HERE, 'sqlalchemy_history', '__init__.py')
     with open(filename) as f:
         contents = f.read()
     pattern = r"^__version__ = '(.*?)'$"
@@ -46,18 +46,18 @@ for name, requirements in extras_require.items():
 
 
 setup(
-    name='SQLAlchemy-Continuum',
+    name='SQLAlchemy-History',
     version=get_version(),
-    url='https://github.com/kvesteri/sqlalchemy-continuum',
+    url='https://github.com/corridor/sqlalchemy-history',
     license='BSD',
-    author='Konsta Vesterinen',
-    author_email='konsta@fastmonkeys.com',
+    author='Corridor Platforms',
+    author_email='open-source-maintainers@corridorplatforms.com',
     description='Versioning and auditing extension for SQLAlchemy.',
     long_description=__doc__,
     packages=[
-        'sqlalchemy_continuum',
-        'sqlalchemy_continuum.plugins',
-        'sqlalchemy_continuum.dialects'
+        'sqlalchemy_history',
+        'sqlalchemy_history.plugins',
+        'sqlalchemy_history.dialects'
     ],
     zip_safe=False,
     include_package_data=True,

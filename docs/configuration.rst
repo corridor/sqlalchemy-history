@@ -4,7 +4,7 @@ Configuration
 Global and class level configuration
 ------------------------------------
 
-All Continuum configuration parameters can be set on global level (manager level) and on class level. Setting an option at manager level affects all classes within the scope of the manager's class instrumentation listener (by default all SQLAlchemy declarative models).
+All History configuration parameters can be set on global level (manager level) and on class level. Setting an option at manager level affects all classes within the scope of the manager's class instrumentation listener (by default all SQLAlchemy declarative models).
 
 In the following example we set 'transaction_column_name' configuration option to False at the manager level.
 
@@ -31,7 +31,7 @@ Versioning strategies
 ---------------------
 
 
-Similar to Hibernate Envers SQLAlchemy-Continuum offers two distinct versioning strategies 'validity' and 'subquery'. The default strategy is 'validity'.
+Similar to Hibernate Envers SQLAlchemy-History offers two distinct versioning strategies 'validity' and 'subquery'. The default strategy is 'validity'.
 
 
 Validity
@@ -39,9 +39,9 @@ Validity
 
 The 'validity' strategy saves two columns in each history table, namely 'transaction_id' and 'end_transaction_id'. The names of these columns can be configured with configuration options `transaction_column_name` and `end_transaction_column_name`.
 
-As with 'subquery' strategy for each inserted, updated and deleted entity Continuum creates new version in the history table. However it also updates the end_transaction_id of the previous version to point at the current version. This creates a little bit of overhead during data manipulation.
+As with 'subquery' strategy for each inserted, updated and deleted entity History creates new version in the history table. However it also updates the end_transaction_id of the previous version to point at the current version. This creates a little bit of overhead during data manipulation.
 
-With 'validity' strategy version traversal is very fast. When accessing previous version Continuum tries to find the version record where the primary keys match and end_transaction_id is the same as the transaction_id of the given version record. When accessing the next version Continuum tries to find the version record where the primary keys match and transaction_id is the same as the end_transaction_id of the given version record.
+With 'validity' strategy version traversal is very fast. When accessing previous version History tries to find the version record where the primary keys match and end_transaction_id is the same as the transaction_id of the given version record. When accessing the next version History tries to find the version record where the primary keys match and transaction_id is the same as the end_transaction_id of the given version record.
 
 
 Pros:
@@ -57,7 +57,7 @@ Subquery
 
 The 'subquery' strategy uses one column in each history table, namely 'transaction_id'. The name of this column can be configured with configuration option `transaction_column_name`.
 
-After each inserted, updated and deleted entity Continuum creates new version in the history table and sets the 'transaction_id' column to point at the current transaction.
+After each inserted, updated and deleted entity History creates new version in the history table and sets the 'transaction_id' column to point at the current transaction.
 
 With 'subquery' strategy the version traversal is slow. When accessing previous and next versions of given version object needs correlated subqueries.
 
@@ -73,7 +73,7 @@ Cons:
 Column exclusion and inclusion
 ------------------------------
 
-With `exclude` configuration option you can define which entity attributes you want to get versioned. By default Continuum versions all entity attributes.
+With `exclude` configuration option you can define which entity attributes you want to get versioned. By default History versions all entity attributes.
 
 ::
 
@@ -132,7 +132,7 @@ Example
 Customizing transaction user class
 ----------------------------------
 
-By default Continuum tries to build a relationship between 'User' class and Transaction class. If you have differently named user class you can simply pass its name to make_versioned:
+By default History tries to build a relationship between 'User' class and Transaction class. If you have differently named user class you can simply pass its name to make_versioned:
 
 
 ::
@@ -153,7 +153,7 @@ If you don't want transactions to contain any user references you can also disab
 Customizing versioned mappers
 -----------------------------
 
-By default SQLAlchemy-Continuum versions all mappers. You can override this behaviour by passing the desired mapper class/object to make_versioned function.
+By default SQLAlchemy-History versions all mappers. You can override this behaviour by passing the desired mapper class/object to make_versioned function.
 
 
 ::
@@ -165,7 +165,7 @@ Customizing versioned sessions
 ------------------------------
 
 
-By default SQLAlchemy-Continuum versions all sessions. You can override this behaviour by passing the desired session class/object to make_versioned function.
+By default SQLAlchemy-History versions all sessions. You can override this behaviour by passing the desired session class/object to make_versioned function.
 
 
 ::

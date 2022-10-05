@@ -9,7 +9,7 @@ from tests import TestCase
 @mark.skipif("os.environ.get('DB') == 'sqlite'")
 class TestCustomSchema(TestCase):
     def create_models(self):
-        self.Model = declarative_base(metadata=sa.MetaData(schema='continuum'))
+        self.Model = declarative_base(metadata=sa.MetaData(schema='history'))
 
         class Article(self.Model):
             __tablename__ = 'article'
@@ -56,8 +56,8 @@ class TestCustomSchema(TestCase):
         self.Tag = Tag
 
     def create_tables(self):
-        self.connection.execute('DROP SCHEMA IF EXISTS continuum')
-        self.connection.execute('CREATE SCHEMA continuum')
+        self.connection.execute('DROP SCHEMA IF EXISTS history')
+        self.connection.execute('CREATE SCHEMA history')
         TestCase.create_tables(self)
 
     def test_version_relations(self):

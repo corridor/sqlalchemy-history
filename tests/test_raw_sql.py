@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy_continuum import versioning_manager
+from sqlalchemy_history import versioning_manager
 
 from tests import TestCase, uses_native_versioning
 

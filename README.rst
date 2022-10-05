@@ -1,4 +1,4 @@
-SQLAlchemy-Continuum
+SQLAlchemy-History
 ====================
 
 |Build Status| |Version Status| |Downloads|
@@ -25,7 +25,7 @@ QuickStart
 ::
 
 
-    pip install SQLAlchemy-Continuum
+    pip install SQLAlchemy-History
 
 
 
@@ -38,7 +38,7 @@ In order to make your models versioned you need two things:
 .. code-block:: python
 
 
-    from sqlalchemy_continuum import make_versioned
+    from sqlalchemy_history import make_versioned
 
 
     make_versioned(user_cls=None)
@@ -78,7 +78,7 @@ For completeness, below is a working example.
 
 .. code-block:: python
 
-    from sqlalchemy_continuum import make_versioned
+    from sqlalchemy_history import make_versioned
     from sqlalchemy import Column, Integer, Unicode, UnicodeText, create_engine
     from sqlalchemy.ext.declarative import declarative_base
     from sqlalchemy.orm import create_session, configure_mappers
@@ -111,20 +111,20 @@ For completeness, below is a working example.
 Resources
 ---------
 
-- `Documentation <https://sqlalchemy-continuum.readthedocs.io/>`_
-- `Issue Tracker <http://github.com/kvesteri/sqlalchemy-continuum/issues>`_
-- `Code <http://github.com/kvesteri/sqlalchemy-continuum/>`_
+- `Documentation <https://sqlalchemy-history.readthedocs.io/>`_
+- `Issue Tracker <http://github.com/kvesteri/sqlalchemy-history/issues>`_
+- `Code <http://github.com/kvesteri/sqlalchemy-history/>`_
 
 
 .. image:: http://i.imgur.com/UFaRx.gif
 
 
-.. |Build Status| image:: https://github.com/kvesteri/sqlalchemy-continuum/workflows/Test/badge.svg
-   :target: https://github.com/kvesteri/sqlalchemy-continuum/actions?query=workflow%3ATest
-.. |Version Status| image:: https://img.shields.io/pypi/v/SQLAlchemy-Continuum.png
-   :target: https://pypi.python.org/pypi/SQLAlchemy-Continuum/
-.. |Downloads| image:: https://img.shields.io/pypi/dm/SQLAlchemy-Continuum.png
-   :target: https://pypi.python.org/pypi/SQLAlchemy-Continuum/
+.. |Build Status| image:: https://github.com/kvesteri/sqlalchemy-history/workflows/Test/badge.svg
+   :target: https://github.com/kvesteri/sqlalchemy-history/actions?query=workflow%3ATest
+.. |Version Status| image:: https://img.shields.io/pypi/v/SQLAlchemy-History.png
+   :target: https://pypi.python.org/pypi/SQLAlchemy-History/
+.. |Downloads| image:: https://img.shields.io/pypi/dm/SQLAlchemy-History.png
+   :target: https://pypi.python.org/pypi/SQLAlchemy-History/
 
 
 More information

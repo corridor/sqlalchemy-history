@@ -1,7 +1,7 @@
 Reverting changes
 =================
 
-One of the major benefits of SQLAlchemy-Continuum is its ability to revert changes.
+One of the major benefits of SQLAlchemy-History is its ability to revert changes.
 
 
 Revert update

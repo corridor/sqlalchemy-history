@@ -5,7 +5,7 @@ Version objects
 Operation types
 ---------------
 
-When changing entities and committing results into database Continuum saves the used
+When changing entities and committing results into database History saves the used
 operations (INSERT, UPDATE or DELETE) into version entities. The operation types are stored
 by default to a small integer field named 'operation_type'. Class called 'Operation' holds
 convenient constants for these values as shown below:
@@ -13,7 +13,7 @@ convenient constants for these values as shown below:
 ::
 
 
-    from sqlalchemy_continuum import Operation
+    from sqlalchemy_history import Operation
 
     article = Article(name=u'Some article')
     session.add(article)
@@ -53,7 +53,7 @@ Version traversal
 Changeset
 ---------
 
-Continuum provides easy way for getting the changeset of given version object. Each version contains a changeset
+History provides easy way for getting the changeset of given version object. Each version contains a changeset
 property which holds a dict of changed fields in that version.
 
 ::
@@ -89,7 +89,7 @@ property which holds a dict of changed fields in that version.
     # }
 
 
-SQLAlchemy-Continuum also provides a utility function called changeset. With this function
+SQLAlchemy-History also provides a utility function called changeset. With this function
 you can easily check the changeset of given object in current transaction.
 
 
@@ -97,7 +97,7 @@ you can easily check the changeset of given object in current transaction.
 ::
 
 
-    from sqlalchemy_continuum import changeset
+    from sqlalchemy_history import changeset
 
 
     article = Article(name=u'Some article')
@@ -112,7 +112,7 @@ Each version object reflects all parent object relationships. You can think vers
 
 Lets say you have two models: Article and Category. Each Article has one Category. In the following example we first add article and category objects into database.
 
-Continuum saves new ArticleVersion and CategoryVersion records in the background. After that we update the created article entity to use another category. Continuum creates new version objects accordingly.
+History saves new ArticleVersion and CategoryVersion records in the background. After that we update the created article entity to use another category. History creates new version objects accordingly.
 
 Lastly we check the category relations of different article versions.
 
@@ -136,7 +136,7 @@ Lastly we check the category relations of different article versions.
     article.versions[1].category.name  # u'Some other category'
 
 
-The logic how SQLAlchemy-Continuum builds these relationships is within the RelationshipBuilder class.
+The logic how SQLAlchemy-History builds these relationships is within the RelationshipBuilder class.
 
 
 Relationships to non-versioned classes

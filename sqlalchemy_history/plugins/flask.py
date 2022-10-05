@@ -1,6 +1,6 @@
 """
 FlaskPlugin offers way of integrating Flask framework with
-SQLAlchemy-Continuum. Flask-Plugin adds two columns for Transaction model,
+SQLAlchemy-History. Flask-Plugin adds two columns for Transaction model,
 namely `user_id` and `remote_addr`.
 
 These columns are automatically populated when transaction object is created.
@@ -10,8 +10,8 @@ current_user object.
 
 ::
 
-    from sqlalchemy_continuum.plugins import FlaskPlugin
-    from sqlalchemy_continuum import make_versioned
+    from sqlalchemy_history.plugins import FlaskPlugin
+    from sqlalchemy_history import make_versioned
 
 
     make_versioned(plugins=[FlaskPlugin()])

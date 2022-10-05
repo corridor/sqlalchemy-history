@@ -7,7 +7,7 @@ Using plugins
 
 ::
 
-    from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
+    from sqlalchemy_history.plugins import PropertyModTrackerPlugin
 
 
     versioning_manager.plugins.append(PropertyModTrackerPlugin())
@@ -23,13 +23,13 @@ Using plugins
 Activity
 --------
 
-.. automodule:: sqlalchemy_continuum.plugins.activity
+.. automodule:: sqlalchemy_history.plugins.activity
 
 
 Flask
 -----
 
-.. automodule:: sqlalchemy_continuum.plugins.flask
+.. automodule:: sqlalchemy_history.plugins.flask
 
 
 .. _property-mod-tracker:
@@ -37,16 +37,16 @@ Flask
 PropertyModTracker
 ------------------
 
-.. automodule:: sqlalchemy_continuum.plugins.property_mod_tracker
+.. automodule:: sqlalchemy_history.plugins.property_mod_tracker
 
 
 TransactionChanges
 ------------------
 
-.. automodule:: sqlalchemy_continuum.plugins.transaction_changes
+.. automodule:: sqlalchemy_history.plugins.transaction_changes
 
 
 TransactionMeta
 ---------------
 
-.. automodule:: sqlalchemy_continuum.plugins.transaction_meta
+.. automodule:: sqlalchemy_history.plugins.transaction_meta

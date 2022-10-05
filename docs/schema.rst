@@ -1,11 +1,11 @@
-Continuum Schema
+History Schema
 ================
 
 
 Version tables
 --------------
 
-By default SQLAlchemy-Continuum creates a version table for each versioned entity table. The version tables are suffixed with '_version'. So for example if you have two versioned tables 'article' and 'category', SQLAlchemy-Continuum would create two version tables 'article_version' and 'category_version'.
+By default SQLAlchemy-History creates a version table for each versioned entity table. The version tables are suffixed with '_version'. So for example if you have two versioned tables 'article' and 'category', SQLAlchemy-History would create two version tables 'article_version' and 'category_version'.
 
 By default the version tables contain these columns:
 
@@ -15,14 +15,14 @@ By default the version tables contain these columns:
 * operation_type - a small integer defining the type of the operation
 * versioned fields from the original entity
 
-If you are using :ref:`property-mod-tracker` Continuum also creates one boolean field for each versioned field. By default these boolean fields are suffixed with '_mod'.
+If you are using :ref:`property-mod-tracker` History also creates one boolean field for each versioned field. By default these boolean fields are suffixed with '_mod'.
 
 The primary key of each version table is the combination of parent table's primary key + the transaction_id. This means there can be at most one version table entry for a given entity instance at given transaction.
 
 Transaction tables
 ------------------
 
-By default Continuum creates one transaction table called `transaction`. Many continuum plugins also create additional tables for efficient transaction storage. If you wish to query
+By default History creates one transaction table called `transaction`. Many history plugins also create additional tables for efficient transaction storage. If you wish to query
 efficiently transactions afterwards you should consider using some of these plugins.
 
 The transaction table only contains two fields by default: id and issued_at.
@@ -30,14 +30,14 @@ The transaction table only contains two fields by default: id and issued_at.
 Using vacuum
 ------------
 
-.. module:: sqlalchemy_continuum
+.. module:: sqlalchemy_history
 .. autofunction:: vacuum
 
 
 Schema tools
 ------------
 
-.. module:: sqlalchemy_continuum.schema
+.. module:: sqlalchemy_history.schema
 
 .. autofunction:: update_end_tx_column
 

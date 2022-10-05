@@ -6,14 +6,14 @@ Transaction
 -----------
 
 
-For each committed transaction SQLAlchemy-Continuum creates a new Transaction record.
+For each committed transaction SQLAlchemy-History creates a new Transaction record.
 
 Transaction can be queried just like any other sqlalchemy declarative model.
 
 ::
 
 
-    from sqlalchemy_continuum import transaction_class
+    from sqlalchemy_history import transaction_class
     Transaction = transaction_class(Article)
 
     # find all transactions
@@ -23,7 +23,7 @@ Transaction can be queried just like any other sqlalchemy declarative model.
 UnitOfWork
 ----------
 
-For each database connection SQLAlchemy-Continuum creates an internal UnitOfWork object.
+For each database connection SQLAlchemy-History creates an internal UnitOfWork object.
 Normally these objects are created at before flush phase of session workflow. However you can also
 force create unit of work before this phase.
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# SQLAlchemy-Continuum documentation build configuration file, created by
+# SQLAlchemy-History documentation build configuration file, created by
 # sphinx-quickstart on Thu Jun 20 16:38:21 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -17,7 +17,7 @@ import sys, os
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('..'))
-from sqlalchemy_continuum import __version__
+from sqlalchemy_history import __version__
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -40,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'SQLAlchemy-Continuum'
+project = u'SQLAlchemy-History'
 copyright = u'2013, Konsta Vesterinen'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -167,7 +167,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'SQLAlchemy-Continuumdoc'
+htmlhelp_basename = 'SQLAlchemy-Historydoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -186,7 +186,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'SQLAlchemy-Continuum.tex', u'SQLAlchemy-Continuum Documentation',
+  ('index', 'SQLAlchemy-History.tex', u'SQLAlchemy-History Documentation',
    u'Konsta Vesterinen', 'manual'),
 ]
 
@@ -216,7 +216,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'sqlalchemy-continuum', u'SQLAlchemy-Continuum Documentation',
+    ('index', 'sqlalchemy-history', u'SQLAlchemy-History Documentation',
      [u'Konsta Vesterinen'], 1)
 ]
 
@@ -230,8 +230,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'SQLAlchemy-Continuum', u'SQLAlchemy-Continuum Documentation',
-   u'Konsta Vesterinen', 'SQLAlchemy-Continuum', 'One line description of project.',
+  ('index', 'SQLAlchemy-History', u'SQLAlchemy-History Documentation',
+   u'Konsta Vesterinen', 'SQLAlchemy-History', 'One line description of project.',
    'Miscellaneous'),
 ]
 

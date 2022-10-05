@@ -33,7 +33,7 @@ def make_versioned(
     user_cls='User'
 ):
     """
-    This is the public API function of SQLAlchemy-Continuum for making certain
+    This is the public API function of SQLAlchemy-History for making certain
     mappers and sessions versioned. By default this applies to all mappers and
     all sessions.
 
@@ -43,7 +43,7 @@ def make_versioned(
         SQLAlchemy session to apply the versioning to. By default this is
         sa.orm.session.Session meaning it applies to all Session subclasses.
     :param manager:
-        SQLAlchemy-Continuum versioning manager.
+        SQLAlchemy-History versioning manager.
     :param plugins:
         Plugins to pass for versioning manager.
     :param options:
@@ -97,7 +97,7 @@ def remove_versioning(
         SQLAlchemy session to remove the versioning from. By default this is
         sa.orm.session.Session meaning it applies to all sessions.
     :param manager:
-        SQLAlchemy-Continuum versioning manager.
+        SQLAlchemy-History versioning manager.
     """
     manager.reset()
     manager.remove_class_configuration_listeners(mapper)

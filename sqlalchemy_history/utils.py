@@ -16,7 +16,7 @@ from .exc import ClassNotVersioned
 
 def get_versioning_manager(obj_or_class):
     """
-    Return the associated SQLAlchemy-Continuum VersioningManager for given
+    Return the associated SQLAlchemy-History VersioningManager for given
     SQLAlchemy declarative model class or object.
 
     :param obj_or_class: SQLAlchemy declarative model object or class
@@ -86,7 +86,7 @@ def transaction_class(cls):
 
     ::
 
-        from sqlalchemy_continuum import transaction_class
+        from sqlalchemy_history import transaction_class
 
 
         transaction_class(Article)  # Transaction class
@@ -236,7 +236,7 @@ def vacuum(session, model, yield_per=1000):
     ::
 
 
-        from sqlalchemy_continuum import vacuum
+        from sqlalchemy_history import vacuum
 
 
         vacuum(session, User)  # vacuums user version
@@ -280,7 +280,7 @@ def is_internal_column(model, column_name):
     """
     Return whether or not given column of given SQLAlchemy declarative classs
     is considered an internal column (a column whose purpose is mainly
-    for SA-Continuum's internal use).
+    for SA-History's internal use).
 
     :param version_obj: SQLAlchemy declarative class
     :param column_name: Name of the column
@@ -408,7 +408,7 @@ def changeset(obj):
     ::
 
 
-        from sqlalchemy_continuum import changeset
+        from sqlalchemy_history import changeset
 
 
         article = Article(name=u'Some article')

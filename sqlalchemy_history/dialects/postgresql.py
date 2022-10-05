@@ -1,6 +1,6 @@
 import sqlalchemy as sa
 
-from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
+from sqlalchemy_history.plugins import PropertyModTrackerPlugin
 
 
 trigger_sql = """

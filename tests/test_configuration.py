@@ -1,7 +1,7 @@
 from pytest import raises, skip
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy_continuum import (
+from sqlalchemy_history import (
     versioning_manager, ImproperlyConfigured, TransactionFactory
 )
 

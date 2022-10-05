@@ -35,7 +35,7 @@ Installation
 ::
 
 
-    pip install SQLAlchemy-Continuum
+    pip install SQLAlchemy-History
 
 
 Basics
@@ -51,7 +51,7 @@ In order to make your models versioned you need two things:
 
 
     import sqlalchemy as sa
-    from sqlalchemy_continuum import make_versioned
+    from sqlalchemy_history import make_versioned
 
 
     make_versioned(user_cls=None)
@@ -70,7 +70,7 @@ In order to make your models versioned you need two things:
     sa.orm.configure_mappers()
 
 
-After this setup SQLAlchemy-Continuum does the following things:
+After this setup SQLAlchemy-History does the following things:
 
 1. It creates ArticleHistory model that acts as version history for Article model
 2. Creates TransactionLog and TransactionChanges models for transactional history tracking
@@ -82,7 +82,7 @@ When the models have been configured either by calling configure_mappers() or by
 
 ::
 
-    from sqlalchemy_continuum import version_class, parent_class
+    from sqlalchemy_history import version_class, parent_class
 
 
     version_class(Article)  # ArticleHistory class
@@ -93,8 +93,8 @@ When the models have been configured either by calling configure_mappers() or by
 Versions and transactions
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-At the end of each transaction SQLAlchemy-Continuum gathers all changes together and creates
-version objects for each changed versioned entity. Continuum also creates one TransactionLog entity and
+At the end of each transaction SQLAlchemy-History gathers all changes together and creates
+version objects for each changed versioned entity. History also creates one TransactionLog entity and
 N number of TransactionChanges entities per transaction (here N is the number of affected classes per transaction).
 TransactionLog and TransactionChanges entities are created for transaction tracking.
 

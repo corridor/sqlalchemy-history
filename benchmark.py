@@ -7,13 +7,13 @@ import sqlalchemy as sa
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, close_all_sessions
-from sqlalchemy_continuum import (
+from sqlalchemy_history import (
     make_versioned,
     versioning_manager,
     remove_versioning
 )
-from sqlalchemy_continuum.transaction import TransactionFactory
-from sqlalchemy_continuum.plugins import (
+from sqlalchemy_history.transaction import TransactionFactory
+from sqlalchemy_history.plugins import (
     PropertyModTrackerPlugin,
     TransactionMetaPlugin,
     TransactionChangesPlugin
@@ -50,7 +50,7 @@ def test_versioning(
 
     make_versioned(options=options)
 
-    dns = 'postgresql://postgres:postgres@localhost/sqlalchemy_continuum_test'
+    dns = 'postgresql://postgres:postgres@localhost/sqlalchemy_history_test'
     versioning_manager.plugins = plugins
     versioning_manager.transaction_cls = transaction_cls
     versioning_manager.user_cls = user_cls

@@ -2,7 +2,7 @@ API Documentation
 =================
 
 
-.. module:: sqlalchemy_continuum
+.. module:: sqlalchemy_history
 
 .. autofunction:: make_versioned
 
@@ -17,15 +17,15 @@ Versioning Manager
 Builders
 --------
 
-.. module:: sqlalchemy_continuum.table_builder
+.. module:: sqlalchemy_history.table_builder
 .. autoclass:: TableBuilder
     :members:
 
-.. module:: sqlalchemy_continuum.model_builder
+.. module:: sqlalchemy_history.model_builder
 .. autoclass:: ModelBuilder
     :members:
 
-.. module:: sqlalchemy_continuum.relationship_builder
+.. module:: sqlalchemy_history.relationship_builder
 .. autoclass:: RelationshipBuilder
     :members:
 
@@ -34,7 +34,7 @@ Builders
 UnitOfWork
 ----------
 
-.. module:: sqlalchemy_continuum.unit_of_work
+.. module:: sqlalchemy_history.unit_of_work
 .. autoclass:: UnitOfWork
     :members:
 
@@ -42,7 +42,7 @@ UnitOfWork
 History class
 -------------
 
-.. module:: sqlalchemy_continuum.version
+.. module:: sqlalchemy_history.version
 .. autoclass:: VersionClassBase
     :members:
 

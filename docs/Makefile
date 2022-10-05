@@ -85,17 +85,17 @@ qthelp:
 	@echo
 	@echo "Build finished; now you can run "qcollectiongenerator" with the" \
 	      ".qhcp project file in $(BUILDDIR)/qthelp, like this:"
-	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/SQLAlchemy-Continuum.qhcp"
+	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/SQLAlchemy-History.qhcp"
 	@echo "To view the help file:"
-	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/SQLAlchemy-Continuum.qhc"
+	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/SQLAlchemy-History.qhc"
 
 devhelp:
 	$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) $(BUILDDIR)/devhelp
 	@echo
 	@echo "Build finished."
 	@echo "To view the help file:"
-	@echo "# mkdir -p $$HOME/.local/share/devhelp/SQLAlchemy-Continuum"
-	@echo "# ln -s $(BUILDDIR)/devhelp $$HOME/.local/share/devhelp/SQLAlchemy-Continuum"
+	@echo "# mkdir -p $$HOME/.local/share/devhelp/SQLAlchemy-History"
+	@echo "# ln -s $(BUILDDIR)/devhelp $$HOME/.local/share/devhelp/SQLAlchemy-History"
 	@echo "# devhelp"
 
 epub:

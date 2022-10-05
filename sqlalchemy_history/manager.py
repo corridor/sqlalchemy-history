@@ -306,7 +306,7 @@ class VersioningManager(object):
 
     def unit_of_work(self, session):
         """
-        Return the associated SQLAlchemy-Continuum UnitOfWork object for given
+        Return the associated SQLAlchemy-History UnitOfWork object for given
         SQLAlchemy session object.
 
         If no UnitOfWork object exists for given object then this method tries

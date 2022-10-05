@@ -1,7 +1,7 @@
-SQLAlchemy-Continuum
+SQLAlchemy-History
 ====================
 
-SQLAlchemy-Continuum is a versioning extension for SQLAlchemy.
+SQLAlchemy-History is a versioning extension for SQLAlchemy.
 
 
 .. toctree::

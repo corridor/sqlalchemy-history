@@ -1,7 +1,7 @@
 Native versioning
 =================
 
-As of version 1.1 SQLAlchemy-Continuum supports native versioning for PostgreSQL dialect.
+As of version 1.1 SQLAlchemy-History supports native versioning for PostgreSQL dialect.
 Native versioning creates SQL triggers for all versioned models. These triggers keep track of changes made to versioned models. Compared to object based versioning, native versioning has
 
 * Much faster than regular object based versioning
@@ -26,7 +26,7 @@ When making schema migrations (for example adding new columns to version tables)
 
 ::
 
-    from sqlalchemy_continuum.dialects.postgresql import sync_trigger
+    from sqlalchemy_history.dialects.postgresql import sync_trigger
 
 
     sync_trigger(conn, 'article_version')

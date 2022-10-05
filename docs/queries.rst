@@ -6,7 +6,7 @@ You can query history models just like any other sqlalchemy declarative model.
 
 ::
 
-    from sqlalchemy_continuum import version_class
+    from sqlalchemy_history import version_class
 
 
     ArticleVersion = version_class(Article)
@@ -19,7 +19,7 @@ How many transactions have been executed?
 
 ::
 
-    from sqlalchemy_continuum import transaction_class
+    from sqlalchemy_history import transaction_class
 
 
     Transaction = transaction_class(Article)

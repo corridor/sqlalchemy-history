@@ -3,7 +3,7 @@ import os
 import pytest
 import sqlalchemy as sa
 
-from sqlalchemy_continuum.dialects.postgresql import (
+from sqlalchemy_history.dialects.postgresql import (
     drop_trigger,
     sync_trigger
 )

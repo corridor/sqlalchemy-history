@@ -7,11 +7,11 @@ from flexmock import flexmock
 
 import sqlalchemy as sa
 from sqlalchemy.orm import close_all_sessions
-from sqlalchemy_continuum import (
+from sqlalchemy_history import (
     make_versioned, remove_versioning, versioning_manager
 )
-from sqlalchemy_continuum.plugins import FlaskPlugin
-from sqlalchemy_continuum.transaction import TransactionFactory
+from sqlalchemy_history.plugins import FlaskPlugin
+from sqlalchemy_history.transaction import TransactionFactory
 from tests import (
     TestCase,
     get_driver_name,

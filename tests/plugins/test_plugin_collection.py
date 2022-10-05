@@ -1,4 +1,4 @@
-from sqlalchemy_continuum.plugins import PluginCollection
+from sqlalchemy_history.plugins import PluginCollection
 
 
 class TestPluginCollection(object):

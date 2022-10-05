@@ -2,7 +2,7 @@ Utilities
 =========
 
 
-.. module:: sqlalchemy_continuum.utils
+.. module:: sqlalchemy_history.utils
 
 
 changeset
