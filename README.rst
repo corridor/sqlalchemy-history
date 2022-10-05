@@ -1,22 +1,20 @@
-SQLAlchemy-Continuum
-====================
+SQLAlchemy-History
+==================
 
-|Build Status| |Version Status| |Downloads|
+|Build Status| |Version Status|
 
-Versioning and auditing extension for SQLAlchemy.
-
+Auditing extension for sqlalchemy which keeps a track of the history of your sqlalchemy models
 
 Features
 --------
 
-- Creates versions for inserts, deletes and updates
+- Tracks history for inserts, deletes, and updates
 - Does not store updates which don't change anything
 - Supports alembic migrations
 - Can revert objects data as well as all object relations at given transaction even if the object was deleted
 - Transactions can be queried afterwards using SQLAlchemy query syntax
 - Query for changed records at given transaction
-- Temporal relationship reflection. Version object's relationship show the parent objects relationships as they where in that point in time.
-- Supports native versioning for PostgreSQL database (trigger based versioning)
+- Temporal relationship reflection. Get the relationships of an object in that point in time.
 
 
 QuickStart
@@ -25,7 +23,7 @@ QuickStart
 ::
 
 
-    pip install SQLAlchemy-Continuum
+    pip install sqlalchemy-history
 
 
 
@@ -112,19 +110,13 @@ Resources
 ---------
 
 - `Documentation <https://sqlalchemy-continuum.readthedocs.io/>`_
-- `Issue Tracker <http://github.com/kvesteri/sqlalchemy-continuum/issues>`_
-- `Code <http://github.com/kvesteri/sqlalchemy-continuum/>`_
+- `Issue Tracker <http://github.com/corridor/sqlalchemy-history/issues>`_
+- `Code <http://github.com/corridor/sqlalchemy-history/>`_
 
-
-.. image:: http://i.imgur.com/UFaRx.gif
-
-
-.. |Build Status| image:: https://github.com/kvesteri/sqlalchemy-continuum/workflows/Test/badge.svg
-   :target: https://github.com/kvesteri/sqlalchemy-continuum/actions?query=workflow%3ATest
-.. |Version Status| image:: https://img.shields.io/pypi/v/SQLAlchemy-Continuum.png
-   :target: https://pypi.python.org/pypi/SQLAlchemy-Continuum/
-.. |Downloads| image:: https://img.shields.io/pypi/dm/SQLAlchemy-Continuum.png
-   :target: https://pypi.python.org/pypi/SQLAlchemy-Continuum/
+.. |Build Status| image:: https://github.com/corridor/sqlalchemy-history/workflows/Test/badge.svg
+   :target: https://github.com/corridor/sqlalchemy-history/actions?query=workflow%3ATest
+.. |Version Status| image:: https://img.shields.io/pypi/v/sqlalchemy-history.png
+   :target: https://pypi.python.org/pypi/sqlalchemy-history/
 
 
 More information
@@ -138,3 +130,30 @@ More information
 - https://wiki.postgresql.org/wiki/Audit_trigger_91plus
 - http://kosalads.blogspot.fi/2014/06/implement-audit-functionality-in.html
 - https://github.com/2ndQuadrant/pgaudit
+
+
+Comparison
+----------
+
+Primary reasons to create another library:
+
+ - Be future looking and support sqlalchemy 1.4 and 2.x
+ - Support multiple databases (sqlite, mysql, postgres, mssql, oracle)
+ - Focus on the history tracking and be as efficient as possible when doing it
+
+We found multiple libraries which has an implementation of history tracking:
+
+- `sqlalchemy-continuum <https://github.com/kvesteri/sqlalchemy-continuum>`_
+    - Does not support oracle, mssql
+    - Feature filled making it difficult to maintain all plugins/extensions
+- `flask-continuum <https://github.com/bprinty/flask-continuum>`_
+    - Thin wrapper on sqlalchemy-continuum specifically for flask
+- `postgresql-audit <https://github.com/kvesteri/postgresql-audit>`_
+    - Supports only postgres
+- `versionalchemy <https://github.com/NerdWalletOSS/versionalchemy>`_
+    - Not updated in a while
+    - No reverting capability, Relationship queries on history not available
+- `django-simple-history <https://github.com/jazzband/django-simple-history>`_
+    - Uses django ORM, does not support sqlalchemy
+- `sqlalchemy example versioning-objects <http://docs.sqlalchemy.org/en/latest/orm/examples.html#versioning-objects>`_
+    - Simple example to demonstrate implementation - but very minimal
