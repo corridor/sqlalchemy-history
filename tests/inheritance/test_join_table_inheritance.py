@@ -1,7 +1,7 @@
 import pytest
 import sqlalchemy as sa
 from sqlalchemy_continuum import version_class
-from tests import TestCase, uses_native_versioning, create_test_cases
+from tests import TestCase, create_test_cases
 
 
 class JoinTableInheritanceTestCase(TestCase):
@@ -119,7 +119,6 @@ class JoinTableInheritanceTestCase(TestCase):
         assert 'id' in table.primary_key.columns
         assert tx_column in table.primary_key.columns
 
-    @pytest.mark.skipif('uses_native_versioning()')
     def test_updates_end_transaction_id_to_all_tables(self):
         if self.options['strategy'] == 'subquery':
             pytest.skip()

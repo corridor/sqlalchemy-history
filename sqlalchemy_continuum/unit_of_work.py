@@ -185,10 +185,7 @@ class UnitOfWork(object):
 
         :param session: SQLAlchemy session object
         """
-        if (
-            not self.manager.options['versioning'] or
-            self.manager.options['native_versioning']
-        ):
+        if not self.manager.options['versioning']:
             return
 
         for key, operation in copy(self.operations).items():

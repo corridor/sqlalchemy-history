@@ -51,14 +51,6 @@ def get_dns_from_driver(driver):
         raise Exception('Unknown driver given: %r' % driver)
 
 
-def get_driver_name(driver):
-    return driver[0:-len('-native')] if driver.endswith('-native') else driver
-
-
-def uses_native_versioning():
-    return os.environ.get('DB', 'sqlite').endswith('-native')
-
-
 class TestCase(object):
     versioning_strategy = 'subquery'
     transaction_column_name = 'transaction_id'
@@ -73,7 +65,6 @@ class TestCase(object):
     def options(self):
         return {
             'create_models': self.should_create_models,
-            'native_versioning': uses_native_versioning(),
             'base_classes': (self.Model, ),
             'strategy': self.versioning_strategy,
             'transaction_column_name': self.transaction_column_name,
@@ -84,8 +75,7 @@ class TestCase(object):
         self.Model = declarative_base()
         make_versioned(options=self.options)
 
-        driver = os.environ.get('DB', 'sqlite')
-        self.driver = get_driver_name(driver)
+        self.driver = os.environ.get('DB', 'sqlite')
         versioning_manager.plugins = self.plugins
         versioning_manager.transaction_cls = self.transaction_cls
         versioning_manager.user_cls = self.user_cls
@@ -112,8 +102,6 @@ class TestCase(object):
 
         Session = sessionmaker(bind=self.connection)
         self.session = Session(autoflush=False)
-        if driver == 'postgres-native':
-            self.session.execute('CREATE EXTENSION IF NOT EXISTS hstore')
 
     def create_tables(self):
         self.Model.metadata.create_all(self.connection)

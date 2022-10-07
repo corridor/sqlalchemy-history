@@ -1,6 +1,6 @@
 import pytest
 from sqlalchemy_continuum.plugins import NullDeletePlugin
-from tests import TestCase, uses_native_versioning
+from tests import TestCase
 
 
 class DeleteTestCase(TestCase):
@@ -20,7 +20,6 @@ class DeleteTestCase(TestCase):
         assert versions[1].operation_type == 2
 
 
-@pytest.mark.skipif('uses_native_versioning()')
 class TestDeleteWithoutStoreDataAtDelete(DeleteTestCase):
     plugins = [NullDeletePlugin()]
 

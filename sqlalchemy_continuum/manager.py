@@ -89,7 +89,6 @@ class VersioningManager(object):
             'table_name': '%s_version',
             'exclude': [],
             'include': [],
-            'native_versioning': False,
             'create_models': True,
             'create_tables': True,
             'transaction_column_name': 'transaction_id',
@@ -437,10 +436,7 @@ class VersioningManager(object):
         Track association operations and adds the generated history
         association operations to pending_statements list.
         """
-        if (
-            not self.options['versioning'] and
-            not self.options['native_versioning']
-        ):
+        if not self.options['versioning']:
             return
 
         op = None

@@ -12,7 +12,6 @@ SQLAlchemy-Continuum is a versioning extension for SQLAlchemy.
    revert
    queries
    transactions
-   native_versioning
    plugins
    configuration
    schema

@@ -9,11 +9,6 @@ import six
 import sqlalchemy as sa
 from sqlalchemy.ext.compiler import compiles
 
-from .dialects.postgresql import (
-    CreateTemporaryTransactionTableSQL,
-    InsertTemporaryTransactionSQL,
-    TransactionTriggerSQL
-)
 from .exc import ImproperlyConfigured
 from .factory import ModelFactory
 
@@ -71,48 +66,6 @@ class TransactionBase(object):
                 .filter(getattr(version_class, tx_column) == self.id)
             ).all()
         return entities
-
-
-procedure_sql = """
-CREATE OR REPLACE FUNCTION transaction_temp_table_generator()
-RETURNS TRIGGER AS $$
-BEGIN
-    {temporary_transaction_sql}
-    INSERT INTO temporary_transaction (id) VALUES (NEW.id);
-    RETURN NEW;
-END;
-$$
-LANGUAGE plpgsql
-"""
-
-
-def create_triggers(cls):
-    sa.event.listen(
-        cls.__table__,
-        'after_create',
-        sa.schema.DDL(
-            procedure_sql.format(
-                temporary_transaction_sql=CreateTemporaryTransactionTableSQL(),
-                insert_temporary_transaction_sql=(
-                    InsertTemporaryTransactionSQL(
-                        transaction_id_values='NEW.id'
-                    )
-                ),
-            )
-        )
-    )
-    sa.event.listen(
-        cls.__table__,
-        'after_create',
-        sa.schema.DDL(str(TransactionTriggerSQL(cls)))
-    )
-    sa.event.listen(
-        cls.__table__,
-        'after_drop',
-        sa.schema.DDL(
-            'DROP FUNCTION IF EXISTS transaction_temp_table_generator()'
-        )
-    )
 
 
 class TransactionFactory(ModelFactory):
@@ -189,6 +142,4 @@ class TransactionFactory(ModelFactory):
                     )
                 )
 
-        if manager.options['native_versioning']:
-            create_triggers(Transaction)
         return Transaction
