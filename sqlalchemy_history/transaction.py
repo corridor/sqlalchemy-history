@@ -5,7 +5,6 @@ try:
     from collections import OrderedDict
 except ImportError:
     from ordereddict import OrderedDict
-import six
 import sqlalchemy as sa
 from sqlalchemy.ext.compiler import compiles
 
@@ -103,7 +102,7 @@ class TransactionFactory(ModelFactory):
                 except AttributeError:  # SQLAlchemy < 1.4
                     registry = Base._decl_class_registry
 
-                if isinstance(user_cls, six.string_types):
+                if isinstance(user_cls, str):
                     try:
                         user_cls = registry[user_cls]
                     except KeyError:
@@ -133,7 +132,7 @@ class TransactionFactory(ModelFactory):
                 return '<Transaction %s>' % ', '.join(
                     (
                         '%s=%r' % (field, value)
-                        if not isinstance(value, six.integer_types)
+                        if not isinstance(value, int)
                         # We want the following line to ensure that longs get
                         # shown without the ugly L suffix on python 2.x
                         # versions

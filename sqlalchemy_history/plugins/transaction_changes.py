@@ -21,7 +21,6 @@ transaction_id          entity_name
 233678                  Article
 ================    =================
 """
-import six
 import sqlalchemy as sa
 
 from sqlalchemy_history.plugins.base import Plugin
@@ -75,12 +74,12 @@ class TransactionChangesPlugin(Plugin):
 
     def before_create_version_objects(self, uow, session):
         for entity in uow.operations.entities:
-            params = uow.current_transaction.id, six.text_type(entity.__name__)
+            params = uow.current_transaction.id, str(entity.__name__)
             changes = session.query(self.model_class).get(params)
             if not changes:
                 changes = self.model_class(
                     transaction_id=uow.current_transaction.id,
-                    entity_name=six.text_type(entity.__name__)
+                    entity_name=str(entity.__name__)
                 )
                 session.add(changes)
 

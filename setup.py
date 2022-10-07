@@ -12,7 +12,6 @@ from setuptools import setup
 
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-PY3 = sys.version_info[0] == 3
 
 
 def get_version():
@@ -29,7 +28,6 @@ extras_require = {
         'flexmock>=0.9.7',
         'psycopg2>=2.4.6',
         'PyMySQL>=0.8.0',
-        'six>=1.4.0'
     ],
     'flexmock': ['flexmock>=0.9.7'],
     'i18n': ['SQLAlchemy-i18n>=0.8.4,!=1.1.0'],
