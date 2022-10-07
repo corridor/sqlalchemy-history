@@ -31,9 +31,6 @@ extras_require = {
         'PyMySQL>=0.8.0',
         'six>=1.4.0'
     ],
-    'flask': ['Flask>=0.9'],
-    'flask-login': ['Flask-Login>=0.2.9'],
-    'flask-sqlalchemy': ['Flask-SQLAlchemy>=1.0, <3.0.0'],
     'flexmock': ['flexmock>=0.9.7'],
     'i18n': ['SQLAlchemy-i18n>=0.8.4,!=1.1.0'],
 }
