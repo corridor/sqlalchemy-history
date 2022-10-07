@@ -24,7 +24,6 @@ warnings.simplefilter('error', sa.exc.SAWarning)
 
 
 def test_versioning(
-    native_versioning,
     versioning_strategy,
     property_mod_tracking
 ):
@@ -41,7 +40,6 @@ def test_versioning(
 
     options = {
         'create_models': True,
-        'native_versioning': native_versioning,
         'base_classes': (Model, ),
         'strategy': versioning_strategy,
         'transaction_column_name': transaction_column_name,
@@ -96,7 +94,6 @@ def test_versioning(
         session.commit()
 
     print 'Testing with:'
-    print '   native_versioning=%r' % native_versioning
     print '   versioning_strategy=%r' % versioning_strategy
     print '   property_mod_tracking=%r' % property_mod_tracking
     print colored('%r seconds' % (time() - start), 'red')
@@ -118,10 +115,6 @@ setting_variants = {
     'versioning_strategy': [
         'subquery',
         'validity',
-    ],
-    'native_versioning': [
-        True,
-        False
     ],
     'property_mod_tracking': [
         False,

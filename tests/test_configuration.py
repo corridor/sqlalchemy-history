@@ -85,21 +85,6 @@ class TestWithCreateModelsAsFalse(TestCase):
     def test_does_not_create_models(self):
         assert 'class' not in self.Article.__versioned__
 
-    def test_insert(self):
-        if self.options['native_versioning'] is False:
-            skip()
-        article = self.Article(name=u'Some article')
-        self.session.add(article)
-        self.session.commit()
-
-        version = dict(
-            self.session.execute('SELECT * FROM article_version')
-            .fetchone()
-        )
-        assert version['transaction_id'] > 0
-        assert version['id'] == article.id
-        assert version['name'] == u'Some article'
-
 
 class TestWithoutAnyVersionedModels(TestCase):
     def create_models(self):
