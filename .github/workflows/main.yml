@@ -32,7 +32,6 @@ jobs:
         db-engine:
           - sqlite
           - postgres
-          - postgres-native
           - mysql
     runs-on: ubuntu-latest
     services:
