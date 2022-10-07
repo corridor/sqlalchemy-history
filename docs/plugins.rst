@@ -26,12 +26,6 @@ Activity
 .. automodule:: sqlalchemy_continuum.plugins.activity
 
 
-Flask
------
-
-.. automodule:: sqlalchemy_continuum.plugins.flask
-
-
 .. _property-mod-tracker:
 
 PropertyModTracker
