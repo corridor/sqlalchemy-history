@@ -1,9 +1,9 @@
 from copy import copy
 
 import sqlalchemy as sa
-from sqlalchemy_continuum import version_class
-from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
-from sqlalchemy_continuum.schema import update_property_mod_flags
+from sqlalchemy_history import version_class
+from sqlalchemy_history.plugins import PropertyModTrackerPlugin
+from sqlalchemy_history.schema import update_property_mod_flags
 from tests import TestCase
 
 

@@ -86,7 +86,7 @@ def transaction_class(cls):
 
     ::
 
-        from sqlalchemy_continuum import transaction_class
+        from sqlalchemy_history import transaction_class
 
 
         transaction_class(Article)  # Transaction class
@@ -236,7 +236,7 @@ def vacuum(session, model, yield_per=1000):
     ::
 
 
-        from sqlalchemy_continuum import vacuum
+        from sqlalchemy_history import vacuum
 
 
         vacuum(session, User)  # vacuums user version
@@ -408,7 +408,7 @@ def changeset(obj):
     ::
 
 
-        from sqlalchemy_continuum import changeset
+        from sqlalchemy_history import changeset
 
 
         article = Article(name=u'Some article')

@@ -1,6 +1,6 @@
 from pytest import raises
 import sqlalchemy as sa
-from sqlalchemy_continuum.reverter import Reverter, ReverterException
+from sqlalchemy_history.reverter import Reverter, ReverterException
 
 from tests import TestCase
 

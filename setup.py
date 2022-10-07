@@ -16,7 +16,7 @@ PY3 = sys.version_info[0] == 3
 
 
 def get_version():
-    filename = os.path.join(HERE, 'sqlalchemy_continuum', '__init__.py')
+    filename = os.path.join(HERE, 'sqlalchemy_history', '__init__.py')
     with open(filename) as f:
         contents = f.read()
     pattern = r"^__version__ = '(.*?)'$"
@@ -52,8 +52,8 @@ setup(
     description='Versioning and auditing extension for SQLAlchemy.',
     long_description=__doc__,
     packages=[
-        'sqlalchemy_continuum',
-        'sqlalchemy_continuum.plugins',
+        'sqlalchemy_history',
+        'sqlalchemy_history.plugins',
     ],
     zip_safe=False,
     include_package_data=True,

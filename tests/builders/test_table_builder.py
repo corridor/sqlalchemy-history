@@ -1,7 +1,7 @@
 from copy import copy
 from datetime import datetime
 import sqlalchemy as sa
-from sqlalchemy_continuum import version_class
+from sqlalchemy_history import version_class
 from tests import TestCase
 from pytest import mark
 

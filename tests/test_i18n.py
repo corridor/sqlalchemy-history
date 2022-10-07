@@ -1,5 +1,5 @@
 import sqlalchemy as sa
-from sqlalchemy_continuum import versioning_manager
+from sqlalchemy_history import versioning_manager
 from sqlalchemy_i18n import Translatable, make_translatable, translation_base
 from sqlalchemy_utils import i18n
 from . import TestCase

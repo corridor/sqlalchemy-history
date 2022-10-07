@@ -1,7 +1,7 @@
 from pytest import raises
-from sqlalchemy_continuum import ClassNotVersioned, version_class
-from sqlalchemy_continuum.manager import VersioningManager
-from sqlalchemy_continuum.model_builder import ModelBuilder
+from sqlalchemy_history import ClassNotVersioned, version_class
+from sqlalchemy_history.manager import VersioningManager
+from sqlalchemy_history.model_builder import ModelBuilder
 
 from tests import TestCase
 

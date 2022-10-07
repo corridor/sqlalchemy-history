@@ -1,8 +1,8 @@
 import sqlalchemy as sa
-from sqlalchemy_continuum import versioning_manager
+from sqlalchemy_history import versioning_manager
 from tests import TestCase
 from pytest import mark
-from sqlalchemy_continuum.plugins import TransactionMetaPlugin
+from sqlalchemy_history.plugins import TransactionMetaPlugin
 
 
 

@@ -1,6 +1,6 @@
 from datetime import datetime
 import sqlalchemy as sa
-from sqlalchemy_continuum import is_modified
+from sqlalchemy_history import is_modified
 
 from tests import TestCase
 

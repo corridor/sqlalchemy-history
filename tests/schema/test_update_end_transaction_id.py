@@ -1,5 +1,5 @@
-from sqlalchemy_continuum import version_class
-from sqlalchemy_continuum.schema import update_end_tx_column
+from sqlalchemy_history import version_class
+from sqlalchemy_history.schema import update_end_tx_column
 from tests import TestCase
 
 

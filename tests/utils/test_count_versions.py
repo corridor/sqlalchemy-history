@@ -1,4 +1,4 @@
-from sqlalchemy_continuum import count_versions
+from sqlalchemy_history import count_versions
 from tests import TestCase
 
 

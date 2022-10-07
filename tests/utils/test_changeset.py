@@ -1,4 +1,4 @@
-from sqlalchemy_continuum import changeset
+from sqlalchemy_history import changeset
 from tests import TestCase
 
 

@@ -1,6 +1,6 @@
 import sqlalchemy as sa
-from sqlalchemy_continuum import version_class
-from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
+from sqlalchemy_history import version_class
+from sqlalchemy_history.plugins import PropertyModTrackerPlugin
 from tests import TestCase
 
 

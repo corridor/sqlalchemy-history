@@ -1,5 +1,5 @@
-from sqlalchemy_continuum import versioning_manager
-from sqlalchemy_continuum.plugins import TransactionMetaPlugin
+from sqlalchemy_history import versioning_manager
+from sqlalchemy_history.plugins import TransactionMetaPlugin
 from tests import TestCase
 
 
