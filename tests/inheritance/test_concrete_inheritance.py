@@ -1,6 +1,6 @@
 from pytest import mark
 import sqlalchemy as sa
-from sqlalchemy_continuum import versioning_manager, version_class
+from sqlalchemy_history import versioning_manager, version_class
 from tests import TestCase
 
 

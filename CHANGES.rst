@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-Here you can see the full list of changes between each SQLAlchemy-Continuum release.
+Here you can see the full list of changes between each release.
 
 
 1.3.13 (2022-09-07)

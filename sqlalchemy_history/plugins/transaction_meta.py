@@ -20,7 +20,7 @@ keys and values to the meta property of Transaction class.
 ::
 
 
-    from sqlalchemy_continuum import versioning_manager
+    from sqlalchemy_history import versioning_manager
 
 
     article = Article()

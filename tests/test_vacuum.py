@@ -1,4 +1,4 @@
-from sqlalchemy_continuum import vacuum
+from sqlalchemy_history import vacuum
 
 from tests import TestCase
 

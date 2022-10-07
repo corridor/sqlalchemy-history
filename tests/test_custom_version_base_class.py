@@ -1,5 +1,5 @@
 import sqlalchemy as sa
-from sqlalchemy_continuum import version_class
+from sqlalchemy_history import version_class
 from tests import TestCase
 
 

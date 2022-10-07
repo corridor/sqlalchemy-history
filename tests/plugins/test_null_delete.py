@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy_continuum.plugins import NullDeletePlugin
+from sqlalchemy_history.plugins import NullDeletePlugin
 from tests import TestCase
 
 

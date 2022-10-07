@@ -37,7 +37,7 @@ In order to make your models versioned you need two things:
 .. code-block:: python
 
 
-    from sqlalchemy_continuum import make_versioned
+    from sqlalchemy_history import make_versioned
 
 
     make_versioned(user_cls=None)
@@ -77,7 +77,7 @@ For completeness, below is a working example.
 
 .. code-block:: python
 
-    from sqlalchemy_continuum import make_versioned
+    from sqlalchemy_history import make_versioned
     from sqlalchemy import Column, Integer, Unicode, UnicodeText, create_engine
     from sqlalchemy.ext.declarative import declarative_base
     from sqlalchemy.orm import create_session, configure_mappers

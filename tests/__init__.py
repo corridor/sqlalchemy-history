@@ -8,15 +8,15 @@ import sqlalchemy as sa
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, column_property, close_all_sessions
-from sqlalchemy_continuum import (
+from sqlalchemy_history import (
     ClassNotVersioned,
     version_class,
     make_versioned,
     versioning_manager,
     remove_versioning
 )
-from sqlalchemy_continuum.transaction import TransactionFactory
-from sqlalchemy_continuum.plugins import (
+from sqlalchemy_history.transaction import TransactionFactory
+from sqlalchemy_history.plugins import (
     TransactionMetaPlugin,
     TransactionChangesPlugin
 )
@@ -42,9 +42,9 @@ def log_sql(
 
 def get_dns_from_driver(driver):
     if driver == 'postgres':
-        return 'postgresql://postgres:postgres@localhost/sqlalchemy_continuum_test'
+        return 'postgresql://postgres:postgres@localhost/sqlalchemy_history_test'
     elif driver == 'mysql':
-        return 'mysql+pymysql://root@localhost/sqlalchemy_continuum_test'
+        return 'mysql+pymysql://root@localhost/sqlalchemy_history_test'
     elif driver == 'sqlite':
         return 'sqlite:///:memory:'
     else:
