@@ -58,6 +58,7 @@ setup(
     zip_safe=False,
     include_package_data=True,
     platforms='any',
+    python_requires='>=3.6.0',
     install_requires=[
         'SQLAlchemy>=1.0.8',
         'SQLAlchemy-Utils>=0.30.12'
@@ -69,13 +70,7 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ]
