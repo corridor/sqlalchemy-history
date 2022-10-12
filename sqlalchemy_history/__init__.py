@@ -1,10 +1,10 @@
 import sqlalchemy as sa
-from .exc import ClassNotVersioned, ImproperlyConfigured
-from .manager import VersioningManager
-from .operation import Operation
-from .transaction import TransactionFactory
-from .unit_of_work import UnitOfWork
-from .utils import (
+from sqlalchemy_history.exc import ClassNotVersioned, ImproperlyConfigured
+from sqlalchemy_history.manager import VersioningManager
+from sqlalchemy_history.operation import Operation
+from sqlalchemy_history.transaction import TransactionFactory
+from sqlalchemy_history.unit_of_work import UnitOfWork
+from sqlalchemy_history.utils import (
     changeset,
     count_versions,
     get_versioning_manager,

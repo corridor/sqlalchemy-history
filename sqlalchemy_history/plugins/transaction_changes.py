@@ -24,9 +24,9 @@ transaction_id          entity_name
 import six
 import sqlalchemy as sa
 
-from .base import Plugin
-from ..factory import ModelFactory
-from ..utils import option
+from sqlalchemy_history.plugins.base import Plugin
+from sqlalchemy_history.factory import ModelFactory
+from sqlalchemy_history.utils import option
 
 
 class TransactionChangesBase(object):

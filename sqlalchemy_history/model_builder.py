@@ -5,8 +5,8 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import column_property
 from sqlalchemy_utils.functions import get_declarative_base
 
-from .utils import adapt_columns, option
-from .version import VersionClassBase
+from sqlalchemy_history.utils import adapt_columns, option
+from sqlalchemy_history.version import VersionClassBase
 
 
 def find_closest_versioned_parent(manager, model):

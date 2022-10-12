@@ -5,9 +5,9 @@ from functools import wraps
 import sqlalchemy as sa
 from sqlalchemy_utils.functions import get_declarative_base
 
-from .model_builder import ModelBuilder
-from .relationship_builder import RelationshipBuilder
-from .table_builder import TableBuilder
+from sqlalchemy_history.model_builder import ModelBuilder
+from sqlalchemy_history.relationship_builder import RelationshipBuilder
+from sqlalchemy_history.table_builder import TableBuilder
 
 
 def prevent_reentry(handler):

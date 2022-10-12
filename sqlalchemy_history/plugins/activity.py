@@ -194,9 +194,9 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.inspection import inspect
 from sqlalchemy_utils import JSONType, generic_relationship
 
-from .base import Plugin
-from ..factory import ModelFactory
-from ..utils import version_class, version_obj
+from sqlalchemy_history.plugins.base import Plugin
+from sqlalchemy_history.factory import ModelFactory
+from sqlalchemy_history.utils import version_class, version_obj
 
 
 class ActivityBase(object):

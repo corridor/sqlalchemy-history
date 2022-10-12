@@ -1,6 +1,6 @@
 import sqlalchemy as sa
-from .operation import Operation
-from .utils import versioned_column_properties, parent_class
+from sqlalchemy_history.operation import Operation
+from sqlalchemy_history.utils import versioned_column_properties, parent_class
 
 
 def first_level(paths):

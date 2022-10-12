@@ -2,8 +2,8 @@ from copy import copy
 
 import sqlalchemy as sa
 from sqlalchemy_utils import get_primary_keys, identity
-from .operation import Operations
-from .utils import (
+from sqlalchemy_history.operation import Operations
+from sqlalchemy_history.utils import (
     end_tx_column_name,
     version_class,
     is_session_modified,
