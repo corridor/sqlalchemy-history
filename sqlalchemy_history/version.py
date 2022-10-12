@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 
-from .reverter import Reverter
-from .utils import get_versioning_manager, is_internal_column, parent_class
+from sqlalchemy_history.reverter import Reverter
+from sqlalchemy_history.utils import get_versioning_manager, is_internal_column, parent_class
 
 
 class VersionClassBase(object):

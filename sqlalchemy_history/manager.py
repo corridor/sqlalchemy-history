@@ -5,13 +5,13 @@ import sqlalchemy as sa
 from sqlalchemy.orm import object_session
 from sqlalchemy_utils import get_column_key
 
-from .builder import Builder
-from .fetcher import SubqueryFetcher, ValidityFetcher
-from .operation import Operation
-from .plugins import PluginCollection
-from .transaction import TransactionFactory
-from .unit_of_work import UnitOfWork
-from .utils import is_modified, is_versioned
+from sqlalchemy_history.builder import Builder
+from sqlalchemy_history.fetcher import SubqueryFetcher, ValidityFetcher
+from sqlalchemy_history.operation import Operation
+from sqlalchemy_history.plugins import PluginCollection
+from sqlalchemy_history.transaction import TransactionFactory
+from sqlalchemy_history.unit_of_work import UnitOfWork
+from sqlalchemy_history.utils import is_modified, is_versioned
 
 
 def tracked_operation(func):

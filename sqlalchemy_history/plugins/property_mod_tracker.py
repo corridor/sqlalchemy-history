@@ -17,8 +17,8 @@ transactions the plugin automatically updates these boolean columns.
 from copy import copy
 import sqlalchemy as sa
 from sqlalchemy_utils.functions import has_changes
-from .base import Plugin
-from ..utils import versioned_column_properties
+from sqlalchemy_history.plugins.base import Plugin
+from sqlalchemy_history.utils import versioned_column_properties
 
 
 class PropertyModTrackerPlugin(Plugin):

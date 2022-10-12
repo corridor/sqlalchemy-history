@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 from sqlalchemy.sql.expression import bindparam
 
-from .utils import version_table
+from sqlalchemy_history.utils import version_table
 
 
 class VersionExpressionReflector(sa.sql.visitors.ReplacingCloningVisitor):

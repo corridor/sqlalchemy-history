@@ -11,7 +11,7 @@ from sqlalchemy_utils.functions import (
     naturally_equivalent,
 )
 
-from .exc import ClassNotVersioned
+from sqlalchemy_history.exc import ClassNotVersioned
 
 
 def get_versioning_manager(obj_or_class):

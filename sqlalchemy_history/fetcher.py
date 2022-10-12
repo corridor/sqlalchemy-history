@@ -1,7 +1,7 @@
 import operator
 import sqlalchemy as sa
 from sqlalchemy_utils import get_primary_keys, identity
-from .utils import tx_column_name, end_tx_column_name
+from sqlalchemy_history.utils import tx_column_name, end_tx_column_name
 
 
 def parent_identity(obj_or_class):

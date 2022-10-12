@@ -9,8 +9,8 @@ import six
 import sqlalchemy as sa
 from sqlalchemy.ext.compiler import compiles
 
-from .exc import ImproperlyConfigured
-from .factory import ModelFactory
+from sqlalchemy_history.exc import ImproperlyConfigured
+from sqlalchemy_history.factory import ModelFactory
 
 
 @compiles(sa.types.BigInteger, 'sqlite')
