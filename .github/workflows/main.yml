@@ -61,6 +61,7 @@ jobs:
           --health-retries 3
     steps:
       - uses: actions/checkout@v1
+      - uses: psf/black@stable
       - name: Install sqlalchemy
         run: pip3 install 'sqlalchemy${{ matrix.sqlalchemy-version }}'
       - name: Build
