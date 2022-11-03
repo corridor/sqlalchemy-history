@@ -1,4 +1,3 @@
-
 from copy import copy
 import inspect
 import itertools as it
@@ -13,48 +12,38 @@ from sqlalchemy_history import (
     version_class,
     make_versioned,
     versioning_manager,
-    remove_versioning
+    remove_versioning,
 )
 from sqlalchemy_history.transaction import TransactionFactory
-from sqlalchemy_history.plugins import (
-    TransactionMetaPlugin,
-    TransactionChangesPlugin
-)
+from sqlalchemy_history.plugins import TransactionMetaPlugin, TransactionChangesPlugin
 
-warnings.simplefilter('error', sa.exc.SAWarning)
+warnings.simplefilter("error", sa.exc.SAWarning)
 
 
 class QueryPool(object):
     queries = []
 
 
-@sa.event.listens_for(sa.engine.Engine, 'before_cursor_execute')
-def log_sql(
-    conn,
-    cursor,
-    statement,
-    parameters,
-    context,
-    executemany
-):
+@sa.event.listens_for(sa.engine.Engine, "before_cursor_execute")
+def log_sql(conn, cursor, statement, parameters, context, executemany):
     QueryPool.queries.append(statement)
 
 
 def get_dns_from_driver(driver):
-    if driver == 'postgres':
-        return 'postgresql://postgres:postgres@localhost/sqlalchemy_history_test'
-    elif driver == 'mysql':
-        return 'mysql+pymysql://root@localhost/sqlalchemy_history_test'
-    elif driver == 'sqlite':
-        return 'sqlite:///:memory:'
+    if driver == "postgres":
+        return "postgresql://postgres:postgres@localhost/sqlalchemy_history_test"
+    elif driver == "mysql":
+        return "mysql+pymysql://root@localhost/sqlalchemy_history_test"
+    elif driver == "sqlite":
+        return "sqlite:///:memory:"
     else:
-        raise Exception('Unknown driver given: %r' % driver)
+        raise Exception("Unknown driver given: %r" % driver)
 
 
 class TestCase(object):
-    versioning_strategy = 'subquery'
-    transaction_column_name = 'transaction_id'
-    end_transaction_column_name = 'end_transaction_id'
+    versioning_strategy = "subquery"
+    transaction_column_name = "transaction_id"
+    end_transaction_column_name = "end_transaction_id"
     composite_pk = False
     plugins = [TransactionChangesPlugin(), TransactionMetaPlugin()]
     transaction_cls = TransactionFactory()
@@ -64,18 +53,18 @@ class TestCase(object):
     @property
     def options(self):
         return {
-            'create_models': self.should_create_models,
-            'base_classes': (self.Model, ),
-            'strategy': self.versioning_strategy,
-            'transaction_column_name': self.transaction_column_name,
-            'end_transaction_column_name': self.end_transaction_column_name,
+            "create_models": self.should_create_models,
+            "base_classes": (self.Model,),
+            "strategy": self.versioning_strategy,
+            "transaction_column_name": self.transaction_column_name,
+            "end_transaction_column_name": self.end_transaction_column_name,
         }
 
     def setup_method(self, method):
         self.Model = declarative_base()
         make_versioned(options=self.options)
 
-        self.driver = os.environ.get('DB', 'sqlite')
+        self.driver = os.environ.get("DB", "sqlite")
         versioning_manager.plugins = self.plugins
         versioning_manager.transaction_cls = self.transaction_cls
         versioning_manager.user_cls = self.user_cls
@@ -88,12 +77,12 @@ class TestCase(object):
 
         self.connection = self.engine.connect()
 
-        if hasattr(self, 'Article'):
+        if hasattr(self, "Article"):
             try:
                 self.ArticleVersion = version_class(self.Article)
             except ClassNotVersioned:
                 pass
-        if hasattr(self, 'Tag'):
+        if hasattr(self, "Tag"):
             try:
                 self.TagVersion = version_class(self.Tag)
             except ClassNotVersioned:
@@ -129,7 +118,7 @@ class TestCase(object):
 
     def create_models(self):
         class Article(self.Model):
-            __tablename__ = 'article'
+            __tablename__ = "article"
             __versioned__ = copy(self.options)
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
@@ -141,31 +130,25 @@ class TestCase(object):
             fulltext_content = column_property(name + content + description)
 
         class Tag(self.Model):
-            __tablename__ = 'tag'
+            __tablename__ = "tag"
             __versioned__ = copy(self.options)
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
-            article = sa.orm.relationship(Article, backref='tags')
+            article = sa.orm.relationship(Article, backref="tags")
 
         self.Article = Article
         self.Tag = Tag
 
 
 setting_variants = {
-    'versioning_strategy': [
-        'subquery',
-        'validity',
+    "versioning_strategy": [
+        "subquery",
+        "validity",
     ],
-    'transaction_column_name': [
-        'transaction_id',
-        'tx_id'
-    ],
-    'end_transaction_column_name': [
-        'end_transaction_id',
-        'end_tx_id'
-    ]
+    "transaction_column_name": ["transaction_id", "tx_id"],
+    "end_transaction_column_name": ["end_transaction_id", "end_tx_id"],
 }
 
 
@@ -183,25 +166,15 @@ def create_test_cases(base_class, setting_variants=setting_variants):
     """
     names = sorted(setting_variants)
     combinations = [
-        dict(zip(names, prod))
-        for prod in
-        it.product(*(setting_variants[name] for name in names))
+        dict(zip(names, prod)) for prod in it.product(*(setting_variants[name] for name in names))
     ]
 
     # Get the module where this function was called in.
     frm = inspect.stack()[1]
     module = inspect.getmodule(frm[0])
 
-    class_suffix = base_class.__name__[0:-len('TestCase')]
+    class_suffix = base_class.__name__[0 : -len("TestCase")]
     for index, combination in enumerate(combinations):
-        class_name = 'Test%s%i' % (class_suffix, index)
+        class_name = "Test%s%i" % (class_suffix, index)
         # Assign a new test case class for current module.
-        setattr(
-            module,
-            class_name,
-            type(
-                class_name,
-                (base_class, ),
-                combination
-            )
-        )
+        setattr(module, class_name, type(class_name, (base_class,), combination))

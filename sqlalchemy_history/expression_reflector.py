@@ -18,14 +18,8 @@ class VersionExpressionReflector(sa.sql.visitors.ReplacingCloningVisitor):
             reflected_column = column
         else:
             reflected_column = table.c[column.name]
-            if (
-                column in self.relationship.local_columns and
-                table == self.parent.__table__
-            ):
-                reflected_column = bindparam(
-                    column.key,
-                    getattr(self.parent, column.key)
-                )
+            if column in self.relationship.local_columns and table == self.parent.__table__:
+                reflected_column = bindparam(column.key, getattr(self.parent, column.key))
 
         return reflected_column
 

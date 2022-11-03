@@ -15,9 +15,9 @@ class NullDeletePlugin(Plugin):
             SQLAlchemy ColumnProperty object
         """
         return (
-            version_obj.operation_type == Operation.DELETE and
-            not prop.columns[0].primary_key and
-            not is_internal_column(version_obj, prop.key)
+            version_obj.operation_type == Operation.DELETE
+            and not prop.columns[0].primary_key
+            and not is_internal_column(version_obj, prop.key)
         )
 
     def after_create_version_object(self, uow, parent_obj, version_obj):

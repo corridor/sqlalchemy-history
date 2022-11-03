@@ -29,36 +29,28 @@ from sqlalchemy_history.utils import option
 
 
 class TransactionChangesBase(object):
-    transaction_id = sa.Column(
-        sa.BigInteger,
-        primary_key=True
-    )
+    transaction_id = sa.Column(sa.BigInteger, primary_key=True)
     entity_name = sa.Column(sa.Unicode(255), primary_key=True)
 
 
 class TransactionChangesFactory(ModelFactory):
-    model_name = 'TransactionChanges'
+    model_name = "TransactionChanges"
 
     def create_class(self, manager):
         """
         Create TransactionChanges class.
         """
-        class TransactionChanges(
-            manager.declarative_base,
-            TransactionChangesBase
-        ):
-            __tablename__ = 'transaction_changes'
+
+        class TransactionChanges(manager.declarative_base, TransactionChangesBase):
+            __tablename__ = "transaction_changes"
 
         TransactionChanges.transaction = sa.orm.relationship(
             manager.transaction_cls,
             backref=sa.orm.backref(
-                'changes',
+                "changes",
             ),
-            primaryjoin=(
-                '%s.id == TransactionChanges.transaction_id' %
-                manager.transaction_cls.__name__
-            ),
-            foreign_keys=[TransactionChanges.transaction_id]
+            primaryjoin=("%s.id == TransactionChanges.transaction_id" % manager.transaction_cls.__name__),
+            foreign_keys=[TransactionChanges.transaction_id],
         )
         return TransactionChanges
 
@@ -79,7 +71,7 @@ class TransactionChangesPlugin(Plugin):
             if not changes:
                 changes = self.model_class(
                     transaction_id=uow.current_transaction.id,
-                    entity_name=str(entity.__name__)
+                    entity_name=str(entity.__name__),
                 )
                 session.add(changes)
 
@@ -93,4 +85,4 @@ class TransactionChangesPlugin(Plugin):
         self.clear()
 
     def after_version_class_built(self, parent_cls, version_cls):
-        parent_cls.__versioned__['transaction_changes'] = self.model_class
+        parent_cls.__versioned__["transaction_changes"] = self.model_class

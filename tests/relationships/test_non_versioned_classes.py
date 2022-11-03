@@ -6,13 +6,13 @@ import sqlalchemy as sa
 class TestRelationshipToNonVersionedClass(TestCase):
     def create_models(self):
         class User(self.Model):
-            __tablename__ = 'user'
+            __tablename__ = "user"
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
 
         class Article(self.Model):
-            __tablename__ = 'article'
+            __tablename__ = "article"
             __versioned__ = copy(self.options)
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
@@ -27,9 +27,9 @@ class TestRelationshipToNonVersionedClass(TestCase):
 
     def test_single_insert(self):
         article = self.Article()
-        article.name = u'Some article'
-        article.content = u'Some content'
-        user = self.User(name=u'Some user')
+        article.name = "Some article"
+        article.content = "Some content"
+        user = self.User(name="Some user")
         article.author = user
         self.session.add(article)
         self.session.commit()
@@ -38,9 +38,9 @@ class TestRelationshipToNonVersionedClass(TestCase):
 
     def test_change_relationship(self):
         article = self.Article()
-        article.name = u'Some article'
-        article.content = u'Some content'
-        user = self.User(name=u'Some user')
+        article.name = "Some article"
+        article.content = "Some content"
+        user = self.User(name="Some user")
         self.session.add(article)
         self.session.add(user)
         self.session.commit()
@@ -54,51 +54,40 @@ class TestRelationshipToNonVersionedClass(TestCase):
 class TestManyToManyRelationshipToNonVersionedClass(TestCase):
     def create_models(self):
         class Article(self.Model):
-            __tablename__ = 'article'
-            __versioned__ = {
-                'base_classes': (self.Model, )
-            }
+            __tablename__ = "article"
+            __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
 
         article_tag = sa.Table(
-            'article_tag',
+            "article_tag",
             self.Model.metadata,
             sa.Column(
-                'article_id',
+                "article_id",
                 sa.Integer,
-                sa.ForeignKey('article.id'),
+                sa.ForeignKey("article.id"),
                 primary_key=True,
             ),
-            sa.Column(
-                'tag_id',
-                sa.Integer,
-                sa.ForeignKey('tag.id'),
-                primary_key=True
-            )
+            sa.Column("tag_id", sa.Integer, sa.ForeignKey("tag.id"), primary_key=True),
         )
 
         class Tag(self.Model):
-            __tablename__ = 'tag'
+            __tablename__ = "tag"
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
 
-        Tag.articles = sa.orm.relationship(
-            Article,
-            secondary=article_tag,
-            backref='tags'
-        )
+        Tag.articles = sa.orm.relationship(Article, secondary=article_tag, backref="tags")
 
         self.Article = Article
         self.Tag = Tag
 
     def test_single_insert(self):
         article = self.Article()
-        article.name = u'Some article'
-        article.content = u'Some content'
-        tag = self.Tag(name=u'some tag')
+        article.name = "Some article"
+        article.content = "Some content"
+        tag = self.Tag(name="some tag")
         article.tags.append(tag)
         self.session.add(article)
         self.session.commit()

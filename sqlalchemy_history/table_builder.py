@@ -21,12 +21,12 @@ class ColumnReflector(object):
         :param column: SQLAlchemy Column object of parent table
         """
         # Make a copy of the column so that it does not point to wrong table.
-        column_copy = column._copy() if hasattr(column, '_copy') else column.copy()
+        column_copy = column._copy() if hasattr(column, "_copy") else column.copy()
         column_copy.unique = False
         column_copy.onupdate = None
         if column_copy.autoincrement:
             column_copy.autoincrement = False
-        if column_copy.name == self.option('transaction_column_name'):
+        if column_copy.name == self.option("transaction_column_name"):
             column_copy.nullable = False
 
         if not column_copy.primary_key:
@@ -46,10 +46,10 @@ class ColumnReflector(object):
         is 'operation_type'.
         """
         return sa.Column(
-            self.option('operation_type_column_name'),
+            self.option("operation_type_column_name"),
             sa.SmallInteger,
             nullable=False,
-            index=True
+            index=True,
         )
 
     @property
@@ -59,11 +59,11 @@ class ColumnReflector(object):
         'transaction_id'.
         """
         return sa.Column(
-            self.option('transaction_column_name'),
+            self.option("transaction_column_name"),
             sa.BigInteger,
             primary_key=True,
             index=True,
-            autoincrement=False  # This is needed for MySQL
+            autoincrement=False,  # This is needed for MySQL
         )
 
     @property
@@ -72,19 +72,12 @@ class ColumnReflector(object):
         Returns end_transaction column. By default the name of this column is
         'end_transaction_id'.
         """
-        return sa.Column(
-            self.option('end_transaction_column_name'),
-            sa.BigInteger,
-            index=True
-        )
+        return sa.Column(self.option("end_transaction_column_name"), sa.BigInteger, index=True)
 
     @property
     def reflected_parent_columns(self):
         for column in self.parent_table.c:
-            if (
-                self.model and
-                self.manager.is_excluded_column(self.model, column)
-            ):
+            if self.model and self.manager.is_excluded_column(self.model, column):
                 continue
             reflected_column = self.reflect_column(column)
             yield reflected_column
@@ -97,7 +90,7 @@ class ColumnReflector(object):
         # single table inheritance
         if not self.model or not sa.inspect(self.model).single:
             yield self.transaction_column
-            if self.option('strategy') == 'validity':
+            if self.option("strategy") == "validity":
                 yield self.end_transaction_column
             yield self.operation_type_column
 
@@ -107,12 +100,8 @@ class TableBuilder(object):
     TableBuilder handles the building of version tables based on parent
     table's structure and versioning configuration options.
     """
-    def __init__(
-        self,
-        versioning_manager,
-        parent_table,
-        model=None
-    ):
+
+    def __init__(self, versioning_manager, parent_table, model=None):
         self.manager = versioning_manager
         self.parent_table = parent_table
         self.model = model
@@ -128,14 +117,11 @@ class TableBuilder(object):
         """
         Returns the version table name for current parent table.
         """
-        return self.option('table_name') % self.parent_table.name
+        return self.option("table_name") % self.parent_table.name
 
     @property
     def columns(self):
-        return list(
-            column for column in
-            ColumnReflector(self.manager, self.parent_table, self.model)
-        )
+        return list(column for column in ColumnReflector(self.manager, self.parent_table, self.model))
 
     def __call__(self, extends=None):
         """
@@ -148,5 +134,5 @@ class TableBuilder(object):
             self.parent_table.metadata,
             *columns,
             schema=self.parent_table.schema,
-            extend_existing=extends is not None
+            extend_existing=extends is not None,
         )

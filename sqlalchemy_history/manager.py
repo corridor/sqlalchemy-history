@@ -34,6 +34,7 @@ def tracked_operation(func):
                 else:
                     raise
         return func(self, uow, target)
+
     return wrapper
 
 
@@ -60,6 +61,7 @@ class VersioningManager(object):
         Builder object which handles the building of versioning tables and
         models.
     """
+
     def __init__(
         self,
         unit_of_work_cls=UnitOfWork,
@@ -67,7 +69,7 @@ class VersioningManager(object):
         user_cls=None,
         options={},
         plugins=None,
-        builder=None
+        builder=None,
     ):
         self.uow_class = unit_of_work_cls
         if builder is None:
@@ -84,18 +86,18 @@ class VersioningManager(object):
             self.user_cls = user_cls
 
         self.options = {
-            'versioning': True,
-            'base_classes': None,
-            'table_name': '%s_version',
-            'exclude': [],
-            'include': [],
-            'create_models': True,
-            'create_tables': True,
-            'transaction_column_name': 'transaction_id',
-            'end_transaction_column_name': 'end_transaction_id',
-            'operation_type_column_name': 'operation_type',
-            'strategy': 'validity',
-            'use_module_name': False
+            "versioning": True,
+            "base_classes": None,
+            "table_name": "%s_version",
+            "exclude": [],
+            "include": [],
+            "create_models": True,
+            "create_tables": True,
+            "transaction_column_name": "transaction_id",
+            "end_transaction_column_name": "end_transaction_id",
+            "operation_type_column_name": "operation_type",
+            "strategy": "validity",
+            "use_module_name": False,
         }
         if plugins is None:
             self.plugins = []
@@ -112,7 +114,7 @@ class VersioningManager(object):
         self._plugins = PluginCollection(plugin_collection)
 
     def fetcher(self, obj):
-        if self.option(obj, 'strategy') == 'subquery':
+        if self.option(obj, "strategy") == "subquery":
             return SubqueryFetcher(self)
         else:
             return ValidityFetcher(self)
@@ -133,19 +135,19 @@ class VersioningManager(object):
         self.version_class_map = {}
         self.parent_class_map = {}
         self.session_listeners = {
-            'before_flush': self.before_flush,
-            'after_flush': self.after_flush,
-            'after_commit': self.clear,
-            'after_rollback': self.clear,
+            "before_flush": self.before_flush,
+            "after_flush": self.after_flush,
+            "after_commit": self.clear,
+            "after_rollback": self.clear,
         }
         self.mapper_listeners = {
-            'after_delete': self.track_deletes,
-            'after_update': self.track_updates,
-            'after_insert': self.track_inserts,
+            "after_delete": self.track_deletes,
+            "after_update": self.track_updates,
+            "after_insert": self.track_inserts,
         }
         self.class_config_listeners = {
-            'instrument_class': self.builder.instrument_versioned_classes,
-            'after_configured': self.builder.configure_versioned_classes,
+            "instrument_class": self.builder.instrument_versioned_classes,
+            "after_configured": self.builder.configure_versioned_classes,
         }
 
         # A dictionary of units of work. Keys as connection objects and values
@@ -181,9 +183,9 @@ class VersioningManager(object):
         :param model: SQLAlchemy declarative model object.
         :param key: Model property key
         """
-        if key in self.option(model, 'include'):
+        if key in self.option(model, "include"):
             return False
-        return key in self.option(model, 'exclude')
+        return key in self.option(model, "exclude")
 
     def option(self, model, name):
         """
@@ -195,8 +197,8 @@ class VersioningManager(object):
         :param model: SQLAlchemy declarative object
         :param name: name of the versioning option
         """
-        if not hasattr(model, '__versioned__'):
-            raise TypeError('Model %r is not versioned.' % model)
+        if not hasattr(model, "__versioned__"):
+            raise TypeError("Model %r is not versioned." % model)
         try:
             return model.__versioned__[name]
         except KeyError:
@@ -332,7 +334,7 @@ class VersioningManager(object):
 
         :param session: SQLAlchemy session
         """
-        if not self.options['versioning']:
+        if not self.options["versioning"]:
             return
 
         uow = self.unit_of_work(session)
@@ -347,7 +349,7 @@ class VersioningManager(object):
 
         :param session: SQLAlchemy session
         """
-        if not self.options['versioning']:
+        if not self.options["versioning"]:
             return
         uow = self.unit_of_work(session)
         uow.process_after_flush(session)
@@ -384,11 +386,9 @@ class VersioningManager(object):
             uow.reset()
             del self.units_of_work[conn]
 
-
         for session, connection in dict(self.session_connection_map).items():
             if connection is conn:
                 del self.session_connection_map[session]
-
 
         for connection in dict(self.units_of_work).keys():
             if connection.closed or conn.connection is connection.connection:
@@ -396,15 +396,14 @@ class VersioningManager(object):
                 uow.reset()
                 del self.units_of_work[connection]
 
-
     def append_association_operation(self, conn, table_name, params, op):
         """
         Append history association operation to pending_statements list.
         """
         stmt = (
-            self.metadata.tables[self.options['table_name'] % table_name]
+            self.metadata.tables[self.options["table_name"] % table_name]
             .insert()
-            .values({**params, 'operation_type': op})
+            .values({**params, "operation_type": op})
         )
         try:
             uow = self.units_of_work[conn]
@@ -426,17 +425,17 @@ class VersioningManager(object):
         """
         if c not in self.units_of_work.keys():
             for connection, uow in dict(self.units_of_work).items():
-                if not connection.closed and connection.connection is c.connection:  # ConnectionFairy is the same - this is a clone
+                if (
+                    not connection.closed and connection.connection is c.connection
+                ):  # ConnectionFairy is the same - this is a clone
                     self.units_of_work[c] = uow
 
-    def track_association_operations(
-        self, conn, cursor, statement, parameters, context, executemany
-    ):
+    def track_association_operations(self, conn, cursor, statement, parameters, context, executemany):
         """
         Track association operations and adds the generated history
         association operations to pending_statements list.
         """
-        if not self.options['versioning']:
+        if not self.options["versioning"]:
             return
 
         op = None
@@ -446,9 +445,9 @@ class VersioningManager(object):
             op = Operation.DELETE
 
         if op is not None:
-            table_name = statement.split(' ')[2]
+            table_name = statement.split(" ")[2]
             table_names = [
-                table.name if not table.schema else table.schema + '.' + table.name
+                table.name if not table.schema else table.schema + "." + table.name
                 for table in self.association_tables
             ]
             if table_name in table_names:
@@ -460,21 +459,15 @@ class VersioningManager(object):
                         self.append_association_operation(
                             conn,
                             table_name,
-                            self.positional_args_to_dict(
-                                op, statement, params
-                            ),
-                            op
+                            self.positional_args_to_dict(op, statement, params),
+                            op,
                         )
                 else:
                     self.append_association_operation(
                         conn,
                         table_name,
-                        self.positional_args_to_dict(
-                            op,
-                            statement,
-                            parameters
-                        ),
-                        op
+                        self.positional_args_to_dict(op, statement, parameters),
+                        op,
                     )
 
     def positional_args_to_dict(self, op, statement, params):
@@ -489,18 +482,15 @@ class VersioningManager(object):
         if isinstance(params, tuple):
             parameters = {}
             if op == Operation.DELETE:
-                regexp = '^DELETE FROM (.+?) WHERE'
+                regexp = "^DELETE FROM (.+?) WHERE"
                 match = re.match(regexp, statement)
-                tablename = match.groups()[0].strip('"').strip("'").strip('`')
+                tablename = match.groups()[0].strip('"').strip("'").strip("`")
                 table = self.metadata.tables[tablename]
                 columns = table.primary_key.columns.values()
                 for index, column in enumerate(columns):
                     parameters[column.name] = params[index]
             else:
-                columns = [
-                    column.strip() for column in
-                    statement.split('(')[1].split(')')[0].split(',')
-                ]
+                columns = [column.strip() for column in statement.split("(")[1].split(")")[0].split(",")]
                 for index, column in enumerate(columns):
                     parameters[column] = params[index]
             return parameters

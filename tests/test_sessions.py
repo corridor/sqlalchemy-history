@@ -9,8 +9,8 @@ class TestSessions(TestCase):
 
     def test_multiple_connections(self):
         self.session2 = Session(bind=self.engine.connect())
-        article = self.Article(name=u'Session1 article')
-        article2 = self.Article(name=u'Session2 article')
+        article = self.Article(name="Session1 article")
+        article2 = self.Article(name="Session2 article")
         self.session.add(article)
         self.session2.add(article2)
         self.session.flush()
@@ -19,14 +19,11 @@ class TestSessions(TestCase):
         self.session.commit()
         self.session2.commit()
         assert article.versions[-1].transaction_id
-        assert (
-            article2.versions[-1].transaction_id >
-            article.versions[-1].transaction_id
-        )
+        assert article2.versions[-1].transaction_id > article.versions[-1].transaction_id
 
     def test_connection_binded_to_engine(self):
         self.session2 = Session(bind=self.engine)
-        article = self.Article(name=u'Session1 article')
+        article = self.Article(name="Session1 article")
         self.session2.add(article)
         self.session2.commit()
         assert article.versions[-1].transaction_id
@@ -36,7 +33,7 @@ class TestSessions(TestCase):
         transaction = uow.create_transaction(self.session)
         self.session.flush()
         assert transaction.id
-        article = self.Article(name=u'Session1 article')
+        article = self.Article(name="Session1 article")
         self.session.add(article)
         self.session.flush()
         assert uow.current_transaction.id
@@ -55,13 +52,12 @@ class TestUnitOfWork(TestCase):
 
 
 class TestExternalTransactionSession(TestCase):
-
     def test_session_with_external_transaction(self):
         conn = self.engine.connect()
         t = conn.begin()
         session = Session(bind=conn)
 
-        article = self.Article(name=u'My Session Article')
+        article = self.Article(name="My Session Article")
         session.add(article)
         session.flush()
 

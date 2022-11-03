@@ -56,44 +56,33 @@ from sqlalchemy_history.factory import ModelFactory
 
 
 class TransactionMetaBase(object):
-    transaction_id = sa.Column(
-        sa.BigInteger,
-        primary_key=True
-    )
+    transaction_id = sa.Column(sa.BigInteger, primary_key=True)
     key = sa.Column(sa.Unicode(255), primary_key=True)
     value = sa.Column(sa.UnicodeText)
 
 
 class TransactionMetaFactory(ModelFactory):
-    model_name = 'TransactionMeta'
+    model_name = "TransactionMeta"
 
     def create_class(self, manager):
         """
         Create TransactionMeta class.
         """
-        class TransactionMeta(
-            manager.declarative_base,
-            TransactionMetaBase
-        ):
-            __tablename__ = 'transaction_meta'
+
+        class TransactionMeta(manager.declarative_base, TransactionMetaBase):
+            __tablename__ = "transaction_meta"
 
         TransactionMeta.transaction = sa.orm.relationship(
             manager.transaction_cls,
-            backref=sa.orm.backref(
-                'meta_relation',
-                collection_class=attribute_mapped_collection('key')
-            ),
-            primaryjoin=(
-                '%s.id == TransactionMeta.transaction_id' %
-                manager.transaction_cls.__name__
-            ),
-            foreign_keys=[TransactionMeta.transaction_id]
+            backref=sa.orm.backref("meta_relation", collection_class=attribute_mapped_collection("key")),
+            primaryjoin=("%s.id == TransactionMeta.transaction_id" % manager.transaction_cls.__name__),
+            foreign_keys=[TransactionMeta.transaction_id],
         )
 
         manager.transaction_cls.meta = association_proxy(
-            'meta_relation',
-            'value',
-            creator=lambda key, value: TransactionMeta(key=key, value=value)
+            "meta_relation",
+            "value",
+            creator=lambda key, value: TransactionMeta(key=key, value=value),
         )
 
         return TransactionMeta

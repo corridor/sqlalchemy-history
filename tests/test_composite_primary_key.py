@@ -6,31 +6,25 @@ from tests import TestCase
 class TestCompositePrimaryKey(TestCase):
     def create_models(self):
         class User(self.Model):
-            __tablename__ = 'user'
+            __tablename__ = "user"
             __versioned__ = {}
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
 
         class Team(self.Model):
-            __tablename__ = 'team'
+            __tablename__ = "team"
             __versioned__ = {}
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
 
         class TeamMember(self.Model):
-            __tablename__ = 'team_member'
+            __tablename__ = "team_member"
             __versioned__ = {}
             user_id = sa.Column(
-                sa.Integer,
-                sa.ForeignKey(User.id, ondelete='CASCADE'),
-                primary_key=True,
-                nullable=False
+                sa.Integer, sa.ForeignKey(User.id, ondelete="CASCADE"), primary_key=True, nullable=False
             )
             team_id = sa.Column(
-                sa.Integer,
-                sa.ForeignKey(Team.id, ondelete='CASCADE'),
-                primary_key=True,
-                nullable=False
+                sa.Integer, sa.ForeignKey(Team.id, ondelete="CASCADE"), primary_key=True, nullable=False
             )
             role = sa.Column(sa.Unicode(255))
 
@@ -51,20 +45,12 @@ class TestCompositePrimaryKey(TestCase):
 class TestCompositePrimaryKeyWithPkConstraint(TestCase):
     def create_models(self):
         class TeamMember(self.Model):
-            __tablename__ = 'team_member'
+            __tablename__ = "team_member"
             __versioned__ = {}
-            user_id = sa.Column(
-                sa.Integer,
-                nullable=False
-            )
-            team_id = sa.Column(
-                sa.Integer,
-                nullable=False
-            )
+            user_id = sa.Column(sa.Integer, nullable=False)
+            team_id = sa.Column(sa.Integer, nullable=False)
             role = sa.Column(sa.Unicode(255))
-            __table_args__ = (
-                sa.schema.PrimaryKeyConstraint('user_id', 'team_id'),
-            )
+            __table_args__ = (sa.schema.PrimaryKeyConstraint("user_id", "team_id"),)
 
         self.TeamMember = TeamMember
 

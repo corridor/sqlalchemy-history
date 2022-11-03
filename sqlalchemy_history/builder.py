@@ -12,6 +12,7 @@ from sqlalchemy_history.table_builder import TableBuilder
 
 def prevent_reentry(handler):
     in_handler = False
+
     @wraps(handler)
     def check_reentry(*args, **kwargs):
         nonlocal in_handler
@@ -20,7 +21,9 @@ def prevent_reentry(handler):
         in_handler = True
         handler(*args, **kwargs)
         in_handler = False
+
     return check_reentry
+
 
 class Builder(object):
     def build_tables(self):
@@ -29,22 +32,17 @@ class Builder(object):
         during class instrumentation process.
         """
         for cls in self.manager.pending_classes:
-            if not self.manager.option(cls, 'versioning'):
+            if not self.manager.option(cls, "versioning"):
                 continue
 
-            if self.manager.option(cls, 'create_tables'):
+            if self.manager.option(cls, "create_tables"):
                 inherited_table = None
                 for class_ in self.manager.tables:
-                    if (issubclass(cls, class_) and
-                            cls.__table__ == class_.__table__):
+                    if issubclass(cls, class_) and cls.__table__ == class_.__table__:
                         inherited_table = self.manager.tables[class_]
                         break
 
-                builder = TableBuilder(
-                    self.manager,
-                    cls.__table__,
-                    model=cls
-                )
+                builder = TableBuilder(self.manager, cls.__table__, model=cls)
                 if inherited_table is not None:
                     self.manager.tables[class_] = builder(inherited_table)
                 else:
@@ -65,7 +63,6 @@ class Builder(object):
         ordered_subclasses = [cls for cls in getmro(model) if cls in subclasses]
         return self.manager.tables[ordered_subclasses[0]] if ordered_subclasses else None
 
-
     def build_models(self):
         """
         Build declarative version models based on classes that were collected
@@ -73,21 +70,15 @@ class Builder(object):
         """
         if self.manager.pending_classes:
             for cls in self.manager.pending_classes:
-                if not self.manager.option(cls, 'versioning'):
+                if not self.manager.option(cls, "versioning"):
                     continue
 
                 table = self.closest_matching_table(cls)
                 if table is not None:
                     builder = ModelBuilder(self.manager, cls)
-                    version_cls = builder(
-                        table,
-                        self.manager.transaction_cls
-                    )
+                    version_cls = builder(table, self.manager.transaction_cls)
 
-                    self.manager.plugins.after_version_class_built(
-                        cls,
-                        version_cls
-                    )
+                    self.manager.plugins.after_version_class_built(cls, version_cls)
 
             self.manager.plugins.after_build_models(self.manager)
 
@@ -98,11 +89,11 @@ class Builder(object):
         :param version_classes: list of generated version classes
         """
         for cls in version_classes:
-            if not self.manager.option(cls, 'versioning'):
+            if not self.manager.option(cls, "versioning"):
                 continue
 
             for prop in sa.inspect(cls).iterate_properties:
-                if prop.key == 'versions':
+                if prop.key == "versions":
                     continue
                 builder = RelationshipBuilder(self.manager, cls, prop)
                 builder()
@@ -114,16 +105,15 @@ class Builder(object):
         :mapper mapper: SQLAlchemy mapper object
         :cls cls: SQLAlchemy declarative class
         """
-        if not self.manager.options['versioning']:
+        if not self.manager.options["versioning"]:
             return
 
-        if hasattr(cls, '__versioned__'):
-            if (not cls.__versioned__.get('class')
-                    and cls not in self.manager.pending_classes):
+        if hasattr(cls, "__versioned__"):
+            if not cls.__versioned__.get("class") and cls not in self.manager.pending_classes:
                 self.manager.pending_classes.append(cls)
                 self.manager.metadata = cls.metadata
 
-        if hasattr(cls, '__version_parent__'):
+        if hasattr(cls, "__version_parent__"):
             parent = cls.__version_parent__
             self.manager.version_class_map[parent] = cls
             self.manager.parent_class_map[cls] = parent
@@ -151,13 +141,13 @@ class Builder(object):
         6. Assign all versioned attributes to use active history.
 
         """
-        if not self.manager.options['versioning']:
+        if not self.manager.options["versioning"]:
             return
 
         self.build_tables()
         self.build_transaction_class()
 
-        if not self.manager.options['create_models']:
+        if not self.manager.options["create_models"]:
             self.manager.pending_classes = []
             return
 

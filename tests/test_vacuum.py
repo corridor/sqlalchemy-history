@@ -6,24 +6,9 @@ from tests import TestCase
 class TestVacuum(TestCase):
     def test_deletes_futile_versions(self):
         history_objects = [
-            self.ArticleVersion(
-                id=1,
-                name=u'Some article',
-                transaction_id=1,
-                operation_type=1
-            ),
-            self.ArticleVersion(
-                id=1,
-                name=u'Some article',
-                transaction_id=2,
-                operation_type=1
-            ),
-            self.ArticleVersion(
-                id=1,
-                name=u'Some article',
-                transaction_id=3,
-                operation_type=1
-            )
+            self.ArticleVersion(id=1, name="Some article", transaction_id=1, operation_type=1),
+            self.ArticleVersion(id=1, name="Some article", transaction_id=2, operation_type=1),
+            self.ArticleVersion(id=1, name="Some article", transaction_id=3, operation_type=1),
         ]
 
         self.session.add_all(history_objects)
@@ -36,18 +21,8 @@ class TestVacuum(TestCase):
 
     def test_does_not_delete_versions_with_actual_changes(self):
         history_objects = [
-            self.ArticleVersion(
-                id=1,
-                name=u'Some article',
-                transaction_id=1,
-                operation_type=1
-            ),
-            self.ArticleVersion(
-                id=1,
-                name=u'Some other article',
-                transaction_id=2,
-                operation_type=1
-            )
+            self.ArticleVersion(id=1, name="Some article", transaction_id=1, operation_type=1),
+            self.ArticleVersion(id=1, name="Some other article", transaction_id=2, operation_type=1),
         ]
 
         self.session.add_all(history_objects)

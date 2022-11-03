@@ -6,14 +6,14 @@ import sqlalchemy as sa
 class OneToOneRelationshipsTestCase(TestCase):
     def create_models(self):
         class User(self.Model):
-            __tablename__ = 'user'
+            __tablename__ = "user"
             __versioned__ = copy(self.options)
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
 
         class Article(self.Model):
-            __tablename__ = 'article'
+            __tablename__ = "article"
             __versioned__ = copy(self.options)
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
@@ -28,9 +28,9 @@ class OneToOneRelationshipsTestCase(TestCase):
 
     def test_single_insert(self):
         article = self.Article()
-        article.name = u'Some article'
-        article.content = u'Some content'
-        user = self.User(name=u'Some user')
+        article.name = "Some article"
+        article.content = "Some content"
+        user = self.User(name="Some user")
         article.author = user
         self.session.add(article)
         self.session.commit()
@@ -39,33 +39,31 @@ class OneToOneRelationshipsTestCase(TestCase):
 
     def test_multiple_relation_versions(self):
         article = self.Article()
-        article.name = u'Some article'
-        article.content = u'Some content'
-        user = self.User(name=u'Some user')
+        article.name = "Some article"
+        article.content = "Some content"
+        user = self.User(name="Some user")
         article.author = user
         self.session.add(article)
         self.session.commit()
-        user.name = u'Someone else'
+        user.name = "Someone else"
         self.session.commit()
 
         assert article.versions[0].author == user.versions[0]
 
     def test_multiple_consecutive_inserts_and_removes(self):
         article = self.Article()
-        article.name = u'Some article'
-        article.content = u'Some content'
-        user = self.User(name=u'Some user')
+        article.name = "Some article"
+        article.content = "Some content"
+        user = self.User(name="Some user")
         article.author = user
         self.session.add(article)
         self.session.commit()
-        user.name = u'Someone else'
+        user.name = "Someone else"
         self.session.commit()
 
-        article.name = u'Updated article'
+        article.name = "Updated article"
 
-        article2 = self.Article(
-            name=u'Article 2'
-        )
+        article2 = self.Article(name="Article 2")
         self.session.add(article2)
         article2.author = user
         self.session.commit()
@@ -74,13 +72,13 @@ class OneToOneRelationshipsTestCase(TestCase):
 
     def test_replace(self):
         article = self.Article()
-        article.name = u'Some article'
-        article.content = u'Some content'
-        user = self.User(name=u'Some user')
+        article.name = "Some article"
+        article.content = "Some content"
+        user = self.User(name="Some user")
         article.author = user
         self.session.add(article)
         self.session.commit()
-        other_user = self.User(name=u'Some other user')
+        other_user = self.User(name="Some other user")
         article.author = other_user
         self.session.commit()
 

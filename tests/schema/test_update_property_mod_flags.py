@@ -8,12 +8,12 @@ from tests import TestCase
 
 
 class TestSchemaTools(TestCase):
-    versioning_strategy = 'validity'
+    versioning_strategy = "validity"
     plugins = [PropertyModTrackerPlugin()]
 
     def create_models(self):
         class Article(self.Model):
-            __tablename__ = 'article'
+            __tablename__ = "article"
             __versioned__ = copy(self.options)
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
@@ -30,63 +30,57 @@ class TestSchemaTools(TestCase):
         table = version_class(self.Article).__table__
         self._insert(
             {
-                'id': 1,
-                'transaction_id': 1,
-                'end_transaction_id': 2,
-                'name': u'Article 1',
-                'name_mod': False,
-                'operation_type': 1,
+                "id": 1,
+                "transaction_id": 1,
+                "end_transaction_id": 2,
+                "name": "Article 1",
+                "name_mod": False,
+                "operation_type": 1,
             }
         )
         self._insert(
             {
-                'id': 1,
-                'transaction_id': 2,
-                'end_transaction_id': 4,
-                'name': u'Article 1',
-                'name_mod': False,
-                'operation_type': 2,
+                "id": 1,
+                "transaction_id": 2,
+                "end_transaction_id": 4,
+                "name": "Article 1",
+                "name_mod": False,
+                "operation_type": 2,
             }
         )
         self._insert(
             {
-                'id': 2,
-                'transaction_id': 3,
-                'end_transaction_id': 5,
-                'name': u'Article 2',
-                'name_mod': False,
-                'operation_type': 1,
+                "id": 2,
+                "transaction_id": 3,
+                "end_transaction_id": 5,
+                "name": "Article 2",
+                "name_mod": False,
+                "operation_type": 1,
             }
         )
         self._insert(
             {
-                'id': 1,
-                'transaction_id': 4,
-                'end_transaction_id': None,
-                'name': u'Article 1 updated',
-                'name_mod': False,
-                'operation_type': 2,
+                "id": 1,
+                "transaction_id": 4,
+                "end_transaction_id": None,
+                "name": "Article 1 updated",
+                "name_mod": False,
+                "operation_type": 2,
             }
         )
         self._insert(
             {
-                'id': 2,
-                'transaction_id': 5,
-                'end_transaction_id': None,
-                'name': u'Article 2',
-                'name_mod': False,
-                'operation_type': 2,
+                "id": 2,
+                "transaction_id": 5,
+                "end_transaction_id": None,
+                "name": "Article 2",
+                "name_mod": False,
+                "operation_type": 2,
             }
         )
 
-        update_property_mod_flags(
-            table,
-            ['name'],
-            conn=self.session
-        )
-        rows = self.session.execute(
-            'SELECT * FROM article_version ORDER BY transaction_id'
-        ).fetchall()
+        update_property_mod_flags(table, ["name"], conn=self.session)
+        rows = self.session.execute("SELECT * FROM article_version ORDER BY transaction_id").fetchall()
         assert rows[0].transaction_id == 1
         assert rows[0].name_mod
         assert rows[1].transaction_id == 2
