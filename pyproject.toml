@@ -1,0 +1,4 @@
+[tool.black]
+# Set line-length lower than 120 as black will go 10% above if needed
+line-length = 110
+target-version = ['py36']
