@@ -18,7 +18,7 @@ from sqlalchemy_history.utils import (
 )
 
 
-__version__ = '1.3.13'
+__version__ = "1.3.13"
 
 
 versioning_manager = VersioningManager()
@@ -30,7 +30,7 @@ def make_versioned(
     manager=versioning_manager,
     plugins=None,
     options=None,
-    user_cls='User'
+    user_cls="User",
 ):
     """
     This is the public API function of SQLAlchemy-Continuum for making certain
@@ -64,30 +64,18 @@ def make_versioned(
     manager.track_operations(mapper)
     manager.track_session(session)
 
-    sa.event.listen(
-        sa.engine.Engine,
-        'before_cursor_execute',
-        manager.track_association_operations
-    )
+    sa.event.listen(sa.engine.Engine, "before_cursor_execute", manager.track_association_operations)
+
+    sa.event.listen(sa.engine.Engine, "rollback", manager.clear_connection)
 
     sa.event.listen(
         sa.engine.Engine,
-        'rollback',
-        manager.clear_connection
-    )
-
-    sa.event.listen(
-        sa.engine.Engine,
-        'set_connection_execution_options',
-        manager.track_cloned_connections
+        "set_connection_execution_options",
+        manager.track_cloned_connections,
     )
 
 
-def remove_versioning(
-    mapper=sa.orm.mapper,
-    session=sa.orm.session.Session,
-    manager=versioning_manager
-):
+def remove_versioning(mapper=sa.orm.mapper, session=sa.orm.session.Session, manager=versioning_manager):
     """
     Remove the versioning from given mapper / session and manager.
 
@@ -103,20 +91,12 @@ def remove_versioning(
     manager.remove_class_configuration_listeners(mapper)
     manager.remove_operations_tracking(mapper)
     manager.remove_session_tracking(session)
-    sa.event.remove(
-        sa.engine.Engine,
-        'before_cursor_execute',
-        manager.track_association_operations
-    )
+    sa.event.remove(sa.engine.Engine, "before_cursor_execute", manager.track_association_operations)
+
+    sa.event.remove(sa.engine.Engine, "rollback", manager.clear_connection)
 
     sa.event.remove(
         sa.engine.Engine,
-        'rollback',
-        manager.clear_connection
-    )
-
-    sa.event.remove(
-        sa.engine.Engine,
-        'set_connection_execution_options',
-        manager.track_cloned_connections
+        "set_connection_execution_options",
+        manager.track_cloned_connections,
     )

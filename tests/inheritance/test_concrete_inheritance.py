@@ -7,35 +7,23 @@ from tests import TestCase
 class TestConreteTableInheritance(TestCase):
     def create_models(self):
         class TextItem(self.Model):
-            __tablename__ = 'text_item'
-            __versioned__ = {
-                'base_classes': (self.Model, )
-            }
+            __tablename__ = "text_item"
+            __versioned__ = {"base_classes": (self.Model,)}
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
 
-            discriminator = sa.Column(
-                sa.Unicode(100)
-            )
+            discriminator = sa.Column(sa.Unicode(100))
 
-            __mapper_args__ = {
-                'polymorphic_on': discriminator
-            }
+            __mapper_args__ = {"polymorphic_on": discriminator}
 
         class Article(TextItem):
-            __tablename__ = 'article'
-            __mapper_args__ = {
-                'polymorphic_identity': u'article',
-                'concrete': True
-            }
+            __tablename__ = "article"
+            __mapper_args__ = {"polymorphic_identity": "article", "concrete": True}
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
 
         class BlogPost(TextItem):
-            __tablename__ = 'blog_post'
-            __mapper_args__ = {
-                'polymorphic_identity': u'blog_post',
-                'concrete': True
-            }
+            __tablename__ = "blog_post"
+            __mapper_args__ = {"polymorphic_identity": "blog_post", "concrete": True}
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             title = sa.Column(sa.Unicode(255))
 
@@ -58,11 +46,11 @@ class TestConreteTableInheritance(TestCase):
         assert len(manager.version_class_map.keys()) == 3
 
     def test_each_class_has_distinct_version_class(self):
-        assert self.TextItemVersion.__table__.name == 'text_item_version'
-        assert self.ArticleVersion.__table__.name == 'article_version'
-        assert self.BlogPostVersion.__table__.name == 'blog_post_version'
+        assert self.TextItemVersion.__table__.name == "text_item_version"
+        assert self.ArticleVersion.__table__.name == "article_version"
+        assert self.BlogPostVersion.__table__.name == "blog_post_version"
 
-    @mark.skipif('True')
+    @mark.skipif("True")
     def test_each_object_has_distinct_version_class(self):
         article = self.Article()
         blogpost = self.BlogPost()
@@ -79,13 +67,12 @@ class TestConreteTableInheritance(TestCase):
 
     def test_transaction_changed_entities(self):
         article = self.Article()
-        article.name = u'Text 1'
+        article.name = "Text 1"
         self.session.add(article)
         self.session.commit()
         Transaction = versioning_manager.transaction_cls
         transaction = (
-            self.session.query(Transaction)
-            .order_by(sa.sql.expression.desc(Transaction.issued_at))
+            self.session.query(Transaction).order_by(sa.sql.expression.desc(Transaction.issued_at))
         ).first()
-        assert transaction.entity_names == [u'Article']
+        assert transaction.entity_names == ["Article"]
         assert transaction.changed_entities

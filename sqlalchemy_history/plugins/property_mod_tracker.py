@@ -22,7 +22,7 @@ from sqlalchemy_history.utils import versioned_column_properties
 
 
 class PropertyModTrackerPlugin(Plugin):
-    column_suffix = '_mod'
+    column_suffix = "_mod"
 
     def create_mod_column(self, column):
         return sa.Column(
@@ -31,7 +31,7 @@ class PropertyModTrackerPlugin(Plugin):
             key=column.key + self.column_suffix,
             default=False,
             server_default=sa.sql.expression.false(),
-            nullable=False
+            nullable=False,
         )
 
     def after_build_version_table_columns(self, table_builder, columns):
@@ -40,9 +40,10 @@ class PropertyModTrackerPlugin(Plugin):
         # mod tracking columns for association tables.
         if table_builder.model:
             for column in table_builder.parent_table.c:
-                if not table_builder.manager.is_excluded_column(
-                    table_builder.model, column
-                ) and not column.primary_key:
+                if (
+                    not table_builder.manager.is_excluded_column(table_builder.model, column)
+                    and not column.primary_key
+                ):
                     columns.append(self.create_mod_column(column))
 
     def after_create_version_object(self, uow, parent_obj, version_obj):
@@ -51,11 +52,7 @@ class PropertyModTrackerPlugin(Plugin):
 
         for prop in versioned_column_properties(parent_obj):
             if has_changes(parent_obj, prop.key) or is_deleted:
-                setattr(
-                    version_obj,
-                    prop.key + self.column_suffix,
-                    True
-                )
+                setattr(version_obj, prop.key + self.column_suffix, True)
 
     def after_construct_changeset(self, version_obj, changeset):
         for key in copy(changeset).keys():

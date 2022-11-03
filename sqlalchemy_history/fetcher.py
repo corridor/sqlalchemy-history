@@ -50,8 +50,8 @@ class VersionObjectFetcher(object):
         """
         return self.next_query(obj).first()
 
-    def _transaction_id_subquery(self, obj, next_or_prev='next', alias=None):
-        if next_or_prev == 'next':
+    def _transaction_id_subquery(self, obj, next_or_prev="next", alias=None):
+        if next_or_prev == "next":
             op = operator.gt
             func = sa.func.min
         else:
@@ -61,7 +61,7 @@ class VersionObjectFetcher(object):
         if alias is None:
             alias = sa.orm.aliased(obj.__class__)
             table = alias.__table__
-            if hasattr(alias, 'c'):
+            if hasattr(alias, "c"):
                 attrs = alias.c
             else:
                 attrs = alias
@@ -69,23 +69,18 @@ class VersionObjectFetcher(object):
             table = alias.original
             attrs = alias.c
         query = (
-            sa.select(
-                [func(
-                    getattr(attrs, tx_column_name(obj))
-                )],
-                from_obj=[table]
-            )
+            sa.select([func(getattr(attrs, tx_column_name(obj)))], from_obj=[table])
             .where(
                 sa.and_(
                     op(
                         getattr(attrs, tx_column_name(obj)),
-                        getattr(obj, tx_column_name(obj))
+                        getattr(obj, tx_column_name(obj)),
                     ),
                     *[
                         getattr(attrs, pk) == getattr(obj, pk)
                         for pk in get_primary_keys(obj.__class__)
                         if pk != tx_column_name(obj)
-                    ]
+                    ],
                 )
             )
             .correlate(table)
@@ -95,28 +90,17 @@ class VersionObjectFetcher(object):
         except AttributeError:  # SQLAlchemy < 1.4
             return query.as_scalar()
 
-    def _next_prev_query(self, obj, next_or_prev='next'):
+    def _next_prev_query(self, obj, next_or_prev="next"):
         session = sa.orm.object_session(obj)
 
-        subquery = self._transaction_id_subquery(
-            obj, next_or_prev=next_or_prev
-        )
+        subquery = self._transaction_id_subquery(obj, next_or_prev=next_or_prev)
         try:
             subquery = subquery.scalar_subquery()
         except AttributeError:  # SQLAlchemy < 1.4
             subquery = subquery.as_scalar()
 
-        return (
-            session.query(obj.__class__)
-            .filter(
-                sa.and_(
-                    getattr(
-                        obj.__class__,
-                        tx_column_name(obj)
-                    ) == subquery,
-                    *parent_criteria(obj)
-                )
-            )
+        return session.query(obj.__class__).filter(
+            sa.and_(getattr(obj.__class__, tx_column_name(obj)) == subquery, *parent_criteria(obj))
         )
 
     def _index_query(self, obj):
@@ -127,23 +111,15 @@ class VersionObjectFetcher(object):
         alias = sa.orm.aliased(obj.__class__)
 
         subquery = (
-            sa.select([sa.func.count('1')], from_obj=[alias.__table__])
-            .where(
-                getattr(alias, tx_column_name(obj))
-                <
-                getattr(obj, tx_column_name(obj))
-            )
+            sa.select([sa.func.count("1")], from_obj=[alias.__table__])
+            .where(getattr(alias, tx_column_name(obj)) < getattr(obj, tx_column_name(obj)))
             .correlate(alias.__table__)
-            .label('position')
+            .label("position")
         )
         query = (
             sa.select([subquery], from_obj=[obj.__table__])
-            .where(
-                sa.and_(*eqmap(identity, (obj.__class__, obj)))
-            )
-            .order_by(
-                getattr(obj.__class__, tx_column_name(obj))
-            )
+            .where(sa.and_(*eqmap(identity, (obj.__class__, obj))))
+            .order_by(getattr(obj.__class__, tx_column_name(obj)))
         )
         return query
 
@@ -154,14 +130,14 @@ class SubqueryFetcher(VersionObjectFetcher):
         Returns the query that fetches the previous version relative to this
         version in the version history.
         """
-        return self._next_prev_query(obj, 'previous')
+        return self._next_prev_query(obj, "previous")
 
     def next_query(self, obj):
         """
         Returns the query that fetches the next version relative to this
         version in the version history.
         """
-        return self._next_prev_query(obj, 'next')
+        return self._next_prev_query(obj, "next")
 
 
 class ValidityFetcher(VersionObjectFetcher):
@@ -172,15 +148,10 @@ class ValidityFetcher(VersionObjectFetcher):
         """
         session = sa.orm.object_session(obj)
 
-        return (
-            session.query(obj.__class__)
-            .filter(
-                sa.and_(
-                    getattr(obj.__class__, tx_column_name(obj))
-                    ==
-                    getattr(obj, end_tx_column_name(obj)),
-                    *parent_criteria(obj)
-                )
+        return session.query(obj.__class__).filter(
+            sa.and_(
+                getattr(obj.__class__, tx_column_name(obj)) == getattr(obj, end_tx_column_name(obj)),
+                *parent_criteria(obj),
             )
         )
 
@@ -191,14 +162,9 @@ class ValidityFetcher(VersionObjectFetcher):
         """
         session = sa.orm.object_session(obj)
 
-        return (
-            session.query(obj.__class__)
-            .filter(
-                sa.and_(
-                    getattr(obj.__class__, end_tx_column_name(obj))
-                    ==
-                    getattr(obj, tx_column_name(obj)),
-                    *parent_criteria(obj)
-                )
+        return session.query(obj.__class__).filter(
+            sa.and_(
+                getattr(obj.__class__, end_tx_column_name(obj)) == getattr(obj, tx_column_name(obj)),
+                *parent_criteria(obj),
             )
         )

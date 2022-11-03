@@ -1,4 +1,5 @@
 from copy import copy
+
 try:
     from collections import OrderedDict
 except ImportError:
@@ -19,10 +20,7 @@ class Operation(object):
         self.processed = False
 
     def __eq__(self, other):
-        return (
-            self.target == other.target and
-            self.type == other.type
-        )
+        return self.target == other.target and self.type == other.type
 
     def __ne__(self, other):
         return not (self == other)
@@ -32,6 +30,7 @@ class Operations(object):
     """
     A collection of operations
     """
+
     def __init__(self):
         self.objects = OrderedDict()
 
@@ -89,7 +88,7 @@ class Operations(object):
         relationships = sa.inspect(target.__class__).relationships
         # Remove all ONETOMANY and MANYTOMANY relationships
         for rel_key, relationship in relationships.items():
-            if relationship.direction.name in ['ONETOMANY', 'MANYTOMANY']:
+            if relationship.direction.name in ["ONETOMANY", "MANYTOMANY"]:
                 if rel_key in state_copy:
                     del state_copy[rel_key]
 

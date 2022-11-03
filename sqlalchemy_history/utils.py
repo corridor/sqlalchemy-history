@@ -41,26 +41,21 @@ def option(obj_or_class, option_name):
     if isinstance(obj_or_class, AliasedClass):
         obj_or_class = sa.inspect(obj_or_class).mapper.class_
     cls = obj_or_class if isclass(obj_or_class) else obj_or_class.__class__
-    if not hasattr(cls, '__versioned__'):
+    if not hasattr(cls, "__versioned__"):
         cls = parent_class(cls)
-    return get_versioning_manager(cls).option(
-        cls, option_name
-    )
+    return get_versioning_manager(cls).option(cls, option_name)
 
 
 def tx_column_name(obj):
-    return option(obj, 'transaction_column_name')
+    return option(obj, "transaction_column_name")
 
 
 def end_tx_column_name(obj):
-    return option(obj, 'end_transaction_column_name')
+    return option(obj, "end_transaction_column_name")
 
 
 def end_tx_attr(obj):
-    return getattr(
-        obj.__class__,
-        end_tx_column_name(obj)
-    )
+    return getattr(obj.__class__, end_tx_column_name(obj))
 
 
 def parent_class(version_cls):
@@ -100,10 +95,9 @@ def version_obj(session, parent_obj):
     manager = get_versioning_manager(parent_obj)
     uow = manager.unit_of_work(session)
     for version_obj in uow.version_session:
-        if (
-            parent_class(version_obj.__class__) == parent_obj.__class__ and
-            identity(version_obj)[:-1] == identity(parent_obj)
-        ):
+        if parent_class(version_obj.__class__) == parent_obj.__class__ and identity(version_obj)[
+            :-1
+        ] == identity(parent_obj):
             return version_obj
 
 
@@ -134,17 +128,11 @@ def version_table(table):
     :param table: SQLAlchemy Table object
     """
     if table.schema:
-        return table.metadata.tables[
-            table.schema + '.' + table.name + '_version'
-        ]
+        return table.metadata.tables[table.schema + "." + table.name + "_version"]
     elif table.metadata.schema:
-        return table.metadata.tables[
-            table.metadata.schema + '.' + table.name + '_version'
-        ]
+        return table.metadata.tables[table.metadata.schema + "." + table.name + "_version"]
     else:
-        return table.metadata.tables[
-            table.name + '_version'
-        ]
+        return table.metadata.tables[table.name + "_version"]
 
 
 def versioned_objects(session):
@@ -180,11 +168,8 @@ def is_versioned(obj_or_class):
     .. seealso:: :func:`versioned_objects`
     """
     try:
-        return (
-            hasattr(obj_or_class, '__versioned__') and
-            get_versioning_manager(obj_or_class).option(
-                obj_or_class, 'versioning'
-            )
+        return hasattr(obj_or_class, "__versioned__") and get_versioning_manager(obj_or_class).option(
+            obj_or_class, "versioning"
         )
     except ClassNotVersioned:
         return False
@@ -249,10 +234,9 @@ def vacuum(session, model, yield_per=1000):
     version_cls = version_class(model)
     versions = defaultdict(list)
 
-    query = (
-        session.query(version_cls)
-        .order_by(option(version_cls, 'transaction_column_name'))
-    ).yield_per(yield_per)
+    query = (session.query(version_cls).order_by(option(version_cls, "transaction_column_name"))).yield_per(
+        yield_per
+    )
 
     primary_key_col = sa.inspection.inspect(model).primary_key[0].name
 
@@ -286,9 +270,9 @@ def is_internal_column(model, column_name):
     :param column_name: Name of the column
     """
     return column_name in (
-        option(model, 'transaction_column_name'),
-        option(model, 'end_transaction_column_name'),
-        option(model, 'operation_type_column_name')
+        option(model, "transaction_column_name"),
+        option(model, "end_transaction_column_name"),
+        option(model, "operation_type_column_name"),
     )
 
 
@@ -300,10 +284,7 @@ def is_modified_or_deleted(obj):
     :param obj: SQLAlchemy declarative model object
     """
     session = sa.orm.object_session(obj)
-    return is_versioned(obj) and (
-        is_modified(obj) or
-        obj in chain(session.deleted, session.new)
-    )
+    return is_versioned(obj) and (is_modified(obj) or obj in chain(session.deleted, session.new))
 
 
 def is_modified(obj):
@@ -328,13 +309,8 @@ def is_modified(obj):
     .. seealso:: :func:`is_session_modified`
     """
     column_names = sa.inspect(obj.__class__).columns.keys()
-    versioned_column_keys = [
-        prop.key for prop in versioned_column_properties(obj)
-    ]
-    versioned_relationship_keys = [
-        prop.key
-        for prop in versioned_relationships(obj, versioned_column_keys)
-    ]
+    versioned_column_keys = [prop.key for prop in versioned_column_properties(obj)]
+    versioned_relationship_keys = [prop.key for prop in versioned_relationships(obj, versioned_column_keys)]
     for key, attr in sa.inspect(obj).attrs.items():
         if key in column_names:
             if key not in versioned_column_keys:
@@ -357,9 +333,7 @@ def is_session_modified(session):
     .. seealso:: :func:`is_versioned`
     .. seealso:: :func:`versioned_objects`
     """
-    return any(
-        is_modified_or_deleted(obj) for obj in versioned_objects(session)
-    )
+    return any(is_modified_or_deleted(obj) for obj in versioned_objects(session))
 
 
 def count_versions(obj):
@@ -387,15 +361,9 @@ def count_versions(obj):
         # If object is transient, we assume it has no version history.
         return 0
     manager = get_versioning_manager(obj)
-    table_name = manager.option(obj, 'table_name') % obj.__table__.name
-    criteria = [
-        '%s = %r' % (pk, getattr(obj, pk))
-        for pk in get_primary_keys(obj)
-    ]
-    query = 'SELECT COUNT(1) FROM %s WHERE %s' % (
-        table_name,
-        ' AND '.join(criteria)
-    )
+    table_name = manager.option(obj, "table_name") % obj.__table__.name
+    criteria = ["%s = %r" % (pk, getattr(obj, pk)) for pk in get_primary_keys(obj)]
+    query = "SELECT COUNT(1) FROM %s WHERE %s" % (table_name, " AND ".join(criteria))
     return session.execute(query).scalar()
 
 
@@ -420,8 +388,7 @@ def changeset(obj):
     data = {}
     session = sa.orm.object_session(obj)
     if session and obj in session.deleted:
-        columns = [c for c in sa.inspect(obj.__class__).columns.values()
-                   if is_table_column(c)]
+        columns = [c for c in sa.inspect(obj.__class__).columns.values() if is_table_column(c)]
 
         for column in columns:
             if not column.primary_key:
@@ -438,7 +405,6 @@ def changeset(obj):
                 if new_value:
                     data[prop.key] = [new_value, old_value]
     return data
-
 
 
 class VersioningClauseAdapter(sa.sql.visitors.ReplacingCloningVisitor):

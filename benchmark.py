@@ -7,28 +7,21 @@ import sqlalchemy as sa
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, close_all_sessions
-from sqlalchemy_history import (
-    make_versioned,
-    versioning_manager,
-    remove_versioning
-)
+from sqlalchemy_history import make_versioned, versioning_manager, remove_versioning
 from sqlalchemy_history.transaction import TransactionFactory
 from sqlalchemy_history.plugins import (
     PropertyModTrackerPlugin,
     TransactionMetaPlugin,
-    TransactionChangesPlugin
+    TransactionChangesPlugin,
 )
 from termcolor import colored
 
-warnings.simplefilter('error', sa.exc.SAWarning)
+warnings.simplefilter("error", sa.exc.SAWarning)
 
 
-def test_versioning(
-    versioning_strategy,
-    property_mod_tracking
-):
-    transaction_column_name = 'transaction_id'
-    end_transaction_column_name = 'end_transaction_id'
+def test_versioning(versioning_strategy, property_mod_tracking):
+    transaction_column_name = "transaction_id"
+    end_transaction_column_name = "end_transaction_id"
     plugins = [TransactionChangesPlugin(), TransactionMetaPlugin()]
 
     if property_mod_tracking:
@@ -39,16 +32,16 @@ def test_versioning(
     Model = declarative_base()
 
     options = {
-        'create_models': True,
-        'base_classes': (Model, ),
-        'strategy': versioning_strategy,
-        'transaction_column_name': transaction_column_name,
-        'end_transaction_column_name': end_transaction_column_name,
+        "create_models": True,
+        "base_classes": (Model,),
+        "strategy": versioning_strategy,
+        "transaction_column_name": transaction_column_name,
+        "end_transaction_column_name": end_transaction_column_name,
     }
 
     make_versioned(options=options)
 
-    dns = 'postgresql://postgres:postgres@localhost/sqlalchemy_history_test'
+    dns = "postgresql://postgres:postgres@localhost/sqlalchemy_history_test"
     versioning_manager.plugins = plugins
     versioning_manager.transaction_cls = transaction_cls
     versioning_manager.user_cls = user_cls
@@ -57,7 +50,7 @@ def test_versioning(
     # engine.echo = True
 
     class Article(Model):
-        __tablename__ = 'article'
+        __tablename__ = "article"
         __versioned__ = copy(options)
 
         id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
@@ -66,13 +59,12 @@ def test_versioning(
         description = sa.Column(sa.UnicodeText)
 
     class Tag(Model):
-        __tablename__ = 'tag'
+        __tablename__ = "tag"
         __versioned__ = copy(options)
 
         id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
         article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
-        article = sa.orm.relationship(Article, backref='tags')
-
+        article = sa.orm.relationship(Article, backref="tags")
 
     sa.orm.configure_mappers()
 
@@ -82,7 +74,7 @@ def test_versioning(
 
     Session = sessionmaker(bind=connection)
     session = Session(autoflush=False)
-    session.execute('CREATE EXTENSION IF NOT EXISTS hstore')
+    session.execute("CREATE EXTENSION IF NOT EXISTS hstore")
 
     Model.metadata.create_all(connection)
 
@@ -90,13 +82,13 @@ def test_versioning(
 
     for i in range(20):
         for i in range(20):
-            session.add(Article(name=u'Article', tags=[Tag(), Tag()]))
+            session.add(Article(name="Article", tags=[Tag(), Tag()]))
         session.commit()
 
-    print 'Testing with:'
-    print '   versioning_strategy=%r' % versioning_strategy
-    print '   property_mod_tracking=%r' % property_mod_tracking
-    print colored('%r seconds' % (time() - start), 'red')
+    print("Testing with:")
+    print("   versioning_strategy=%r" % versioning_strategy)
+    print("   property_mod_tracking=%r" % property_mod_tracking)
+    print(colored("%r seconds" % (time() - start), "red"))
 
     Model.metadata.drop_all(connection)
 
@@ -110,24 +102,16 @@ def test_versioning(
     connection.close()
 
 
-
 setting_variants = {
-    'versioning_strategy': [
-        'subquery',
-        'validity',
+    "versioning_strategy": [
+        "subquery",
+        "validity",
     ],
-    'property_mod_tracking': [
-        False,
-        True
-    ]
+    "property_mod_tracking": [False, True],
 }
 
 
 names = sorted(setting_variants)
-combinations = [
-    dict(zip(names, prod))
-    for prod in
-    it.product(*(setting_variants[name] for name in names))
-]
+combinations = [dict(zip(names, prod)) for prod in it.product(*(setting_variants[name] for name in names))]
 for combination in combinations:
     test_versioning(**combination)

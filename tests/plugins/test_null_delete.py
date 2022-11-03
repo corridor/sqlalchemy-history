@@ -6,8 +6,8 @@ from tests import TestCase
 class DeleteTestCase(TestCase):
     def _delete(self):
         article = self.Article()
-        article.name = u'Some article'
-        article.content = u'Some content'
+        article.name = "Some article"
+        article.content = "Some content"
         self.session.add(article)
         self.session.commit()
 

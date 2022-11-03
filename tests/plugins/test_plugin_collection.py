@@ -34,5 +34,6 @@ class TestPluginCollection(object):
         class MyPlugin(object):
             def some_action(self):
                 return 4
+
         coll = PluginCollection([MyPlugin(), MyPlugin()])
         assert list(coll.some_action()) == [4, 4]

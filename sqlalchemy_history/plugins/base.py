@@ -50,9 +50,9 @@ class PluginCollection(object):
         return len(self.plugins)
 
     def __repr__(self):
-        return '<%s [%s]>' % (
+        return "<%s [%s]>" % (
             self.__class__.__name__,
-            ', '.join(map(repr, self.plugins))
+            ", ".join(map(repr, self.plugins)),
         )
 
     def __getitem__(self, index):
@@ -66,10 +66,8 @@ class PluginCollection(object):
 
     def __getattr__(self, attr):
         def wrapper(*args, **kwargs):
-            return [
-                getattr(plugin, attr)(*args, **kwargs)
-                for plugin in self.plugins
-            ]
+            return [getattr(plugin, attr)(*args, **kwargs) for plugin in self.plugins]
+
         return wrapper
 
     def append(self, el):

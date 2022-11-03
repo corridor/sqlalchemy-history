@@ -9,168 +9,154 @@ from tests import TestCase, create_test_cases
 class ManyToManyRelationshipsTestCase(TestCase):
     def create_models(self):
         class Article(self.Model):
-            __tablename__ = 'article'
-            __versioned__ = {
-                'base_classes': (self.Model, )
-            }
+            __tablename__ = "article"
+            __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
 
         article_tag = sa.Table(
-            'article_tag',
+            "article_tag",
             self.Model.metadata,
             sa.Column(
-                'article_id',
+                "article_id",
                 sa.Integer,
-                sa.ForeignKey('article.id'),
+                sa.ForeignKey("article.id"),
                 primary_key=True,
             ),
-            sa.Column(
-                'tag_id',
-                sa.Integer,
-                sa.ForeignKey('tag.id'),
-                primary_key=True
-            )
+            sa.Column("tag_id", sa.Integer, sa.ForeignKey("tag.id"), primary_key=True),
         )
 
         class Tag(self.Model):
-            __tablename__ = 'tag'
-            __versioned__ = {
-                'base_classes': (self.Model, )
-            }
+            __tablename__ = "tag"
+            __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
 
-        Tag.articles = sa.orm.relationship(
-            Article,
-            secondary=article_tag,
-            backref='tags'
-        )
+        Tag.articles = sa.orm.relationship(Article, secondary=article_tag, backref="tags")
 
         self.Article = Article
         self.Tag = Tag
 
     def test_version_relations(self):
         article = self.Article()
-        article.name = u'Some article'
-        article.content = u'Some content'
+        article.name = "Some article"
+        article.content = "Some content"
         self.session.add(article)
         self.session.commit()
         assert not article.versions[0].tags
 
     def test_single_insert(self):
         article = self.Article()
-        article.name = u'Some article'
-        article.content = u'Some content'
-        tag = self.Tag(name=u'some tag')
+        article.name = "Some article"
+        article.content = "Some content"
+        tag = self.Tag(name="some tag")
         article.tags.append(tag)
         self.session.add(article)
         self.session.commit()
         assert len(article.versions[0].tags) == 1
 
     def test_unrelated_change(self):
-        tag1 = self.Tag(name=u'some tag')
-        tag2 = self.Tag(name=u'some tag2')
+        tag1 = self.Tag(name="some tag")
+        tag2 = self.Tag(name="some tag2")
 
         self.session.add(tag1)
         self.session.add(tag2)
         self.session.commit()
 
-        article1 = self.Article(name="Some article", )
-        article1.name = u'Some article'
+        article1 = self.Article(
+            name="Some article",
+        )
+        article1.name = "Some article"
         article1.tags.append(tag1)
 
         self.session.add(article1)
         self.session.commit()
 
         article2 = self.Article()
-        article2.name = u'Some article2'
+        article2.name = "Some article2"
         article2.tags.append(tag1)
 
         self.session.add(article2)
         self.session.commit()
 
-        article1.name = u'Some other name'
+        article1.name = "Some other name"
         self.session.commit()
 
         assert len(article1.versions[1].tags) == 1
 
     def test_multi_insert(self):
         article = self.Article()
-        article.name = u'Some article'
-        article.content = u'Some content'
-        tag = self.Tag(name=u'some tag')
+        article.name = "Some article"
+        article.content = "Some content"
+        tag = self.Tag(name="some tag")
         article.tags.append(tag)
-        article.tags.append(self.Tag(name=u'another tag'))
+        article.tags.append(self.Tag(name="another tag"))
         self.session.add(article)
         self.session.commit()
         assert len(article.versions[0].tags) == 2
 
     def test_collection_with_multiple_entries(self):
         article = self.Article()
-        article.name = u'Some article'
-        article.content = u'Some content'
+        article.name = "Some article"
+        article.content = "Some content"
         self.session.add(article)
-        article.tags = [
-            self.Tag(name=u'some tag'),
-            self.Tag(name=u'another tag')
-        ]
+        article.tags = [self.Tag(name="some tag"), self.Tag(name="another tag")]
         self.session.commit()
         assert len(article.versions[0].tags) == 2
 
     def test_delete_single_association(self):
         article = self.Article()
-        article.name = u'Some article'
-        article.content = u'Some content'
-        tag = self.Tag(name=u'some tag')
+        article.name = "Some article"
+        article.content = "Some content"
+        tag = self.Tag(name="some tag")
         article.tags.append(tag)
         self.session.add(article)
         self.session.commit()
         article.tags.remove(tag)
-        article.name = u'Updated name'
+        article.name = "Updated name"
         self.session.commit()
         tags = article.versions[1].tags
         assert len(tags) == 0
 
     def test_delete_multiple_associations(self):
         article = self.Article()
-        article.name = u'Some article'
-        article.content = u'Some content'
-        tag = self.Tag(name=u'some tag')
-        tag2 = self.Tag(name=u'another tag')
+        article.name = "Some article"
+        article.content = "Some content"
+        tag = self.Tag(name="some tag")
+        tag2 = self.Tag(name="another tag")
         article.tags.append(tag)
         article.tags.append(tag2)
         self.session.add(article)
         self.session.commit()
         article.tags.remove(tag)
         article.tags.remove(tag2)
-        article.name = u'Updated name'
+        article.name = "Updated name"
         self.session.commit()
         assert len(article.versions[1].tags) == 0
 
     def test_remove_node_but_not_the_link(self):
         article = self.Article()
-        article.name = u'Some article'
-        article.content = u'Some content'
-        tag = self.Tag(name=u'some tag')
+        article.name = "Some article"
+        article.content = "Some content"
+        tag = self.Tag(name="some tag")
         article.tags.append(tag)
         self.session.add(article)
         self.session.commit()
         self.session.delete(tag)
-        article.name = u'Updated name'
+        article.name = "Updated name"
         self.session.commit()
         tags = article.versions[1].tags
         assert len(tags) == 0
 
     def test_multiple_parent_objects_added_within_same_transaction(self):
-        article = self.Article(name=u'Some article')
-        tag = self.Tag(name=u'some tag')
+        article = self.Article(name="Some article")
+        tag = self.Tag(name="some tag")
         article.tags.append(tag)
         self.session.add(article)
-        article2 = self.Article(name=u'Some article')
-        tag2 = self.Tag(name=u'some tag')
+        article2 = self.Article(name="Some article")
+        tag2 = self.Tag(name="some tag")
         article2.tags.append(tag2)
         self.session.add(article2)
         self.session.commit()
@@ -181,29 +167,26 @@ class ManyToManyRelationshipsTestCase(TestCase):
         assert tags == [tag.versions[0]]
 
     def test_relations_with_varying_transactions(self):
-        if (
-            self.driver == 'mysql' and
-            self.connection.dialect.server_version_info < (5, 6)
-        ):
+        if self.driver == "mysql" and self.connection.dialect.server_version_info < (5, 6):
             pytest.skip()
 
         # one article with one tag
-        article = self.Article(name=u'Some article')
-        tag1 = self.Tag(name=u'some tag')
+        article = self.Article(name="Some article")
+        tag1 = self.Tag(name="some tag")
         article.tags.append(tag1)
         self.session.add(article)
         self.session.commit()
 
         # update article and tag, add a 2nd tag
-        tag2 = self.Tag(name=u'some other tag')
+        tag2 = self.Tag(name="some other tag")
         article.tags.append(tag2)
-        tag1.name = u'updated tag1'
-        article.name = u'updated article'
+        tag1.name = "updated tag1"
+        article.name = "updated article"
         self.session.commit()
 
         # update article and first tag only
-        tag1.name = u'updated tag1 x2'
-        article.name = u'updated article x2'
+        tag1.name = "updated tag1 x2"
+        article.name = "updated article x2"
         self.session.commit()
 
         assert len(article.versions[0].tags) == 1
@@ -224,45 +207,32 @@ create_test_cases(ManyToManyRelationshipsTestCase)
 class TestManyToManyRelationshipWithViewOnly(TestCase):
     def create_models(self):
         class Article(self.Model):
-            __tablename__ = 'article'
-            __versioned__ = {
-                'base_classes': (self.Model, )
-            }
+            __tablename__ = "article"
+            __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
 
         article_tag = sa.Table(
-            'article_tag',
+            "article_tag",
             self.Model.metadata,
             sa.Column(
-                'article_id',
+                "article_id",
                 sa.Integer,
-                sa.ForeignKey('article.id'),
+                sa.ForeignKey("article.id"),
                 primary_key=True,
             ),
-            sa.Column(
-                'tag_id',
-                sa.Integer,
-                sa.ForeignKey('tag.id'),
-                primary_key=True
-            )
+            sa.Column("tag_id", sa.Integer, sa.ForeignKey("tag.id"), primary_key=True),
         )
 
         class Tag(self.Model):
-            __tablename__ = 'tag'
-            __versioned__ = {
-                'base_classes': (self.Model, )
-            }
+            __tablename__ = "tag"
+            __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
 
-        Tag.articles = sa.orm.relationship(
-            Article,
-            secondary=article_tag,
-            viewonly=True
-        )
+        Tag.articles = sa.orm.relationship(Article, secondary=article_tag, viewonly=True)
 
         self.article_tag = article_tag
         self.Article = Article
@@ -273,30 +243,24 @@ class TestManyToManyRelationshipWithViewOnly(TestCase):
 
 
 class TestManyToManySelfReferential(TestCase):
-    
     def create_models(self):
         class Article(self.Model):
-            __tablename__ = 'article'
+            __tablename__ = "article"
             __versioned__ = {}
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
 
         article_references = sa.Table(
-            'article_references',
+            "article_references",
             self.Model.metadata,
             sa.Column(
-                'referring_id',
+                "referring_id",
                 sa.Integer,
-                sa.ForeignKey('article.id'),
+                sa.ForeignKey("article.id"),
                 primary_key=True,
             ),
-            sa.Column(
-                'referred_id',
-                sa.Integer,
-                sa.ForeignKey('article.id'),
-                primary_key=True
-            )
+            sa.Column("referred_id", sa.Integer, sa.ForeignKey("article.id"), primary_key=True),
         )
 
         Article.references = sa.orm.relationship(
@@ -304,17 +268,16 @@ class TestManyToManySelfReferential(TestCase):
             secondary=article_references,
             primaryjoin=Article.id == article_references.c.referring_id,
             secondaryjoin=Article.id == article_references.c.referred_id,
-            backref='cited_by'
+            backref="cited_by",
         )
 
         self.Article = Article
         self.referenced_articles_table = article_references
 
-
     def test_single_insert(self):
 
-        article = self.Article(name=u'article')
-        reference1 = self.Article(name=u'referred article 1')
+        article = self.Article(name="article")
+        reference1 = self.Article(name="referred article 1")
         article.references.append(reference1)
         self.session.add(article)
         self.session.commit()
@@ -324,32 +287,28 @@ class TestManyToManySelfReferential(TestCase):
 
         assert len(reference1.versions[0].cited_by) == 1
         assert article.versions[0] in reference1.versions[0].cited_by
-        
-        
+
     def test_multiple_inserts_over_multiple_transactions(self):
-        if (
-            self.driver == 'mysql' and
-            self.connection.dialect.server_version_info < (5, 6)
-        ):
+        if self.driver == "mysql" and self.connection.dialect.server_version_info < (5, 6):
             pytest.skip()
 
         # create 1 article with 1 reference
-        article = self.Article(name=u'article')
-        reference1 = self.Article(name=u'reference 1')
+        article = self.Article(name="article")
+        reference1 = self.Article(name="reference 1")
         article.references.append(reference1)
         self.session.add(article)
         self.session.commit()
 
         # update existing, add a 2nd reference
-        article.name = u'Updated article'
-        reference1.name = u'Updated reference 1'
-        reference2 = self.Article(name=u'reference 2')
+        article.name = "Updated article"
+        reference1.name = "Updated reference 1"
+        reference2 = self.Article(name="reference 2")
         article.references.append(reference2)
         self.session.commit()
 
         # update only the article and reference 1
-        article.name = u'Updated article x2'
-        reference1.name = u'Updated reference 1 x2'
+        article.name = "Updated article x2"
+        reference1.name = "Updated reference 1 x2"
         self.session.commit()
 
         assert len(article.versions[1].references) == 2
@@ -374,29 +333,24 @@ class TestManyToManySelfReferential(TestCase):
 class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
     def create_models(self):
         class Article(self.Model):
-            __tablename__ = 'article'
+            __tablename__ = "article"
             __versioned__ = {}
-            __table_args__ = {'schema': 'other'}
+            __table_args__ = {"schema": "other"}
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
 
         article_references = sa.Table(
-            'article_references',
+            "article_references",
             self.Model.metadata,
             sa.Column(
-                'referring_id',
+                "referring_id",
                 sa.Integer,
-                sa.ForeignKey('other.article.id'),
+                sa.ForeignKey("other.article.id"),
                 primary_key=True,
             ),
-            sa.Column(
-                'referred_id',
-                sa.Integer,
-                sa.ForeignKey('other.article.id'),
-                primary_key=True
-            ),
-            schema='other'
+            sa.Column("referred_id", sa.Integer, sa.ForeignKey("other.article.id"), primary_key=True),
+            schema="other",
         )
 
         Article.references = sa.orm.relationship(
@@ -404,15 +358,15 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
             secondary=article_references,
             primaryjoin=Article.id == article_references.c.referring_id,
             secondaryjoin=Article.id == article_references.c.referred_id,
-            backref='cited_by'
+            backref="cited_by",
         )
 
         self.Article = Article
         self.referenced_articles_table = article_references
 
     def create_tables(self):
-        self.connection.execute('DROP SCHEMA IF EXISTS other')
-        self.connection.execute('CREATE SCHEMA other')
+        self.connection.execute("DROP SCHEMA IF EXISTS other")
+        self.connection.execute("CREATE SCHEMA other")
         TestManyToManySelfReferential.create_tables(self)
 
 
@@ -420,57 +374,43 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
 class ManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTestCase):
     def create_models(self):
         class Article(self.Model):
-            __tablename__ = 'article'
-            __versioned__ = {
-                'base_classes': (self.Model, )
-            }
-            __table_args__ = {'schema': 'other'}
+            __tablename__ = "article"
+            __versioned__ = {"base_classes": (self.Model,)}
+            __table_args__ = {"schema": "other"}
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
 
         article_tag = sa.Table(
-            'article_tag',
+            "article_tag",
             self.Model.metadata,
             sa.Column(
-                'article_id',
+                "article_id",
                 sa.Integer,
-                sa.ForeignKey('other.article.id'),
+                sa.ForeignKey("other.article.id"),
                 primary_key=True,
             ),
-            sa.Column(
-                'tag_id',
-                sa.Integer,
-                sa.ForeignKey('other.tag.id'),
-                primary_key=True
-            ),
-            schema='other'
+            sa.Column("tag_id", sa.Integer, sa.ForeignKey("other.tag.id"), primary_key=True),
+            schema="other",
         )
 
         class Tag(self.Model):
-            __tablename__ = 'tag'
-            __versioned__ = {
-                'base_classes': (self.Model, )
-            }
-            __table_args__ = {'schema': 'other'}
+            __tablename__ = "tag"
+            __versioned__ = {"base_classes": (self.Model,)}
+            __table_args__ = {"schema": "other"}
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
 
-        Tag.articles = sa.orm.relationship(
-            Article,
-            secondary=article_tag,
-            backref='tags'
-        )
+        Tag.articles = sa.orm.relationship(Article, secondary=article_tag, backref="tags")
 
         self.Article = Article
         self.Tag = Tag
 
-
     def create_tables(self):
-        self.connection.execute('DROP SCHEMA IF EXISTS other')
-        self.connection.execute('CREATE SCHEMA other')
+        self.connection.execute("DROP SCHEMA IF EXISTS other")
+        self.connection.execute("CREATE SCHEMA other")
         ManyToManyRelationshipsTestCase.create_tables(self)
 
-create_test_cases(ManyToManyRelationshipsInOtherSchemaTestCase)
 
+create_test_cases(ManyToManyRelationshipsInOtherSchemaTestCase)
