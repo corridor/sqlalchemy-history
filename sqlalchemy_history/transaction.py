@@ -1,10 +1,7 @@
 from datetime import datetime
 from functools import partial
 
-try:
-    from collections import OrderedDict
-except ImportError:
-    from ordereddict import OrderedDict
+from collections import OrderedDict
 import sqlalchemy as sa
 from sqlalchemy.ext.compiler import compiles
 
