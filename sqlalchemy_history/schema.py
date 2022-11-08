@@ -15,10 +15,7 @@ def get_end_tx_column_query(table, end_tx_column_name="end_transaction_id", tx_c
             *[getattr(v3.c, pk) == getattr(v1.c, pk) for pk in primary_keys if pk != tx_column_name],
         )
     )
-    try:
-        tx_criterion = tx_criterion.scalar_subquery()
-    except AttributeError:  # SQLAlchemy < 1.4
-        tx_criterion = tx_criterion.as_scalar()
+    tx_criterion = tx_criterion.scalar_subquery()
     return sa.select(
         columns=[getattr(v1.c, column) for column in primary_keys]
         + [getattr(v2.c, tx_column_name).label(end_tx_column_name)],

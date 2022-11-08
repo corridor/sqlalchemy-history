@@ -224,10 +224,7 @@ class UnitOfWork(object):
                 subquery = self.version_validity_subquery(
                     parent, version_obj, alias=sa.orm.aliased(class_.__table__)
                 )
-                try:
-                    subquery = subquery.scalar_subquery()
-                except AttributeError:  # SQLAlchemy < 1.4
-                    subquery = subquery.as_scalar()
+                subquery = subquery.scalar_subquery()
 
                 query = session.query(class_.__table__).filter(
                     sa.and_(
