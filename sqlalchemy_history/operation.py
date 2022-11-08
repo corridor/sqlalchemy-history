@@ -1,9 +1,6 @@
 from copy import copy
 
-try:
-    from collections import OrderedDict
-except ImportError:
-    from ordereddict import OrderedDict
+from collections import OrderedDict
 
 import sqlalchemy as sa
 from sqlalchemy_utils import identity
