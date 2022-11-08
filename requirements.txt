@@ -1,2 +1,7 @@
-# Developer requirements
+# Linting and Formatting
 black
+# Unit tests
+pytest>=2.3.5
+flexmock>=0.9.7
+psycopg2-binary>=2.4.6
+PyMySQL>=0.8.0
