@@ -18,7 +18,7 @@ from sqlalchemy_history.utils import (
 )
 
 
-__version__ = "1.3.13"
+__version__ = "2.0.0.rc1"
 
 
 versioning_manager = VersioningManager()
