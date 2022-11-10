@@ -14,18 +14,30 @@ on:
 
 
 jobs:
-  test:
-    name: test-python${{ matrix.python-version }}-${{ matrix.db-engine }}
+  test-sqlite:
+    name: test-python${{ matrix.python-version }}-sqlite
     strategy:
       matrix:
         python-version:
          - "3.6"
-         - "3.8"
          - "3.10"
-        db-engine:
-          - sqlite
-          - postgres
-          - mysql
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: psf/black@stable
+      - name: Build
+        run: pip3 install -e . -r requirements/test.txt
+      - name: Run tests
+        run: pytest
+        env:
+          DB: sqlite
+  test-mysql:
+    name: test-python${{ matrix.python-version }}-mysql
+    strategy:
+      matrix:
+        python-version:
+         - "3.6"
+         - "3.10"
     runs-on: ubuntu-latest
     services:
       mysql:
@@ -40,6 +52,25 @@ jobs:
           --health-interval 5s
           --health-timeout 2s
           --health-retries 3
+    steps:
+      - uses: actions/checkout@v1
+      - uses: psf/black@stable
+      - name: Build
+        run: pip3 install -e . -r requirements/test.txt
+      - name: Run tests
+        run: pytest
+        env:
+          DB: mysql
+  test-postgres:
+    name: test-python${{ matrix.python-version }}-postgres
+    strategy:
+      matrix:
+        python-version:
+         - "3.6"
+         - "3.8"
+         - "3.10"
+    runs-on: ubuntu-latest
+    services:
       postgres:
         image: postgres
         ports:
@@ -60,5 +91,4 @@ jobs:
       - name: Run tests
         run: pytest
         env:
-          DB: ${{ matrix.db-engine }}
-
+          DB: postgres
