@@ -15,16 +15,13 @@ on:
 
 jobs:
   test:
-    name: test-python${{ matrix.python-version }}-sa${{ matrix.sqlalchemy-version }}-${{ matrix.db-engine }}
+    name: test-python${{ matrix.python-version }}-${{ matrix.db-engine }}
     strategy:
       matrix:
         python-version:
          - "3.6"
          - "3.8"
          - "3.10"
-        sqlalchemy-version:
-          - "<1.4"
-          - ">=1.4"
         db-engine:
           - sqlite
           - postgres
@@ -58,8 +55,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: psf/black@stable
-      - name: Install sqlalchemy
-        run: pip3 install 'sqlalchemy${{ matrix.sqlalchemy-version }}'
       - name: Build
         run: pip3 install -e . -r requirements/test.txt
       - name: Run tests
