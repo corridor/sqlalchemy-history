@@ -65,7 +65,7 @@ jobs:
       - name: Install sqlalchemy
         run: pip3 install 'sqlalchemy${{ matrix.sqlalchemy-version }}'
       - name: Build
-        run: pip3 install -e . -r requirements.txt
+        run: pip3 install -e . -r requirements/test.txt
       - name: Run tests
         run: pytest
         env:
