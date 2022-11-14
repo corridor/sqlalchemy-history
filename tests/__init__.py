@@ -36,6 +36,8 @@ def get_dns_from_driver(driver):
         return "mysql+pymysql://root@localhost/sqlalchemy_history_test"
     elif driver == "sqlite":
         return "sqlite:///:memory:"
+    elif driver == "mssql":
+        return "mssql+pymssql://sa:MSsql2022@localhost:1433"
     else:
         raise Exception("Unknown driver given: %r" % driver)
 
