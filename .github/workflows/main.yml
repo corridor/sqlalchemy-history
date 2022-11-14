@@ -30,7 +30,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: psf/black@stable
       - name: Build
-        run: pip3 install -e . -r requirements/test.txt
+        run: |
+          pip3 install --user --upgrade pip
+          pip3 install -e . -r requirements/test.txt
       - name: Run tests
         run: pytest
         env:
@@ -65,7 +67,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: psf/black@stable
       - name: Build
-        run: pip3 install -e . -r requirements/test.txt
+        run: |
+          pip3 install --user --upgrade pip
+          pip3 install -e . -r requirements/test.txt
       - name: Run tests
         run: pytest
         env:
@@ -100,8 +104,47 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: psf/black@stable
       - name: Build
-        run: pip3 install -e . -r requirements/test.txt
+        run: |
+          pip3 install --user --upgrade pip
+          pip3 install -e . -r requirements/test.txt
       - name: Run tests
         run: pytest
         env:
           DB: postgres
+
+  test-mssql:
+    name: test-python${{ matrix.python-version }}-mssql
+    strategy:
+      matrix:
+        python-version:
+         - "3.6"
+         - "3.10"
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        ports:
+          - 1433:1433
+        env:
+          MSSQL_SA_PASSWORD: MSsql2022
+          ACCEPT_EULA: N
+        options: >-
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -U $DB_USER -P $SA_PASSWORD -Q 'select 1' -b -o /dev/null"
+          --health-interval 5s
+          --health-timeout 2s
+          --health-retries 3
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: psf/black@stable
+      - name: Build
+        run: |
+          pip3 install --user --upgrade pip
+          pip3 install -e . -r requirements/test.txt
+      - name: Run tests
+        run: pytest
+        env:
+          DB: mssql
