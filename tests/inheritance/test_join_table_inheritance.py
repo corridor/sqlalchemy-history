@@ -114,11 +114,11 @@ class JoinTableInheritanceTestCase(TestCase):
         assert article.versions.count() == 2
 
         assert self.session.execute(
-            "SELECT %s FROM text_item_version " "ORDER BY %s LIMIT 1" % (end_tx_column, tx_column)
-        ).scalar()
+            "SELECT %s FROM text_item_version " "ORDER BY %s" % (end_tx_column, tx_column)
+        ).fetchone()[0]
         assert self.session.execute(
-            "SELECT %s FROM article_version " "ORDER BY %s LIMIT 1" % (end_tx_column, tx_column)
-        ).scalar()
+            "SELECT %s FROM article_version " "ORDER BY %s" % (end_tx_column, tx_column)
+        ).fetchone()[0]
 
 
 create_test_cases(JoinTableInheritanceTestCase)
