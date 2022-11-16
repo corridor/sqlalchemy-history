@@ -53,7 +53,7 @@ def update_end_tx_column(
     query = get_end_tx_column_query(
         table, end_tx_column_name=end_tx_column_name, tx_column_name=tx_column_name
     )
-    stmt = conn.execute(query)
+    stmt = conn.execute(query).fetchall()
     primary_keys = [c.name for c in table.c if c.primary_key]
     for row in stmt:
         if row[end_tx_column_name]:
