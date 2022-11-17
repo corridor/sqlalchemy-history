@@ -42,4 +42,5 @@ nosetests.xml
 .cache
 
 # Py virtual env
-venv/*
+venv*/*
+poetry.lock
