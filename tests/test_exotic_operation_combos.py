@@ -1,3 +1,4 @@
+from pytest import mark
 from tests import TestCase, create_test_cases
 
 
@@ -36,6 +37,10 @@ class ExoticOperationCombosTestCase(TestCase):
         assert article2.versions[0].operation_type == 0
         assert article2.versions[1].operation_type == 1
 
+    # Ref for mssql: https://github.com/sqlalchemy/sqlalchemy/discussions/8829
+    @mark.skipif(
+        "os.environ.get('DB') == 'mssql'", reason="mssql does not support changing the IDENTITY column"
+    )
     def test_replace_deleted_object_with_update(self):
         article = self.Article()
         article.name = "Some article"
