@@ -29,12 +29,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: psf/black@stable
-      - name: Build
-        run: |
-          pip3 install --user --upgrade pip
-          pip3 install -e . -r requirements/test.txt
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Install dependencies
+        run: poetry install
       - name: Run tests
-        run: pytest
+        run: .venv/bin/pytest
         env:
           DB: sqlite
 
@@ -66,12 +66,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: psf/black@stable
-      - name: Build
-        run: |
-          pip3 install --user --upgrade pip
-          pip3 install -e . -r requirements/test.txt
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Install dependencies
+        run: poetry install
       - name: Run tests
-        run: pytest
+        run: .venv/bin/pytest
         env:
           DB: mysql
 
@@ -103,12 +103,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: psf/black@stable
-      - name: Build
-        run: |
-          pip3 install --user --upgrade pip
-          pip3 install -e . -r requirements/test.txt
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Install dependencies
+        run: poetry install
       - name: Run tests
-        run: pytest
+        run: .venv/bin/pytest
         env:
           DB: postgres
 
