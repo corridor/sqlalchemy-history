@@ -29,12 +29,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: psf/black@stable
-      - name: Build
+      - name: Install Project
         run: |
-          pip3 install --user --upgrade pip
-          pip3 install -e . -r requirements/test.txt
+          python -m pip install --upgrade pip
+          pip install --upgrade poetry 
+          poetry install
       - name: Run tests
-        run: pytest
+        run: |
+          source "$( poetry env list --full-path | grep Activated | cut -d' ' -f1 )/bin/activate"
+          pytest
         env:
           DB: sqlite
 
@@ -66,12 +69,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: psf/black@stable
-      - name: Build
+      - name: Install Project
         run: |
-          pip3 install --user --upgrade pip
-          pip3 install -e . -r requirements/test.txt
+          python -m pip install --upgrade pip
+          pip install --upgrade poetry 
+          poetry install
       - name: Run tests
-        run: pytest
+        run: |
+          source "$( poetry env list --full-path | grep Activated | cut -d' ' -f1 )/bin/activate"
+          pytest
         env:
           DB: mysql
 
@@ -103,12 +109,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: psf/black@stable
-      - name: Build
+      - name: Install Project
         run: |
-          pip3 install --user --upgrade pip
-          pip3 install -e . -r requirements/test.txt
+          python -m pip install --upgrade pip
+          pip install --upgrade poetry 
+          poetry install
       - name: Run tests
-        run: pytest
+        run: |
+          source "$( poetry env list --full-path | grep Activated | cut -d' ' -f1 )/bin/activate"
+          pytest
         env:
           DB: postgres
 
@@ -140,12 +149,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: psf/black@stable
-      - name: Build
+      - name: Install Project
         run: |
-          pip3 install --user --upgrade pip
-          pip3 install -e . -r requirements/test.txt
+          python -m pip install --upgrade pip
+          pip install --upgrade poetry 
+          poetry install
       - name: Run tests
-        run: pytest
+        run: |
+          source "$( poetry env list --full-path | grep Activated | cut -d' ' -f1 )/bin/activate"
+          pytest
         env:
           DB: mssql
 
@@ -176,10 +188,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: psf/black@stable
-      - name: Build
+      - name: Install Project
         run: |
-          pip3 install --user --upgrade pip
-          pip3 install -e . -r requirements/test.txt
+          python -m pip install --upgrade pip
+          pip install --upgrade poetry 
+          poetry install
       - name: install oracle dependencies
         run: | # https://cx-oracle.readthedocs.io/en/latest/user_guide/installation.html#installing-cx-oracle-on-linux
           mkdir -p /opt/oracle
@@ -190,6 +203,7 @@ jobs:
       - name: Run tests
         run: |
           export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_8/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+          source "$( poetry env list --full-path | grep Activated | cut -d' ' -f1 )/bin/activate"
           pytest
         env:
           DB: oracle
