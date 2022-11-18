@@ -21,9 +21,13 @@ jobs:
         python-version:
          - "3.6"
          - "3.10"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04 # refer: https://github.com/actions/setup-python/issues/541
     steps:
       - uses: actions/checkout@v1
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
       - uses: psf/black@stable
       - name: Build
         run: pip3 install -e . -r requirements/test.txt
@@ -52,9 +56,13 @@ jobs:
           --health-interval 5s
           --health-timeout 2s
           --health-retries 3
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
       - uses: psf/black@stable
       - name: Build
         run: pip3 install -e . -r requirements/test.txt
@@ -83,9 +91,13 @@ jobs:
           --health-interval 5s
           --health-timeout 2s
           --health-retries 3
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
       - uses: psf/black@stable
       - name: Build
         run: pip3 install -e . -r requirements/test.txt
