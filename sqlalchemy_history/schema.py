@@ -79,11 +79,17 @@ def get_property_mod_flags_query(
     return sa.select(
         columns=[getattr(v1.c, column) for column in primary_keys]
         + [
-            (
-                sa.or_(
-                    getattr(v1.c, column) != getattr(v2.c, column),
-                    getattr(v2.c, tx_column_name).is_(None),
-                )
+            sa.case(
+                [
+                    (
+                        sa.or_(
+                            getattr(v1.c, column) != getattr(v2.c, column),
+                            getattr(v2.c, tx_column_name).is_(None),
+                        ),
+                        1,
+                    )
+                ],
+                else_=0,
             ).label(column + mod_suffix)
             for column in tracked_columns
         ],
@@ -134,7 +140,7 @@ def update_property_mod_flags(
         end_tx_column_name=end_tx_column_name,
         tx_column_name=tx_column_name,
     )
-    stmt = conn.execute(query)
+    stmt = conn.execute(query).all()  # Note: MSSQL DB returns only one record if .all is not used :/
 
     primary_keys = [c.name for c in table.c if c.primary_key]
     for row in stmt:
