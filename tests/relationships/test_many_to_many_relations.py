@@ -329,7 +329,7 @@ class TestManyToManySelfReferential(TestCase):
         assert article.versions[2] in reference1.versions[2].cited_by
 
 
-@mark.skipif("os.environ.get('DB') == 'sqlite'")
+@mark.skipif("os.environ.get('DB') in ['sqlite', 'oracle']")
 class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
     def create_models(self):
         class Article(self.Model):
@@ -370,7 +370,7 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
         TestManyToManySelfReferential.create_tables(self)
 
 
-@mark.skipif("os.environ.get('DB') == 'sqlite'")
+@mark.skipif("os.environ.get('DB') in ['sqlite', 'oracle']")
 class ManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTestCase):
     def create_models(self):
         class Article(self.Model):
