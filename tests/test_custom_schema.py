@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from tests import TestCase
 
 
-@mark.skipif("os.environ.get('DB') == 'sqlite'")
+@mark.skipif("os.environ.get('DB') in ['sqlite', 'oracle']")
 class TestCustomSchema(TestCase):
     def create_models(self):
         self.Model = declarative_base(metadata=sa.MetaData(schema="continuum"))

@@ -72,7 +72,7 @@ class TestTableBuilderWithOnUpdate(TestCase):
         assert table.c.last_update.onupdate is None
 
 
-@mark.skipif("os.environ.get('DB') == 'sqlite'")
+@mark.skipif("os.environ.get('DB') in ['sqlite', 'oracle']")
 class TestTableBuilderInOtherSchema(TestCase):
     def create_models(self):
         class Article(self.Model):

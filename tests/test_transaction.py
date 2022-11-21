@@ -63,7 +63,7 @@ class TestAssigningUserClass(TestCase):
         assert isinstance(attr.property.columns[0].type, sa.Unicode)
 
 
-@mark.skipif("os.environ.get('DB') == 'sqlite'")
+@mark.skipif("os.environ.get('DB') in ['sqlite', 'oracle']")
 class TestAssigningUserClassInOtherSchema(TestCase):
     user_cls = "User"
 
