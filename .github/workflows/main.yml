@@ -121,7 +121,7 @@ jobs:
          - "3.10"
     services:
       mssql:
-        image: mcr.microsoft.com/mssql/server:2022-latest
+        image: mcr.microsoft.com/mssql/server:2017-latest  # https://mcr.microsoft.com/en-us/product/mssql/server/about
         ports:
           - 1433:1433
         env:
