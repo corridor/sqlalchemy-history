@@ -148,3 +148,48 @@ jobs:
         run: pytest
         env:
           DB: mssql
+
+  test-oracle:
+    name: test-python${{ matrix.python-version }}-oracle
+    strategy:
+      matrix:
+        python-version:
+         - "3.6"
+         - "3.10"
+    services:
+      oracle:
+        image: gvenzl/oracle-xe:18
+        ports:
+          - 1521:1521
+        env:
+          ORACLE_PASSWORD: Oracle2022
+        options: >-
+          --health-cmd healthcheck.sh
+          --health-interval 30s
+          --health-timeout 15s
+          --health-retries 5
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: psf/black@stable
+      - name: Build
+        run: |
+          pip3 install --user --upgrade pip
+          pip3 install -e . -r requirements/test.txt
+      - name: install oracle dependencies
+        run: | # https://cx-oracle.readthedocs.io/en/latest/user_guide/installation.html#installing-cx-oracle-on-linux
+          mkdir -p /opt/oracle
+          cd /opt/oracle
+          wget https://download.oracle.com/otn_software/linux/instantclient/218000/instantclient-basic-linux.x64-21.8.0.0.0dbru.zip
+          unzip /opt/oracle/instantclient-basic-linux.x64-21.8.0.0.0dbru.zip
+          sudo apt-get install libaio1
+      - name: Run tests
+        run: |
+          export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_8/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+          pytest
+        env:
+          DB: oracle
