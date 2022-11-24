@@ -7,19 +7,12 @@ name = "SQLAlchemy-History"
 description = "History tracking extension for SQLAlchemy."
 version = "2.0.0rc1"
 authors = ["Corridor Platforms <postmaster@corridorplatforms.com>"]
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
 license = "Apache-2.0, BSD-3-Clause"
-=======
->>>>>>> chore(#11): migrate to poetry
->>>>>>> c5fcd5d... chore(#11): migrate to poetry
 readme = "README.md"
 packages = [{include = "sqlalchemy_history"}, {include = "sqlalchemy_history/plugins"}]
 repository = "https://github.com/corridor/sqlalchemy-history"
 classifiers=[
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
