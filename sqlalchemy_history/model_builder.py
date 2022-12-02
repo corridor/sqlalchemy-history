@@ -1,3 +1,5 @@
+"""Model Builder module build Versioned Models
+"""
 from copy import copy
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
@@ -9,8 +11,11 @@ from sqlalchemy_history.version import VersionClassBase
 
 
 def find_closest_versioned_parent(manager, model):
-    """
-    Finds the closest versioned parent for current parent model.
+    """Finds the closest versioned parent for current parent model.
+
+    :param manager:
+    :param model:
+
     """
     for class_ in model.__bases__:
         if class_ in manager.version_class_map:
@@ -18,8 +23,11 @@ def find_closest_versioned_parent(manager, model):
 
 
 def versioned_parents(manager, model):
-    """
-    Finds all versioned ancestors for current parent model.
+    """Finds all versioned ancestors for current parent model.
+
+    :param manager:
+    :param model:
+
     """
     for class_ in model.__mro__:
         if class_ in manager.version_class_map:
@@ -27,13 +35,23 @@ def versioned_parents(manager, model):
 
 
 def get_base_class(manager, model):
-    """
-    Returns all base classes for history model.
+    """Returns all base classes for history model.
+
+    :param manager:
+    :param model:
+
     """
     return option(model, "base_classes") or (get_declarative_base(model),)
 
 
 def version_base(manager, parent_cls, base_class_factory=None):
+    """
+
+    :param manager:
+    :param parent_cls:
+    :param base_class_factory:  (Default value = None)
+
+    """
     if base_class_factory is None:
         base_class_factory = get_base_class
 
@@ -50,6 +68,11 @@ def version_base(manager, parent_cls, base_class_factory=None):
 
 
 def copy_mapper_args(model):
+    """
+
+    :param model:
+
+    """
     args = {}
     if hasattr(model, "__mapper_args__"):
         arg_names = ("with_polymorphic", "polymorphic_identity", "concrete")
@@ -74,28 +97,22 @@ def copy_mapper_args(model):
 
 
 class ModelBuilder(object):
-    """
-    VersionedModelBuilder handles the building of Version models based on
-    parent table attributes and versioning configuration.
-    """
+    """VersionedModelBuilder handles the building of Version models based on parent table attributes and versioning configuration."""
 
     def __init__(self, versioning_manager, model):
         """
-        :param versioning_manager:
-            VersioningManager object
-        :param model:
-            SQLAlchemy declarative model object that acts as a parent for the
-            built version model
+        Args:
+            versioning_manager:
+                VersioningManager object
+            model:
+                SQLAlchemy declarative model object that acts as a parent for the
+                built version model
         """
         self.manager = versioning_manager
         self.model = model
 
     def build_parent_relationship(self):
-        """
-        Builds a relationship between currently built version class and
-        parent class (the model whose history the currently build version
-        class represents).
-        """
+        """Builds a relationship between currently built version class and parent class (the model whose history the currently build version class represents)."""
         conditions = []
         foreign_keys = []
         model_keys = []
@@ -128,11 +145,10 @@ class ModelBuilder(object):
             )
 
     def build_transaction_relationship(self, tx_class):
-        """
-        Builds a relationship between currently built version class and
-        Transaction class.
+        """Builds a relationship between currently built version class and Transaction class.
 
         :param tx_class: Transaction class
+
         """
         # Only define transaction relation if it doesn't already exist in
         # parent class.
@@ -147,15 +163,11 @@ class ModelBuilder(object):
             )
 
     def base_classes(self):
-        """
-        Returns all base classes for history model.
-        """
+        """Returns all base classes for history model."""
         return (version_base(self.manager, self.model),)
 
     def inheritance_args(self, cls, version_table, table):
-        """
-        Return mapper inheritance args for currently built history model.
-        """
+        """Return mapper inheritance args for currently built history model."""
         args = {}
 
         if not sa.inspect(self.model).single:
@@ -204,8 +216,10 @@ class ModelBuilder(object):
         return args
 
     def build_model(self, table):
-        """
-        Build history model class.
+        """Build history model class.
+
+        :param table:
+
         """
         args = {}
 
@@ -236,10 +250,7 @@ class ModelBuilder(object):
         return type(name, self.base_classes(), args)
 
     def __call__(self, table, tx_class):
-        """
-        Build history model and relationships to parent model, transaction
-        log model.
-        """
+        """Build history model and relationships to parent model, transaction log model."""
         # versioned attributes need to be copied for each child class,
         # otherwise each child class would share the same __versioned__
         # option dict

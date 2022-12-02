@@ -1,3 +1,6 @@
+"""Transaction model makes transactions for history tables
+"""
+
 from datetime import datetime
 from functools import partial
 
@@ -23,8 +26,8 @@ class TransactionBase(object):
 
     @property
     def entity_names(self):
-        """
-        Return a list of entity names that changed during this transaction.
+        """Return a list of entity names that changed during this transaction.
+
         Raises a NoChangesAttribute exception if the 'changes' column does
         not exist, most likely because TransactionChangesPlugin is not enabled.
         """
@@ -35,8 +38,7 @@ class TransactionBase(object):
 
     @property
     def changed_entities(self):
-        """
-        Return all changed entities for this transaction log entry.
+        """Return all changed entities for this transaction log entry.
 
         Entities are returned as a dict where keys are entity classes and
         values lists of entitites that changed in this transaction.
@@ -69,9 +71,7 @@ class TransactionFactory(ModelFactory):
         self.remote_addr = remote_addr
 
     def create_class(self, manager):
-        """
-        Create Transaction class.
-        """
+        """Create Transaction class."""
 
         class Transaction(manager.declarative_base, TransactionBase):
             __tablename__ = "transaction"

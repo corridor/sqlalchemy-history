@@ -1,3 +1,5 @@
+"""Table Builder Builds versioned table.
+"""
 import sqlalchemy as sa
 from sqlalchemy_utils import get_column_key
 
@@ -15,10 +17,10 @@ class ColumnReflector(object):
             return self.manager.options[name]
 
     def reflect_column(self, column):
-        """
-        Make a copy of parent table column and some alterations to it.
+        """Make a copy of parent table column and some alterations to it.
 
         :param column: SQLAlchemy Column object of parent table
+
         """
         # Make a copy of the column so that it does not point to wrong table.
         column_copy = column._copy() if hasattr(column, "_copy") else column.copy()
@@ -41,10 +43,7 @@ class ColumnReflector(object):
 
     @property
     def operation_type_column(self):
-        """
-        Return the operation type column. By default the name of this column
-        is 'operation_type'.
-        """
+        """Return the operation type column. By default the name of this column is 'operation_type'."""
         return sa.Column(
             self.option("operation_type_column_name"),
             sa.SmallInteger,
@@ -54,10 +53,7 @@ class ColumnReflector(object):
 
     @property
     def transaction_column(self):
-        """
-        Returns transaction column. By default the name of this column is
-        'transaction_id'.
-        """
+        """Returns transaction column. By default the name of this column is 'transaction_id'."""
         return sa.Column(
             self.option("transaction_column_name"),
             sa.BigInteger,
@@ -68,10 +64,7 @@ class ColumnReflector(object):
 
     @property
     def end_transaction_column(self):
-        """
-        Returns end_transaction column. By default the name of this column is
-        'end_transaction_id'.
-        """
+        """Returns end_transaction column. By default the name of this column is 'end_transaction_id'."""
         return sa.Column(self.option("end_transaction_column_name"), sa.BigInteger, index=True)
 
     @property
@@ -96,10 +89,7 @@ class ColumnReflector(object):
 
 
 class TableBuilder(object):
-    """
-    TableBuilder handles the building of version tables based on parent
-    table's structure and versioning configuration options.
-    """
+    """TableBuilder handles the building of version tables based on parent table's structure and versioning configuration options."""
 
     def __init__(self, versioning_manager, parent_table, model=None):
         self.manager = versioning_manager
@@ -114,9 +104,7 @@ class TableBuilder(object):
 
     @property
     def table_name(self):
-        """
-        Returns the version table name for current parent table.
-        """
+        """Returns the version table name for current parent table."""
         return self.option("table_name") % self.parent_table.name
 
     @property
@@ -124,9 +112,8 @@ class TableBuilder(object):
         return list(column for column in ColumnReflector(self.manager, self.parent_table, self.model))
 
     def __call__(self, extends=None):
-        """
-        Builds version table.
-        """
+        """Builds version table."""
+
         self.parent_table.__versioning_manager__ = self.manager
         columns = self.columns if extends is None else []
         self.manager.plugins.after_build_version_table_columns(self, columns)

@@ -11,27 +11,27 @@ from sqlalchemy_history.utils import (
 class VersionClassBase(object):
     @property
     def previous(self):
-        """
-        Returns the previous version relative to this version in the version
+        """Returns the previous version relative to this version in the version
         history. If current version is the first version this method returns
         None.
+
+
         """
         return get_versioning_manager(self).fetcher(parent_class(self.__class__)).previous(self)
 
     @property
     def next(self):
-        """
-        Returns the next version relative to this version in the version
+        """Returns the next version relative to this version in the version
         history. If current version is the last version this method returns
         None.
+
+
         """
         return get_versioning_manager(self).fetcher(parent_class(self.__class__)).next(self)
 
     @property
     def index(self):
-        """
-        Return the index of this version in the version history.
-        """
+        """ """
         return get_versioning_manager(self).fetcher(parent_class(self.__class__)).index(self)
 
     @property
@@ -40,6 +40,7 @@ class VersionClassBase(object):
         Return a dictionary of changed fields in this version with keys as
         field names and values as lists with first value as the old field value
         and second list value as the new value.
+
         """
         previous_version = self.previous
         data = {}

@@ -29,21 +29,19 @@ def update_end_tx_column(
     tx_column_name="transaction_id",
     conn=None,
 ):
-    """
-    Calculates end transaction columns and updates the version table with the
-    calculated values. This function can be used for migrating between subquery
-    versioning strategy and validity versioning strategy.
+    """Calculates end transaction columns and updates the version table with the calculated values.
+
+    This function can be used for migrating between subquery versioning strategy and validity versioning strategy.
 
     :param table: SQLAlchemy table object
-    :param end_tx_column_name: Name of the end transaction column
-    :param tx_column_name: Transaction column name
-    :param conn:
-        Either SQLAlchemy Connection, Engine, Session or Alembic
-        Operations object. Basically this should be an object that can execute
-        the queries needed to update the end transaction column values.
+    :param end_tx_column_name: Name of the end transaction column (Default value = "end_transaction_id")
+    :param tx_column_name: Transaction column name (Default value = "transaction_id")
+    :param conn: Either SQLAlchemy Connection, Engine, Session or Alembic
+            Operations object. Basically this should be an object that can execute
+            the queries needed to update the end transaction column values.
+            If no object is given then this function tries to use alembic.op for
+            executing the queries. (Default value = None)
 
-        If no object is given then this function tries to use alembic.op for
-        executing the queries.
     """
     if conn is None:
         from alembic import op
@@ -72,6 +70,15 @@ def get_property_mod_flags_query(
     end_tx_column_name="end_transaction_id",
     tx_column_name="transaction_id",
 ):
+    """
+
+    :param table:
+    :param tracked_columns:
+    :param mod_suffix:  (Default value = "_mod")
+    :param end_tx_column_name:  (Default value = "end_transaction_id")
+    :param tx_column_name:  (Default value = "transaction_id")
+
+    """
     v1 = sa.alias(table, name="v")
     v2 = sa.alias(table, name="v2")
     primary_keys = [c.name for c in table.c if c.primary_key]
@@ -111,22 +118,21 @@ def update_property_mod_flags(
     tx_column_name="transaction_id",
     conn=None,
 ):
-    """
-    Update property modification flags for given table and given columns. This
-    function can be used for migrating an existing schema to use property mod
-    flags (provided by PropertyModTracker plugin).
+    """Update property modification flags for given table and given columns.
+
+    This function can be used for migrating an existing schema to use property mod flags (provided by PropertyModTracker plugin).
 
     :param table: SQLAlchemy table object
-    :param mod_suffix: Modification tracking columns suffix
-    :param end_tx_column_name: Name of the end transaction column
-    :param tx_column_name: Transaction column name
-    :param conn:
-        Either SQLAlchemy Connection, Engine, Session or Alembic
-        Operations object. Basically this should be an object that can execute
-        the queries needed to update the property modification flags.
+    :param mod_suffix: Modification tracking columns suffix (Default value = "_mod")
+    :param end_tx_column_name: Name of the end transaction column (Default value = "end_transaction_id")
+    :param tx_column_name: Transaction column name (Default value = "transaction_id")
+    :param conn: Either SQLAlchemy Connection, Engine, Session or Alembic
+            Operations object. Basically this should be an object that can execute
+            the queries needed to update the property modification flags.
+            If no object is given then this function tries to use alembic.op for
+            executing the queries. (Default value = None)
+    :param tracked_columns:
 
-        If no object is given then this function tries to use alembic.op for
-        executing the queries.
     """
     if conn is None:
         from alembic import op

@@ -16,13 +16,15 @@ from sqlalchemy_history.exc import ClassNotVersioned
 
 def get_versioning_manager(item):
     """
-    Return the associated SQLAlchemy-Continuum VersioningManager for given
+    Return the associated SQLAlchemy-History VersioningManager for given
     SQLAlchemy declarative model class or object or table.
 
-    :param item: An item from SQLAlchemy. Can be:
-                 - A declarative ORM object
-                 - A declarative ORM class
-                 - An instance of a SQL table
+    :param item: An item from SQLAlchemy
+    :param A: declarative ORM object
+    :param A: declarative ORM class
+    :param An: instance of a SQL table
+    :returns: SQLAlchemy declarative model class or object or table.
+
     """
     # The ORM class or SQL table on which versioning was enabled
     versioned_item = None
@@ -49,12 +51,11 @@ def get_versioning_manager(item):
 
 
 def option(obj_or_class, option_name):
-    """
-    Return the option value of given option for given versioned object or
-    class.
+    """Return the option value of given option for given versioned object or class.
 
     :param obj_or_class: SQLAlchemy declarative model object or class
     :param option_name: The name of an option to return
+
     """
     if isinstance(obj_or_class, AliasedClass):
         obj_or_class = sa.inspect(obj_or_class).mapper.class_
@@ -80,14 +81,9 @@ def parent_class(version_cls):
     """
     Return the parent class for given version model class.
 
-    ::
-
-        parent_class(ArticleVersion)  # Article class
-
-
     :param model: SQLAlchemy declarative version model class
-
-    .. seealso:: :func:`version_class`
+    :param version_cls:
+    :returns:
     """
     return get_versioning_manager(version_cls).parent_class_map[version_cls]
 
@@ -97,14 +93,8 @@ def transaction_class(cls):
     Return the associated transaction class for given versioned SQLAlchemy
     declarative class or version class.
 
-    ::
-
-        from sqlalchemy_history import transaction_class
-
-
-        transaction_class(Article)  # Transaction class
-
     :param cls: SQLAlchemy versioned declarative class or version model class
+    :returns: declarative class or version class.
     """
     return get_versioning_manager(cls).transaction_cls
 
@@ -123,14 +113,8 @@ def version_class(model):
     """
     Return the version class for given SQLAlchemy declarative model class.
 
-    ::
-
-        version_class(Article)  # ArticleVersion class
-
-
     :param model: SQLAlchemy declarative model class
-
-    .. seealso:: :func:`parent_class`
+    :returns:
     """
     manager = get_versioning_manager(model)
     try:
@@ -144,6 +128,7 @@ def version_table(table):
     Return associated version table for given SQLAlchemy Table object.
 
     :param table: SQLAlchemy Table object
+
     """
     if table.schema:
         return table.metadata.tables[table.schema + "." + table.name + "_version"]
@@ -159,7 +144,6 @@ def versioned_objects(session):
 
     :param session: SQLAlchemy session object
 
-    .. seealso:: :func:`is_versioned`
     """
     for obj in session:
         if is_versioned(obj):
@@ -170,20 +154,11 @@ def is_versioned(obj_or_class):
     """
     Return whether or not given object is versioned.
 
-    ::
-
-        is_versioned(Article)  # True
-
-        article = Article()
-
-        is_versioned(article)  # True
-
-
     :param obj_or_class:
-        SQLAlchemy declarative model object or SQLAlchemy declarative model
-        class.
-
-    .. seealso:: :func:`versioned_objects`
+    :param SQLAlchemy: declarative model object or SQLAlchemy declarative model
+    :param class:
+    :param seealso: func
+    :returns:
     """
     try:
         return hasattr(obj_or_class, "__versioned__") and get_versioning_manager(obj_or_class).option(
@@ -195,10 +170,11 @@ def is_versioned(obj_or_class):
 
 def versioned_column_properties(obj_or_class):
     """
-    Return all versioned column properties for given versioned SQLAlchemy
-    declarative model object.
 
     :param obj: SQLAlchemy declarative model object
+    :param obj_or_class:
+    :returns: declarative model object.
+
     """
     manager = get_versioning_manager(obj_or_class)
 
@@ -216,10 +192,11 @@ def versioned_column_properties(obj_or_class):
 
 def versioned_relationships(obj, versioned_column_keys):
     """
-    Return all versioned relationships for given versioned SQLAlchemy
-    declarative model object.
 
     :param obj: SQLAlchemy declarative model object
+    :param versioned_column_keys:
+    :returns: declarative model object.
+
     """
     for prop in sa.inspect(obj.__class__).relationships:
         if any(c.key in versioned_column_keys for c in prop.local_columns):
@@ -227,8 +204,7 @@ def versioned_relationships(obj, versioned_column_keys):
 
 
 def vacuum(session, model, yield_per=1000):
-    """
-    When making structural changes to version tables (for example dropping
+    """When making structural changes to version tables (for example dropping
     columns) there are sometimes situations where some old version records
     become futile.
 
@@ -236,18 +212,9 @@ def vacuum(session, model, yield_per=1000):
     previous version.
 
 
-    ::
-
-
-        from sqlalchemy_history import vacuum
-
-
-        vacuum(session, User)  # vacuums user version
-
-
     :param session: SQLAlchemy session object
     :param model: SQLAlchemy declarative model class
-    :param yield_per: how many rows to process at a time
+    :param yield_per: how many rows to process at a time (Default value = 1000)
     """
     version_cls = version_class(model)
     versions = defaultdict(list)
@@ -272,8 +239,9 @@ def is_table_column(column):
     """
     Return wheter of not give field is a column over the database table.
 
-    :param column: SQLAclhemy model field.
-    :rtype: bool
+    :param column: SQLAclhemy model field
+    :returns: Bool
+
     """
     return isinstance(column, sa.Column)
 
@@ -282,10 +250,13 @@ def is_internal_column(model, column_name):
     """
     Return whether or not given column of given SQLAlchemy declarative classs
     is considered an internal column (a column whose purpose is mainly
-    for SA-Continuum's internal use).
+    for SQLA-History's internal use).
 
     :param version_obj: SQLAlchemy declarative class
     :param column_name: Name of the column
+    :param model:
+    :returns: Bool
+
     """
     return column_name in (
         option(model, "transaction_column_name"),
@@ -300,6 +271,8 @@ def is_modified_or_deleted(obj):
     declarative object have been modified or if the object has been deleted.
 
     :param obj: SQLAlchemy declarative model object
+    :returns: Bool
+
     """
     session = sa.orm.object_session(obj)
     return is_versioned(obj) and (is_modified(obj) or obj in chain(session.deleted, session.new))
@@ -310,21 +283,9 @@ def is_modified(obj):
     Return whether or not the versioned properties of given object have been
     modified.
 
-    ::
-
-        article = Article()
-
-        is_modified(article)  # False
-
-        article.name = 'Something'
-
-        is_modified(article)  # True
-
-
     :param obj: SQLAlchemy declarative model object
+    :returns: modified.
 
-    .. seealso:: :func:`is_modified_or_deleted`
-    .. seealso:: :func:`is_session_modified`
     """
     column_names = sa.inspect(obj.__class__).columns.keys()
     versioned_column_keys = [prop.key for prop in versioned_column_properties(obj)]
@@ -342,14 +303,12 @@ def is_modified(obj):
 
 
 def is_session_modified(session):
-    """
-    Return whether or not any of the versioned objects in given session have
+    """Return whether or not any of the versioned objects in given session have
     been either modified or deleted.
 
     :param session: SQLAlchemy session object
+    :returns: Bool
 
-    .. seealso:: :func:`is_versioned`
-    .. seealso:: :func:`versioned_objects`
     """
     return any(is_modified_or_deleted(obj) for obj in versioned_objects(session))
 
@@ -358,21 +317,13 @@ def count_versions(obj):
     """
     Return the number of versions given object has. This function works even
     when obj has `create_models` and `create_tables` versioned settings
-    disabled.
-
-    ::
-
-        article = Article(name=u'Some article')
-
-        count_versions(article)  # 0
-
-        session.add(article)
-        session.commit()
-
-        count_versions(article)  # 1
 
 
     :param obj: SQLAlchemy declarative model object
+    :returns: when obj has `create_models` and `create_tables` versioned settings
+    disabled.
+
+
     """
     session = sa.orm.object_session(obj)
     if session is None:
@@ -391,17 +342,10 @@ def changeset(obj):
     this function you can easily check the changeset of given object in current
     transaction.
 
-    ::
+    :param obj:
+    :returns: this function you can easily check the changeset of given object in current
+    transaction.
 
-
-        from sqlalchemy_history import changeset
-
-
-        article = Article(name=u'Some article')
-        changeset(article)
-        # {'name': [u'Some article', None]}
-
-    :param obj: SQLAlchemy declarative model object
     """
     data = {}
     session = sa.orm.object_session(obj)

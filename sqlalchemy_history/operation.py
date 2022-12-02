@@ -1,3 +1,6 @@
+"""Operations module contains Operation Class.
+"""
+
 from copy import copy
 
 from collections import OrderedDict
@@ -24,9 +27,7 @@ class Operation(object):
 
 
 class Operations(object):
-    """
-    A collection of operations
-    """
+    """A collection of operations"""
 
     def __init__(self):
         self.objects = OrderedDict()
@@ -59,8 +60,7 @@ class Operations(object):
 
     @property
     def entities(self):
-        """
-        Return a set of changed versioned entities for given session.
+        """Return a set of changed versioned entities for given session.
 
         :param session: SQLAlchemy session object
         """

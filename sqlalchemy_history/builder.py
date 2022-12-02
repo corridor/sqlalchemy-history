@@ -1,3 +1,6 @@
+"""Builder Module Detects and builds version class for models and version tables collected during instrument phase by the manager
+"""
+
 from copy import copy
 from inspect import getmro
 from functools import wraps
@@ -30,6 +33,7 @@ class Builder(object):
         """
         Build tables for version models based on classes that were collected
         during class instrumentation process.
+
         """
         for cls in self.manager.pending_classes:
             if not self.manager.option(cls, "versioning"):
@@ -56,6 +60,7 @@ class Builder(object):
         If no table was found then tries to match given model as a subclass.
 
         :param model: SQLAlchemy declarative model class.
+
         """
         if model in self.manager.tables:
             return self.manager.tables[model]
@@ -67,6 +72,8 @@ class Builder(object):
         """
         Build declarative version models based on classes that were collected
         during class instrumentation process.
+
+
         """
         if self.manager.pending_classes:
             for cls in self.manager.pending_classes:
@@ -87,6 +94,7 @@ class Builder(object):
         Builds relationships for all version classes.
 
         :param version_classes: list of generated version classes
+
         """
         for cls in version_classes:
             if not self.manager.option(cls, "versioning"):
@@ -102,8 +110,9 @@ class Builder(object):
         """
         Collect versioned class and add it to pending_classes list.
 
-        :mapper mapper: SQLAlchemy mapper object
-        :cls cls: SQLAlchemy declarative class
+        :param mapper: SQLAlchemy mapper object
+        :param cls: SQLAlchemy declarative class
+
         """
         if not self.manager.options["versioning"]:
             return
@@ -140,6 +149,7 @@ class Builder(object):
         5. Build aliases for columns.
         6. Assign all versioned attributes to use active history.
 
+
         """
         if not self.manager.options["versioning"]:
             return
@@ -164,6 +174,9 @@ class Builder(object):
     def enable_active_history(self, version_classes):
         """
         Assign all versioned attributes to use active history.
+
+        :param version_classes: All version classes tracked.
+
         """
         for cls in version_classes:
             for prop in sa.inspect(cls).iterate_properties:
@@ -172,8 +185,10 @@ class Builder(object):
     def create_column_aliases(self, version_classes):
         """
         Create aliases for the columns from the original model.
-
         This, for example, imitates the behavior of @declared_attr columns.
+
+        :param version_classes:  All version classes tracked.
+
         """
         for cls in version_classes:
             model_mapper = sa.inspect(cls)
