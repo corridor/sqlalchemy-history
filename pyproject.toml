@@ -37,6 +37,7 @@ sqlalchemy_i18n = "*"
 pymssql = ">=2.2.0"
 cx-Oracle = "8.3.0"
 
+
 [tool.black]
 # Set line-length lower than 120 as black will go 10% above if needed
 line-length = 110
