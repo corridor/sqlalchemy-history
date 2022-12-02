@@ -8,7 +8,7 @@ description = "History tracking extension for SQLAlchemy."
 version = "2.0.0rc1"
 authors = ["Corridor Platforms <postmaster@corridorplatforms.com>"]
 license = "Apache-2.0, BSD-3-Clause"
-readme = "README.md"
+readme = "docs/README.md"
 packages = [{include = "sqlalchemy_history"}, {include = "sqlalchemy_history/plugins"}]
 repository = "https://github.com/corridor/sqlalchemy-history"
 classifiers=[
