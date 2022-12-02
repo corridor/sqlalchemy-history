@@ -26,38 +26,28 @@ In order to make your models versioned you need two things:
 2. Add `__versioned__` to all models you wish to add versioning to
 
 ```python
-from sqlalchemy_history import make_versioned
-
-make_versioned(user_cls=None)
-
-class Article(Base):
-    __versioned__ = {}
-    __tablename__ = 'article'
-
-    id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
-    name = sa.Column(sa.Unicode(255))
-    content = sa.Column(sa.UnicodeText)
-
-
-article = Article(name='Some article', content='Some content')
-session.add(article)
-session.commit()
-
-# article has now one version stored in database
-article.versions[0].name
-# 'Some article'
-
-article.name = 'Updated name'
-session.commit()
-
-article.versions[1].name
-# 'Updated name'
-
-# lets revert back to first version
-article.versions[0].revert()
-
-article.name
-# 'Some article'
+>>> from sqlalchemy_history import make_versioned
+>>> make_versioned(user_cls=None)
+>>> class Article(Base):
+...    __versioned__ = {}
+...    __tablename__ = 'article'
+...    id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+...    name = sa.Column(sa.Unicode(255))
+...    content = sa.Column(sa.UnicodeText)
+>>> article = Article(name='Some article', content='Some content')
+>>> session.add(article)
+>>> session.commit()
+'article has now one version stored in database'
+>>> article.versions[0].name
+'Some article'
+>>> article.name = 'Updated name'
+>>> session.commit()
+>>> article.versions[1].name
+'Updated name'
+>>> article.versions[0].revert()
+'lets revert back to first version'
+>>> article.name
+'Some article'
 ```
 
 For completeness, below is a working example.
@@ -67,31 +57,27 @@ from sqlalchemy_history import make_versioned
 from sqlalchemy import Column, Integer, Unicode, UnicodeText, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import create_session, configure_mappers
-
 make_versioned(user_cls=None)
 Base = declarative_base()
-
 class Article(Base):
     __versioned__ = {}
     __tablename__ = 'article'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(Unicode(255))
     content = Column(UnicodeText)
-
 configure_mappers()
 engine = create_engine('sqlite://')
 Base.metadata.create_all(engine)
 session = create_session(bind=engine, autocommit=False)
-
-article = Article(name=u'Some article', content=u'Some content')
+article = Article(name='Some article', content='Some content')
 session.add(article)
 session.commit()
-article.versions[0].name
-article.name = u'Updated name'
+print(article.versions[0].name) # 'Some article'
+article.name = 'Updated name'
 session.commit()
-article.versions[1].name
+print(article.versions[1].name) # 'Updated name'
 article.versions[0].revert()
-article.name
+print(article.name) # 'Some article'
 ```
 
 ## Resources
@@ -121,17 +107,17 @@ Primary reasons to create another library:
 
 We found multiple libraries which has an implementation of history tracking:
 
-- [sqlalchemy-continuum](https://github.com/kvesteri/sqlalchemy-continuum)
-  - Does not support oracle, mssql
-  - Feature filled making it difficult to maintain all plugins/extensions
-- [flask-continuum](https://github.com/bprinty/flask-continuum)
-  - Thin wrapper on sqlalchemy-continuum specifically for flask
-- [postgresql-audit](https://github.com/kvesteri/postgresql-audit)
-  - Supports only postgres
-- [versionalchemy](https://github.com/NerdWalletOSS/versionalchemy)
-  - Not updated in a while
-  - No reverting capability, Relationship queries on history not available
-- [django-simple-history](https://github.com/jazzband/django-simple-history)
-  - Uses django ORM, does not support sqlalchemy
-- [sqlalchemy example versioning-objects](http://docs.sqlalchemy.org/en/latest/orm/examples.html#versioning-objects)
-  - Simple example to demonstrate implementation - but very minimal
+1. [sqlalchemy-continuum](https://github.com/kvesteri/sqlalchemy-continuum)
+    - Does not support oracle, mssql
+    - Feature filled making it difficult to maintain all plugins/extensions
+2. [flask-continuum](https://github.com/bprinty/flask-continuum)
+    - Thin wrapper on sqlalchemy-continuum specifically for flask
+3. [postgresql-audit](https://github.com/kvesteri/postgresql-audit)
+    - Supports only postgres
+4. [versionalchemy](https://github.com/NerdWalletOSS/versionalchemy)
+    - Not updated in a while
+    - No reverting capability, Relationship queries on history not available
+5. [django-simple-history](https://github.com/jazzband/django-simple-history)
+    - Uses django ORM, does not support sqlalchemy
+6. [sqlalchemy example versioning-objects](http://docs.sqlalchemy.org/en/latest/orm/examples.html#versioning-objects)
+    - Simple example to demonstrate implementation - but very minimal
