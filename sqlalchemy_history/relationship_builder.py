@@ -1,3 +1,5 @@
+"""Relationship Builder builds and manages relations between versioned model built by builder module for versioned package
+"""
 import sqlalchemy as sa
 
 from sqlalchemy_history.exc import ClassNotVersioned
@@ -56,11 +58,10 @@ class RelationshipBuilder(object):
         return session.query(self.remote_cls).filter(self.criteria(obj))
 
     def process_query(self, query):
-        """
-        Process given SQLAlchemy Query object depending on the associated
-        RelationshipProperty object.
+        """Process given SQLAlchemy Query object depending on the associated RelationshipProperty object.
 
         :param query: SQLAlchemy Query object
+
         """
         if self.property.lazy == "dynamic":
             return query
@@ -83,16 +84,15 @@ class RelationshipBuilder(object):
             return reflector(self.property.primaryjoin)
 
     def many_to_many_criteria(self, obj):
-        """
-        Returns the many-to-many query.
+        """Returns the many-to-many query.
 
         Looks up remote items through associations and for each item returns
         returns the last version with a transaction less than or equal to the
         transaction of `obj`. This must hold true for both the association and
         the remote relation items.
 
-        Example
-        -------
+        Examples:
+
         Select all tags of article with id 3 and transaction 5
 
         .. code-block:: sql
@@ -125,6 +125,9 @@ class RelationshipBuilder(object):
             HAVING MAX(tags_version_2.tx_id) = tags_version.tx_id
         )
         AND operation_type != 2
+
+        :param obj:
+
         """
         return sa.and_(
             self.association_subquery(obj),
@@ -138,8 +141,8 @@ class RelationshipBuilder(object):
         Returns the item on the 'one' side with the highest transaction id
         as long as it is less or equal to the transaction id of the `obj`.
 
-        Example
-        -------
+        Examples:
+
         Look up the Article of a Tag with article_id = 4 and
         transaction_id = 5
 
@@ -156,6 +159,8 @@ class RelationshipBuilder(object):
         )
         AND operation_type != 2
 
+        :param obj:
+
         """
         reflector = VersionExpressionReflector(obj, self.property)
         return sa.and_(
@@ -165,15 +170,14 @@ class RelationshipBuilder(object):
         )
 
     def one_to_many_criteria(self, obj):
-        """
-        Returns the one-to-many query.
+        """Returns the one-to-many query.
 
         For each item on the 'many' side, returns its latest version as long as
         the transaction of that version is less than equal of the transaction
         of `obj`.
 
-        Example
-        -------
+        Examples:
+
         Using the Article-Tags relationship, where we look for tags of
         article_version with id = 3 and transaction = 5 the sql produced is
 
@@ -194,6 +198,8 @@ class RelationshipBuilder(object):
                 tags_version.transaction_id
         )
 
+        :param obj:
+
         """
         reflector = VersionExpressionReflector(obj, self.property)
         return sa.and_(
@@ -204,10 +210,7 @@ class RelationshipBuilder(object):
 
     @property
     def reflected_relationship(self):
-        """
-        Builds a reflected one-to-many, one-to-one and many-to-one
-        relationship between two version classes.
-        """
+        """Builds a reflected one-to-many, one-to-one and many-to-one relationship between two version classes."""
 
         @property
         def relationship(obj):
@@ -217,10 +220,10 @@ class RelationshipBuilder(object):
         return relationship
 
     def association_subquery(self, obj):
-        """
-        Returns an EXISTS clause that checks if an association exists for given
-        SQLAlchemy declarative object. This query is used by
-        many_to_many_criteria method.
+        """Returns an EXISTS clause that checks if an association exists for given
+        SQLAlchemy declarative object.
+
+        This query is used by many_to_many_criteria method.
 
         Example query:
 
@@ -246,6 +249,7 @@ class RelationshipBuilder(object):
         )
 
         :param obj: SQLAlchemy declarative object
+
         """
 
         tx_column = option(obj, "transaction_column_name")
@@ -292,10 +296,12 @@ class RelationshipBuilder(object):
         )
 
     def build_association_version_tables(self):
-        """
-        Builds many-to-many association version table for given property.
+        """Builds many-to-many association version table for given property.
+
         Association version tables are used for tracking change history of
         many-to-many associations.
+
+
         """
         column = list(self.property.remote_side)[0]
 
@@ -318,10 +324,7 @@ class RelationshipBuilder(object):
             self.association_version_table = metadata.tables[table_name]
 
     def __call__(self):
-        """
-        Builds reflected relationship between version classes based on given
-        parent object's RelationshipProperty.
-        """
+        """Builds reflected relationship between version classes based on given parent object's RelationshipProperty."""
         self.local_cls = version_class(self.model)
         self.versioned = False
         try:

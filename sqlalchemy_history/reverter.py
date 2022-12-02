@@ -1,3 +1,5 @@
+"""Reverter Reverts.
+"""
 import sqlalchemy as sa
 from sqlalchemy_history.operation import Operation
 from sqlalchemy_history.utils import versioned_column_properties, parent_class

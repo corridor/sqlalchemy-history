@@ -37,8 +37,10 @@ class TransactionChangesFactory(ModelFactory):
     model_name = "TransactionChanges"
 
     def create_class(self, manager):
-        """
-        Create TransactionChanges class.
+        """Create TransactionChanges class.
+
+        :param manager:
+
         """
 
         class TransactionChanges(manager.declarative_base, TransactionChangesBase):

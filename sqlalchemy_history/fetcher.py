@@ -1,3 +1,5 @@
+"""Fetcher Module helps traverse across versions for a given versioned object.
+"""
 import operator
 import sqlalchemy as sa
 from sqlalchemy_utils import get_primary_keys, identity

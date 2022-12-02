@@ -1,3 +1,11 @@
+"""
+Modules exported by this package:
+
+- `make_versioned`: This is the public API function of SQLAlchemy-History for making certain mappers and sessions versioned.
+
+- `remove_versioning`: Remove the versioning from given mapper / session and manager.
+"""
+
 import sqlalchemy as sa
 from sqlalchemy_history.exc import ClassNotVersioned, ImproperlyConfigured
 from sqlalchemy_history.manager import VersioningManager
@@ -32,26 +40,22 @@ def make_versioned(
     options=None,
     user_cls="User",
 ):
-    """
-    This is the public API function of SQLAlchemy-Continuum for making certain
-    mappers and sessions versioned. By default this applies to all mappers and
-    all sessions.
+    """This is the public API function of SQLAlchemy-History for making certain mappers and sessions versioned.
+    By default this applies to all mappers and all sessions.
 
-    :param mapper:
-        SQLAlchemy mapper to apply the versioning to.
-    :param session:
-        SQLAlchemy session to apply the versioning to. By default this is
-        sa.orm.session.Session meaning it applies to all Session subclasses.
-    :param manager:
-        SQLAlchemy-Continuum versioning manager.
-    :param plugins:
-        Plugins to pass for versioning manager.
-    :param options:
-        A dictionary of VersioningManager options.
-    :param user_cls:
-        User class which the Transaction class should have relationship to.
-        This can either be a class or string name of a class for lazy
-        evaluation.
+    Examples:
+        >>> make_versioned(user_cls=None, options={'table_name': '%_tracker'})
+        None
+
+    :param mapper: SQLAlchemy mapper to apply the versioning to. (Default value = sa.orm.mapper)
+    :param session: SQLAlchemy session to apply the versioning to. By default this is sa.orm.session.Session meaning it applies to all Session subclasses.
+    :param manager: SQLAlchemy-History versioning manager. (Default value = versioning_manager)
+    :param plugins: Plugins to pass for versioning manager. (Default value = None)
+    :param options: A dictionary of VersioningManager options. (Default value = None)
+    :param user_cls: User class which the Transaction class should have relationship to.
+            This can either be a class or string name of a class for lazy
+            evaluation. (Default value = "User")
+    :returns: None
     """
     if plugins is not None:
         manager.plugins = plugins
@@ -76,16 +80,15 @@ def make_versioned(
 
 
 def remove_versioning(mapper=sa.orm.mapper, session=sa.orm.session.Session, manager=versioning_manager):
-    """
-    Remove the versioning from given mapper / session and manager.
+    """Remove the versioning from given mapper / session and manager.
 
-    :param mapper:
-        SQLAlchemy mapper to remove the versioning from.
-    :param session:
-        SQLAlchemy session to remove the versioning from. By default this is
-        sa.orm.session.Session meaning it applies to all sessions.
-    :param manager:
-        SQLAlchemy-Continuum versioning manager.
+    Examples:
+        >>> remove_versioning()
+
+    :param mapper: SQLAlchemy mapper to remove the versioning from. (Default value = sa.orm.mapper)
+    :param session: SQLAlchemy session to remove the versioning from. By default this is
+                    sa.orm.session.Session meaning it applies to all sessions. (Default value = sa.orm.session.Session)
+    :param manager: SQLAlchemy-History versioning manager. (Default value = versioning_manager)
     """
     manager.reset()
     manager.remove_class_configuration_listeners(mapper)

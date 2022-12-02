@@ -1,45 +1,32 @@
-"""
-The ActivityPlugin is the most powerful plugin for tracking changes of
-individual entities. If you use ActivityPlugin you probably don't need to use
+"""The ActivityPlugin is the most powerful plugin for tracking changes of individual entities.
+
+If you use ActivityPlugin you probably don't need to use
 TransactionChanges nor TransactionMeta plugins.
 
 You can initalize the ActivityPlugin by adding it to versioning manager.
 
-::
-
-    activity_plugin = ActivityPlugin()
-
-    make_versioned(plugins=[activity_plugin])
-
+```python
+>>> activity_plugin = ActivityPlugin()
+>>> make_versioned(plugins=[activity_plugin])
+```
 
 ActivityPlugin uses single database table for tracking activities. This table
 follows the data structure in `activity stream specification`_, but it comes
 with a nice twist:
 
-    ==============  =========== =============
-    Column          Type        Description
-    ==============  =========== =============
-    id              BigInteger  The primary key of the activity
-    verb            Unicode     Verb defines the action of the activity
-    data            JSON        Additional data for the activity in JSON format
-    transaction_id  BigInteger  The transaction this activity was associated
-                                with
-    object_id       BigInteger  The primary key of the object. Object can be
-                                any entity which has an integer as primary key.
-    object_type     Unicode     The type of the object (class name as string)
 
-    object_tx_id    BigInteger  The last transaction_id associated with the
-                                object. This is used for efficiently fetching
-                                the object version associated with this
-                                activity.
-
-    target_id       BigInteger  The primary key of the target. Target can be
-                                any entity which has an integer as primary key.
-    target_type     Unicode     The of the target (class name as string)
-
-    target_tx_id    BigInteger  The last transaction_id associated with the
-                                target.
-    ==============  =========== =============
+    |Column          |Type        |Description
+    |:-------------: |:---------: |:------------:
+    |id              |BigInteger  |The primary key of the activity
+    |verb            |Unicode     |Verb defines the action of the activity
+    |data            |JSON        |Additional data for the activity in JSON format
+    |transaction_id  |BigInteger  |The transaction this activity was associated with
+    |object_id       |BigInteger  |The primary key of the object. Object can be any entity which has an integer as primary key.
+    |object_type     |Unicode     |The type of the object (class name as string)
+    |object_tx_id    |BigInteger  |The last transaction_id associated with the object. This is used for efficiently fetching the object version associated with this activity.
+    |target_id       |BigInteger  |The primary key of the target. Target can be any entity which has an integer as primary key.
+    |target_type     |Unicode     |The of the target (class name as string)
+    |target_tx_id    |BigInteger  |The last transaction_id associated with the target.
 
 
 Each Activity has relationships to actor, object and target but it also holds
@@ -49,8 +36,8 @@ object_version and target_version relationships for introspecting what those
 objects and targets were in given point in time. All these relationship
 properties use `generic relationships`_ of the SQLAlchemy-Utils package.
 
-Limitations
-^^^^^^^^^^^
+#### Limitations
+
 
 Currently all changes to parent models must be flushed or committed before
 creating activities. This is due to a fact that there is still no dependency
@@ -58,69 +45,65 @@ processors for generic relationships. So when you create activities and assign
 objects / targets for those please remember to flush the session before
 creating an activity::
 
-
-    article = Article(name=u'Some article')
-    session.add(article)
-    session.flush()  # <- IMPORTANT!
-    first_activity = Activity(verb=u'create', object=article)
-    session.add(first_activity)
-    session.commit()
-
+```python
+>>> article = Article(name=u'Some article')
+>>> session.add(article)
+>>> session.flush()  # <- IMPORTANT!
+>>> first_activity = Activity(verb=u'create', object=article)
+>>> session.add(first_activity)
+>>> session.commit()
+```
 
 Targets and objects of given activity must have an integer primary key
 column id.
 
 
-Create activities
-^^^^^^^^^^^^^^^^^
-
+#### Create activities
 
 Once your models have been configured you can get the Activity model from the
 ActivityPlugin class with activity_cls property::
 
-
+```python
     Activity = activity_plugin.activity_cls
-
+```
 
 Now let's say we have model called Article and Category. Each Article has one
 Category. Activities should be created along with the changes you make on
-these models. ::
-
-    article = Article(name=u'Some article')
-    session.add(article)
-    session.flush()
-    first_activity = Activity(verb=u'create', object=article)
-    session.add(first_activity)
-    session.commit()
-
+these models.
+```python
+>>> article = Article(name=u'Some article')
+>>> session.add(article)
+>>> session.flush()
+>>> first_activity = Activity(verb=u'create', object=article)
+>>> session.add(first_activity)
+>>> session.commit()
+```
 
 Current transaction gets automatically assigned to activity object::
 
-    first_activity.transaction  # Transaction object
+```python
+>>> first_activity.transaction  # Transaction object
+```
 
+#### Update activities
 
-Update activities
-^^^^^^^^^^^^^^^^^
 
 The object property of the Activity object holds the current object and the
 object_version holds the object version at the time when the activity was
-created. ::
+created.
 
+```python
+>>> article.name = u'Some article updated!'
+>>> session.flush()
+>>> second_activity = Activity(verb=u'update', object=article)
+>>> session.add(second_activity)
+>>> session.commit()
+>>> second_activity.object.name  # u'Some article updated!'
+>>> first_activity.object.name  # u'Some article updated!'
+>>> first_activity.object_version.name  # u'Some article'
+```
 
-    article.name = u'Some article updated!'
-    session.flush()
-    second_activity = Activity(verb=u'update', object=article)
-    session.add(second_activity)
-    session.commit()
-
-    second_activity.object.name  # u'Some article updated!'
-    first_activity.object.name  # u'Some article updated!'
-
-    first_activity.object_version.name  # u'Some article'
-
-
-Delete activities
-^^^^^^^^^^^^^^^^^
+#### Delete activities
 
 
 The version properties are especially useful for delete activities. Once the
@@ -128,65 +111,51 @@ activity is fetched from the database the object is no longer available (
 since its deleted), hence the only way we could show some information about the
 object the user deleted is by accessing the object_version property.
 
-::
+```python
+>>> session.delete(article)
+>>> session.flush()
+>>> third_activity = Activity(verb=u'delete', object=article)
+>>> session.add(third_activity)
+>>> session.commit()
+>>> third_activity.object_version.name  # u'Some article updated!'
+```
 
-
-    session.delete(article)
-    session.flush()
-    third_activity = Activity(verb=u'delete', object=article)
-    session.add(third_activity)
-    session.commit()
-
-    third_activity.object_version.name  # u'Some article updated!'
-
-
-Local version histories using targets
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#### Local version histories using targets
 
 The target property of the Activity model offers a way of tracking changes of
 given related object. In the example below we create a new activity when adding
 a category for article and then mark the article as the target of this
 activity.
 
-
-
-::
-
-
-    session.add(Category(name=u'Fist category', article=article))
-    session.flush()
-    activity = Activity(
-        verb=u'create',
-        object=category,
-        target=article
-    )
-    session.add(activity)
-    session.commit()
-
+```python
+>>> session.add(Category(name=u'Fist category', article=article))
+>>> session.flush()
+>>> activity = Activity(
+...     verb=u'create',
+...     object=category,
+...     target=article
+...     )
+>>> session.add(activity)
+>>> session.commit()
+```
 
 Now if we wanted to find all the changes that affected given article we could
 do so by searching through all the activities where either the object or
 target is the given article.
 
+```python
+>>> import sqlalchemy as sa
+>>> activities = session.query(Activity).filter(
+...     sa.or_(
+...         Activity.object == article,
+...         Activity.target == article
+...     )
+... )
+```
 
-::
-
-    import sqlalchemy as sa
-
-
-    activities = session.query(Activity).filter(
-        sa.or_(
-            Activity.object == article,
-            Activity.target == article
-        )
-    )
-
-
-
-.. _activity stream specification:
-    http://www.activitystrea.ms
-.. _generic relationships:
-    https://sqlalchemy-utils.readthedocs.io/en/latest/generic_relationship.html
+#### Also Read
+- [_activity stream specification](http://www.activitystrea.ms)
+- [_generic relationships](https://sqlalchemy-utils.readthedocs.io/en/latest/generic_relationship.html)
 """
 
 import sqlalchemy as sa
@@ -218,8 +187,10 @@ class ActivityFactory(ModelFactory):
     model_name = "Activity"
 
     def create_class(self, manager):
-        """
-        Create Activity class.
+        """Create Activity class.
+
+        :param manager:
+
         """
 
         class Activity(manager.declarative_base, ActivityBase):
@@ -307,11 +278,11 @@ class ActivityPlugin(Plugin):
         manager.activity_cls = self.activity_cls
 
     def is_session_modified(self, session):
-        """
-        Return that the session has been modified if the session contains an
+        """Return that the session has been modified if the session contains an
         activity class.
 
         :param session: SQLAlchemy session object
+
         """
         return any(isinstance(obj, self.activity_cls) for obj in session)
 

@@ -5,12 +5,10 @@ from sqlalchemy_history.utils import versioned_column_properties, is_internal_co
 
 class NullDeletePlugin(Plugin):
     def should_nullify_column(self, version_obj, prop):
-        """
-        Return whether or not given column of given version object should
+        """Return whether or not given column of given version object should
         be nullified (set to None) at the end of the transaction.
 
-        :param version_obj:
-            Version object to check the attribute nullification
+        :param version_obj: Version object to check the attribute nullification
         :paremt prop:
             SQLAlchemy ColumnProperty object
         """

@@ -65,8 +65,10 @@ class TransactionMetaFactory(ModelFactory):
     model_name = "TransactionMeta"
 
     def create_class(self, manager):
-        """
-        Create TransactionMeta class.
+        """Create TransactionMeta class.
+
+        :param manager:
+
         """
 
         class TransactionMeta(manager.declarative_base, TransactionMetaBase):

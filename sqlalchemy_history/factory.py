@@ -1,9 +1,13 @@
+"""
+Factory package manages and makes sure if a model class already exists indeclarative model registry or not
+"""
+
+
 class ModelFactory(object):
     model_name = None
 
     def __call__(self, manager):
-        """
-        Create model class but only if it doesn't already exist
+        """Create model class but only if it doesn't already exist
         in declarative model registry.
         """
         Base = manager.declarative_base
