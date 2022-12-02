@@ -8,14 +8,18 @@ class TestValidityStrategy(TestCase):
         class BlogPost(self.Model):
             __tablename__ = "blog_post"
             __versioned__ = {"base_classes": (self.Model,), "strategy": "validity"}
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
 
             name = sa.Column(sa.Unicode(255))
 
         class Article(self.Model):
             __tablename__ = "article"
             __versioned__ = {"base_classes": (self.Model,), "strategy": "validity"}
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
 
             name = sa.Column(sa.Unicode(255))
 
@@ -53,7 +57,9 @@ class TestJoinTableInheritanceWithValidityVersioning(TestCase):
                 "base_classes": (self.Model,),
                 "strategy": "validity",
             }
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
 
             discriminator = sa.Column(sa.Unicode(100))
 
@@ -64,12 +70,24 @@ class TestJoinTableInheritanceWithValidityVersioning(TestCase):
         class Article(TextItem):
             __tablename__ = "article"
             __mapper_args__ = {"polymorphic_identity": "article"}
-            id = sa.Column(sa.Integer, sa.ForeignKey(TextItem.id), autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer,
+                sa.ForeignKey(TextItem.id),
+                sa.Identity(always=False, on_null=True),
+                autoincrement=True,
+                primary_key=True,
+            )
 
         class BlogPost(TextItem):
             __tablename__ = "blog_post"
             __mapper_args__ = {"polymorphic_identity": "blog_post"}
-            id = sa.Column(sa.Integer, sa.ForeignKey(TextItem.id), autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer,
+                sa.ForeignKey(TextItem.id),
+                sa.Identity(always=False, on_null=True),
+                autoincrement=True,
+                primary_key=True,
+            )
 
         self.TextItem = TextItem
         self.Article = Article

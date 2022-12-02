@@ -11,11 +11,15 @@ class TestCommonBaseClass(TestCase):
         class TextItem(self.Model, Versioned):
             __tablename__ = "text_item"
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
 
         class Article(self.Model, Versioned):
             __tablename__ = "article"
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
 
         self.TextItem = TextItem
         self.Article = Article

@@ -60,7 +60,9 @@ class TestTableBuilderWithOnUpdate(TestCase):
             __tablename__ = "article"
             __versioned__ = options
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             last_update = sa.Column(
                 sa.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
             )
@@ -80,7 +82,9 @@ class TestTableBuilderInOtherSchema(TestCase):
             __versioned__ = copy(self.options)
             __table_args__ = {"schema": "other"}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             last_update = sa.Column(
                 sa.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
             )

@@ -8,13 +8,17 @@ class TestCompositePrimaryKey(TestCase):
         class User(self.Model):
             __tablename__ = "user"
             __versioned__ = {}
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
 
         class Team(self.Model):
             __tablename__ = "team"
             __versioned__ = {}
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
 
         class TeamMember(self.Model):

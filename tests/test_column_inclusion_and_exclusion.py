@@ -31,7 +31,9 @@ class TestColumnExclusion(ColumnExclusionTestCase):
             __tablename__ = "text_item"
             __versioned__ = {"exclude": ["content"]}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
             content = sa.Column(sa.UnicodeText)
 
@@ -44,7 +46,9 @@ class TestColumnExclusionWithAliasedColumn(ColumnExclusionTestCase):
             __tablename__ = "text_item"
             __versioned__ = {"exclude": ["content"]}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
             content = sa.Column("_content", sa.UnicodeText)
 
@@ -55,12 +59,16 @@ class TestColumnExclusionWithRelationship(TestCase):
     def create_models(self):
         class Word(self.Model):
             __tablename__ = "word"
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             word = sa.Column(sa.Unicode(255))
 
         class TextItemWord(self.Model):
             __tablename__ = "text_item_word"
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             text_item_id = sa.Column(sa.Integer, sa.ForeignKey("text_item.id"), nullable=False)
             word_id = sa.Column(sa.Integer, sa.ForeignKey("word.id"), nullable=False)
 
@@ -68,7 +76,9 @@ class TestColumnExclusionWithRelationship(TestCase):
             __tablename__ = "text_item"
             __versioned__ = {"exclude": ["content"]}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
             content = sa.orm.relationship(Word, secondary="text_item_word")
 

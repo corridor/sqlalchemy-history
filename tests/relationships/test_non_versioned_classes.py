@@ -8,14 +8,18 @@ class TestRelationshipToNonVersionedClass(TestCase):
         class User(self.Model):
             __tablename__ = "user"
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
 
         class Article(self.Model):
             __tablename__ = "article"
             __versioned__ = copy(self.options)
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255), nullable=False)
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
@@ -57,7 +61,9 @@ class TestManyToManyRelationshipToNonVersionedClass(TestCase):
             __tablename__ = "article"
             __versioned__ = {"base_classes": (self.Model,)}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
 
         article_tag = sa.Table(
@@ -75,7 +81,9 @@ class TestManyToManyRelationshipToNonVersionedClass(TestCase):
         class Tag(self.Model):
             __tablename__ = "tag"
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
 
         Tag.articles = sa.orm.relationship(Article, secondary=article_tag, backref="tags")

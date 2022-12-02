@@ -11,7 +11,13 @@ class ColumnAliasesBaseTestCase(TestCase):
             __tablename__ = "text_item"
             __versioned__ = {}
 
-            id = sa.Column("_id", sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                "_id",
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq"),
+                autoincrement=True,
+                primary_key=True,
+            )
 
             name = sa.Column("_name", sa.Unicode(255))
 
