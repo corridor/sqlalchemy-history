@@ -1,0 +1,27 @@
+name: Documentation
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      - name: Install Dependencies
+        run: |
+          pip install mkdocs==1.4.2
+          pip install mkdocs-autorefs==0.4.1
+          pip install mkdocs-awesome-pages-plugin==2.8.0
+          pip install mkdocstrings==0.19.0
+          pip install mkdocstrings-python==0.8.0
+      - name: Build Site
+        run: mkdocs build
+      - name: deploy site
+        run: mkdocs gh-deploy --force
