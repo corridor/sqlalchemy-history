@@ -1,0 +1,16 @@
+site_name: SQLAlchemy-History
+site_url: https://corridor.github.io/sqlalchemy-history/
+site_author: Corridor
+
+repo_name: sqlalchemy-history
+repo_url: https://github.com/corridor/sqlalchemy-history
+edit_uri: edit/master/docs
+docs_dir: docs
+
+theme:
+  name: "readthedocs"
+
+plugins:
+  - mkdocstrings
+  - awesome-pages
+  - search
