@@ -15,7 +15,9 @@ class ActivityTestCase(TestCase):
             __tablename__ = "user"
             __versioned__ = {"base_classes": (self.Model,)}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255), nullable=False)
 
         self.User = User
@@ -43,7 +45,9 @@ class TestActivityNotId(ActivityTestCase):
             __tablename__ = "not_id"
             __versioned__ = {"base_classes": (self.Model,)}
 
-            pk = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            pk = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255), nullable=False)
 
         self.NotIdModel = NotIdModel

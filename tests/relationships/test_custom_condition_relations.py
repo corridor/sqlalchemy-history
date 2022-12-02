@@ -9,7 +9,9 @@ class CustomConditionRelationsTestCase(TestCase):
             __tablename__ = "article"
             __versioned__ = {"base_classes": (self.Model,)}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
@@ -18,7 +20,9 @@ class CustomConditionRelationsTestCase(TestCase):
             __tablename__ = "tag"
             __versioned__ = {"base_classes": (self.Model,)}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
             category = sa.Column(sa.Unicode(20))

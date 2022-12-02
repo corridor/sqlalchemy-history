@@ -12,7 +12,9 @@ class ManyToManyRelationshipsTestCase(TestCase):
             __tablename__ = "article"
             __versioned__ = {"base_classes": (self.Model,)}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
 
         article_tag = sa.Table(
@@ -31,7 +33,9 @@ class ManyToManyRelationshipsTestCase(TestCase):
             __tablename__ = "tag"
             __versioned__ = {"base_classes": (self.Model,)}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
 
         Tag.articles = sa.orm.relationship(Article, secondary=article_tag, backref="tags")
@@ -210,7 +214,9 @@ class TestManyToManyRelationshipWithViewOnly(TestCase):
             __tablename__ = "article"
             __versioned__ = {"base_classes": (self.Model,)}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
 
         article_tag = sa.Table(
@@ -229,7 +235,9 @@ class TestManyToManyRelationshipWithViewOnly(TestCase):
             __tablename__ = "tag"
             __versioned__ = {"base_classes": (self.Model,)}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
 
         Tag.articles = sa.orm.relationship(Article, secondary=article_tag, viewonly=True)
@@ -248,7 +256,9 @@ class TestManyToManySelfReferential(TestCase):
             __tablename__ = "article"
             __versioned__ = {}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
 
         article_references = sa.Table(
@@ -337,7 +347,9 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
             __versioned__ = {}
             __table_args__ = {"schema": "other"}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
 
         article_references = sa.Table(
@@ -378,7 +390,9 @@ class ManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTestCa
             __versioned__ = {"base_classes": (self.Model,)}
             __table_args__ = {"schema": "other"}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
 
         article_tag = sa.Table(
@@ -399,7 +413,9 @@ class ManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTestCa
             __versioned__ = {"base_classes": (self.Model,)}
             __table_args__ = {"schema": "other"}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
 
         Tag.articles = sa.orm.relationship(Article, secondary=article_tag, backref="tags")

@@ -14,7 +14,9 @@ class TestCustomSchema(TestCase):
             __tablename__ = "article"
             __versioned__ = {"base_classes": (self.Model,)}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
 
         article_tag = sa.Table(
@@ -33,7 +35,9 @@ class TestCustomSchema(TestCase):
             __tablename__ = "tag"
             __versioned__ = {"base_classes": (self.Model,)}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
 
         Tag.articles = sa.orm.relationship(Article, secondary=article_tag, backref="tags")

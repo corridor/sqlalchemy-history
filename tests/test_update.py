@@ -83,7 +83,9 @@ class TestUpdateWithDefaultValues(TestCase):
             __tablename__ = "article"
             __versioned__ = {"base_classes": (self.Model,)}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+            )
             name = sa.Column(sa.Unicode(255))
             updated_at = sa.Column(sa.DateTime, default=sa.func.now())
             is_editable = sa.Column(sa.Boolean)
