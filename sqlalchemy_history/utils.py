@@ -390,3 +390,16 @@ class VersioningClauseAdapter(sa.sql.visitors.ReplacingCloningVisitor):
 
 def adapt_columns(expr):
     return VersioningClauseAdapter().traverse(expr)
+
+
+def get_association_proxies(klass):
+    """Get Association proxy mappings for ORM Models"""
+    # NOTE: Ideally this method we should try to move it to sqlalchemy-utils
+    # if they are ok with it as they provide a similar method to detect and
+    # provide hypbrid properties.
+    # ref: https://github.com/kvesteri/sqlalchemy-utils/issues/679
+    association_proxy_mapping = {}
+    for key, prop in sa.inspect(klass).all_orm_descriptors.items():
+        if isinstance(prop, sa.ext.associationproxy.AssociationProxy):
+            association_proxy_mapping[key] = prop
+    return association_proxy_mapping
