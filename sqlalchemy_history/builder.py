@@ -6,12 +6,13 @@ from inspect import getmro
 from functools import wraps
 
 import sqlalchemy as sa
-from sqlalchemy_utils.functions import get_declarative_base
+from sqlalchemy_utils.functions import get_declarative_base, get_hybrid_properties
 from sqlalchemy_history.utils import get_association_proxies, version_class
 
 from sqlalchemy_history.model_builder import ModelBuilder
 from sqlalchemy_history.relationship_builder import RelationshipBuilder
 from sqlalchemy_history.table_builder import TableBuilder
+from sqlalchemy_history.utils import version_class
 
 
 def prevent_reentry(handler):
@@ -144,8 +145,7 @@ class Builder(object):
         5. Build aliases for columns.
         6. Assign all versioned attributes to use active history.
         7. Add Association proxy for Versioned Models.
-
-
+        8. Add Hybrid Property to Versioned Model
         """
         if not self.manager.options["versioning"]:
             return
@@ -167,6 +167,7 @@ class Builder(object):
         self.enable_active_history(pending_classes_copies)
         self.create_column_aliases(pending_classes_copies)
         self.create_association_proxies(pending_classes_copies)
+        self.create_hybrid_properties(pending_classes_copies)
 
     def enable_active_history(self, version_classes):
         """
@@ -216,4 +217,18 @@ class Builder(object):
                     versioned_target_class,
                     key,
                     property(fget=prop.__get__),
+                )
+
+    def create_hybrid_properties(self, version_classes):
+        """
+        Create Hybrid Property for Column as a property in Versioned Models from Original Model
+        """
+        for cls_ in version_classes:
+            hybrid_property_maps = get_hybrid_properties(cls_)
+            for key, prop in hybrid_property_maps.items():
+                versioned_target_class = version_class(cls_)
+                setattr(
+                    versioned_target_class,
+                    key,
+                    sa.ext.hybrid.hybrid_property(fget=prop.fget),
                 )
