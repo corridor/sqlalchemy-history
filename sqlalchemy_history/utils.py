@@ -434,3 +434,12 @@ class VersioningClauseAdapter(sa.sql.visitors.ReplacingCloningVisitor):
 
 def adapt_columns(expr):
     return VersioningClauseAdapter().traverse(expr)
+
+
+def get_hybrid_property_mapping(klass):
+    """Get Hybrid Property mappings for ORM Models"""
+    hybrid_property_mapping = {}
+    for attr, attr_value in sa.inspect(klass).all_orm_descriptors.items():
+        if isinstance(attr_value, sa.ext.hybrid.hybrid_property):
+            hybrid_property_mapping[attr] = attr_value
+    return hybrid_property_mapping
