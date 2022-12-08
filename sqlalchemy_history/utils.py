@@ -434,3 +434,12 @@ class VersioningClauseAdapter(sa.sql.visitors.ReplacingCloningVisitor):
 
 def adapt_columns(expr):
     return VersioningClauseAdapter().traverse(expr)
+
+
+def get_association_proxy_mapping(klass):
+    """Get Association proxy mappings for ORM Models"""
+    association_proxy_mapping = {}
+    for attr, attr_value in sa.inspect(klass).all_orm_descriptors.items():
+        if isinstance(attr_value, sa.ext.associationproxy.AssociationProxy):
+            association_proxy_mapping[attr] = attr_value
+    return association_proxy_mapping
