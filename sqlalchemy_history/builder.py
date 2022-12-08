@@ -4,6 +4,7 @@ from functools import wraps
 
 import sqlalchemy as sa
 from sqlalchemy_utils.functions import get_declarative_base
+from sqlalchemy_history.utils import get_association_proxy_mapping, version_class
 
 from sqlalchemy_history.model_builder import ModelBuilder
 from sqlalchemy_history.relationship_builder import RelationshipBuilder
@@ -139,6 +140,7 @@ class Builder(object):
            does not create multiple version classes
         5. Build aliases for columns.
         6. Assign all versioned attributes to use active history.
+        7. Add Association proxy for Versioned Models.
 
         """
         if not self.manager.options["versioning"]:
@@ -160,6 +162,7 @@ class Builder(object):
         self.build_relationships(pending_classes_copies)
         self.enable_active_history(pending_classes_copies)
         self.create_column_aliases(pending_classes_copies)
+        self.create_association_proxies(pending_classes_copies)
 
     def enable_active_history(self, version_classes):
         """
@@ -191,3 +194,17 @@ class Builder(object):
                         continue
 
                     version_class_mapper.add_property(key, sa.orm.column_property(version_class_column))
+
+    def create_association_proxies(self, version_classes):
+        """
+        Create Association proxy for Column of Versioned Models from Original Model
+        """
+        for cls in version_classes:
+            assoc_prox_maps = get_association_proxy_mapping(cls)
+            for attr, proxy in assoc_prox_maps.items():
+                versioned_target_class = version_class(cls)
+                setattr(
+                    versioned_target_class,
+                    attr,
+                    property(fget=proxy.__get__, fset=proxy.__set__, fdel=proxy.__delete__),
+                )
