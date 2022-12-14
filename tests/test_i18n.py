@@ -24,6 +24,10 @@ class TestVersioningWithI18nExtension(TestCase):
             kwargs = dict(primary_key=True)
             if self.driver != "sqlite":
                 kwargs["autoincrement"] = True
+            # FIXME: Currently SQLA_I18n package internally makes column attribute `autoincrement=False`
+            #        Due to which Indenity gets a conflict as Identity should always have `autoincrment=True`
+            # refer: https://github.com/kvesteri/sqlalchemy-i18n/blob/master/sqlalchemy_i18n/manager.py#L55
+            #      : https://docs.sqlalchemy.org/en/14/core/defaults.html#identity-ddl
             id = sa.Column(sa.Integer, **kwargs)
             description = sa.Column(sa.UnicodeText)
 
@@ -68,4 +72,5 @@ class TestVersioningWithI18nExtension(TestCase):
         Transaction = versioning_manager.transaction_cls
         transaction = self.session.query(Transaction).one()
 
-        assert transaction.changes[1].entity_name == "ArticleTranslation"
+        assert len(transaction.changes) == 2
+        assert "ArticleTranslation" in {chng.entity_name for chng in transaction.changes}
