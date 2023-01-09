@@ -139,6 +139,9 @@ class VersioningManager(object):
         self.declarative_base = None
         self.version_class_map = {}
         self.parent_class_map = {}
+        # Tracke all tables in {assoc_tables mapping, model table mapping}
+        self.version_table_map = {}  # mapping from parent to versioned table
+        self.parent_table_map = {}  # mapping from versioned to parent table
         self.session_listeners = {
             "before_flush": self.before_flush,
             "after_flush": self.after_flush,
