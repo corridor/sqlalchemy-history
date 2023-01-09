@@ -122,12 +122,6 @@ class Builder(object):
                 self.manager.pending_classes.append(cls)
                 self.manager.metadata = cls.metadata
 
-        if hasattr(cls, "__version_parent__"):
-            parent = cls.__version_parent__
-            self.manager.version_class_map[parent] = cls
-            self.manager.parent_class_map[cls] = parent
-            del cls.__version_parent__
-
     def build_transaction_class(self):
         if self.manager.pending_classes:
             cls = self.manager.pending_classes[0]
