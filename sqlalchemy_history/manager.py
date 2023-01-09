@@ -423,8 +423,15 @@ class VersioningManager(object):
                 ):  # ConnectionFairy is the same - this is a clone
                     self.units_of_work[c] = uow
 
-    def track_association_operations(self, conn, cursor, statement, parameters, context, executemany):
-        """Track association operations and adds the generated history association operations to pending_statements list.
+    def track_sql_operations(self, conn, cursor, statement, parameters, context, executemany):
+        """
+        This function tracks all SQLoperators directly done by the sqlalchemy cursor.
+        We use it to track operations on tables which are not mapped to a ORM model.
+
+        This is mainly used to generate the history of association tables by adding
+        those operations to pending_statements list.
+        If we later want to track datatables also we may need to handle autoincrement and Edit operations
+        FOr now, assoc tables will never have autoincrement nor do they modify an existing record
 
         :param conn:
         :param cursor:
@@ -449,9 +456,17 @@ class VersioningManager(object):
                 if context.invoked_statement.table.schema
                 else context.invoked_statement.table.name
             )
+            # ORM tables are tracked using `mapper_listeners`. We only need to track table which do not have mappers here
+            orm_tracked_tables = {
+                c.__table__
+                for c in self.version_class_map
+                # NOTE: We add hasattr(c, '__table__') cause some ORM may not have a physical table associated to them
+                if hasattr(c, "__table__")
+            }
             table_names = [
                 table.name if not table.schema else table.schema + "." + table.name
                 for table in self.version_table_map
+                if table not in orm_tracked_tables
             ]
             if table_name in table_names:
                 for params in context.compiled_parameters:

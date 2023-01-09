@@ -93,6 +93,20 @@ def parent_class(version_cls):
         raise KeyError(version_cls)
 
 
+def parent_table(version_table):
+    """
+    Return corresponding parent table for any given parent table.
+
+    :param version_table: A versioned table table which could be either association_table or model_table.
+    """
+    manager = get_versioning_manager(version_table)
+    try:
+        return next((k for k, v in manager.version_table_map.items() if v == version_table))
+    except StopIteration:
+        # Raise Key error as we couldn't find parent_object of versioned_object
+        raise KeyError(version_table)
+
+
 def transaction_class(cls):
     """
     Return the associated transaction class for given versioned SQLAlchemy
