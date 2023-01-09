@@ -316,7 +316,6 @@ class RelationshipBuilder(object):
 
         if table_name not in metadata.tables:
             self.association_version_table = builder()
-            self.manager.version_table_map[column.table] = self.association_version_table
         else:
             # may have already been created if we visiting the 'other' side of
             # a self-referential many-to-many relationship
