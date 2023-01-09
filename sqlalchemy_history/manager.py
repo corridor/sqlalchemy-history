@@ -109,6 +109,10 @@ class VersioningManager(object):
     def plugins(self):
         return self._plugins
 
+    @property
+    def association_tables(self):
+        return self._association_parent_tables.union(self._association_version_tables)
+
     @plugins.setter
     def plugins(self, plugin_collection):
         self._plugins = PluginCollection(plugin_collection)
@@ -130,8 +134,8 @@ class VersioningManager(object):
         """
         self.tables = {}
         self.pending_classes = []
-        self.association_tables = set()
-        self.association_version_tables = set()
+        self._association_parent_tables = set()
+        self._association_version_tables = set()
         self.declarative_base = None
         self.version_class_map = {}
         self.parent_class_map = {}
@@ -449,7 +453,7 @@ class VersioningManager(object):
             table_name = statement.split(" ")[2]
             table_names = [
                 table.name if not table.schema else table.schema + "." + table.name
-                for table in self.association_tables
+                for table in self._association_parent_tables
             ]
             if table_name in table_names:
                 if executemany:
