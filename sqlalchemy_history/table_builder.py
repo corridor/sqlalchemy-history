@@ -125,4 +125,7 @@ class TableBuilder(object):
             extend_existing=extends is not None,
         )
         version_table.__versioning_manager__ = self.manager
+        # Track association Tables mapping.
+        self.manager.version_table_map[self.parent_table] = version_table
+        self.manager.parent_table_map[version_table] = self.parent_table
         return version_table

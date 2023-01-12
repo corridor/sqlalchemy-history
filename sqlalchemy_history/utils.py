@@ -88,6 +88,16 @@ def parent_class(version_cls):
     return get_versioning_manager(version_cls).parent_class_map[version_cls]
 
 
+def parent_table(versioned_table):
+    """
+    Return corresponding parent table for any given parent table.
+
+    :param versioned_table: A versioned table table which could be either association_table or model_table.
+    """
+    versioning_manager = get_versioning_manager(versioned_table)
+    return versioning_manager.parent_table_map.get(versioned_table, None)
+
+
 def transaction_class(cls):
     """
     Return the associated transaction class for given versioned SQLAlchemy
@@ -130,12 +140,7 @@ def version_table(table):
     :param table: SQLAlchemy Table object
 
     """
-    if table.schema:
-        return table.metadata.tables[table.schema + "." + table.name + "_version"]
-    elif table.metadata.schema:
-        return table.metadata.tables[table.metadata.schema + "." + table.name + "_version"]
-    else:
-        return table.metadata.tables[table.name + "_version"]
+    return get_versioning_manager(table).version_table_map[table]
 
 
 def versioned_objects(session):
