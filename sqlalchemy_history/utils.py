@@ -140,12 +140,7 @@ def version_table(table):
     :param table: SQLAlchemy Table object
 
     """
-    if table.schema:
-        return table.metadata.tables[table.schema + "." + table.name + "_version"]
-    elif table.metadata.schema:
-        return table.metadata.tables[table.metadata.schema + "." + table.name + "_version"]
-    else:
-        return table.metadata.tables[table.name + "_version"]
+    return get_versioning_manager(table).version_table_map[table]
 
 
 def versioned_objects(session):
