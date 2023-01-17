@@ -255,7 +255,7 @@ class TestManyToManyRelationshipWithViewOnly(TestCase):
         self.Tag = Tag
 
     def test_does_not_add_association_table_to_manager_registry(self):
-        assert self.article_tag not in versioning_manager.association_tables
+        assert self.article_tag not in versioning_manager.version_table_map
 
 
 class TestManyToManySelfReferential(TestCase):
