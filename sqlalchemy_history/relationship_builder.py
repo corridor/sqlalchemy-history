@@ -305,7 +305,6 @@ class RelationshipBuilder(object):
         """
         column = list(self.property.remote_side)[0]
 
-        self.manager.association_tables.add(column.table)
         builder = TableBuilder(self.manager, column.table)
         metadata = column.table.metadata
         if builder.parent_table.schema:
@@ -316,8 +315,8 @@ class RelationshipBuilder(object):
             table_name = builder.table_name
 
         if table_name not in metadata.tables:
-            self.association_version_table = table = builder()
-            self.manager.association_version_tables.add(table)
+            self.association_version_table = builder()
+            self.manager.version_table_map[column.table] = self.association_version_table
         else:
             # may have already been created if we visiting the 'other' side of
             # a self-referential many-to-many relationship

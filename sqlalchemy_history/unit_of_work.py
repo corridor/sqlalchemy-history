@@ -216,7 +216,7 @@ class UnitOfWork(object):
         session = sa.orm.object_session(version_obj)
 
         for class_ in version_obj.__class__.__mro__:
-            if class_ in self.manager.parent_class_map:
+            if class_ in self.manager.version_class_map.values():
 
                 subquery = self.version_validity_subquery(
                     parent, version_obj, alias=sa.orm.aliased(class_.__table__)

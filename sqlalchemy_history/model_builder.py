@@ -257,7 +257,6 @@ class ModelBuilder(object):
         self.model.__versioning_manager__ = self.manager
         self.version_class = self.build_model(table)
         self.manager.version_class_map[self.model] = self.version_class
-        self.manager.parent_class_map[self.version_class] = self.model
         self.build_parent_relationship()
         self.build_transaction_relationship(tx_class)
         return self.version_class

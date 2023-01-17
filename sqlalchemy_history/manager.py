@@ -130,11 +130,9 @@ class VersioningManager(object):
         """
         self.tables = {}
         self.pending_classes = []
-        self.association_tables = set()
-        self.association_version_tables = set()
+        self.version_table_map = {}  # Key is the parent table, Value is the version table
         self.declarative_base = None
-        self.version_class_map = {}
-        self.parent_class_map = {}
+        self.version_class_map = {}  # Key is the parent model, Value is the version model
         self.session_listeners = {
             "before_flush": self.before_flush,
             "after_flush": self.after_flush,
@@ -453,7 +451,7 @@ class VersioningManager(object):
             )
             table_names = [
                 table.name if not table.schema else table.schema + "." + table.name
-                for table in self.association_tables
+                for table in self.version_table_map
             ]
             if table_name in table_names:
                 for params in context.compiled_parameters:

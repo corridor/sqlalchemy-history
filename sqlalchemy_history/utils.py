@@ -85,7 +85,12 @@ def parent_class(version_cls):
     :param version_cls:
     :returns:
     """
-    return get_versioning_manager(version_cls).parent_class_map[version_cls]
+    manager = get_versioning_manager(version_cls)
+    try:
+        return next((k for k, v in manager.version_class_map.items() if v == version_cls))
+    except StopIteration:
+        # Should raise Key Error if we can't find the parent_object of a orphaned versioned_model
+        raise KeyError(version_cls)
 
 
 def transaction_class(cls):
