@@ -2,7 +2,7 @@ from copy import copy
 from pytest import raises
 import sqlalchemy as sa
 from sqlalchemy_history import versioning_manager
-from sqlalchemy_history.exc import ClassNotVersioned
+from sqlalchemy_history.exc import TableNotVersioned, ClassNotVersioned
 from sqlalchemy_history.utils import get_versioning_manager
 
 from tests import TestCase
@@ -73,5 +73,5 @@ class TestGetVersioningManager(TestCase):
             get_versioning_manager(self.Tag)
 
     def test_unknown_table(self):
-        with raises(ClassNotVersioned):
+        with raises(TableNotVersioned):
             get_versioning_manager(self.Tag.__table__)
