@@ -4,7 +4,7 @@ import sqlalchemy as sa
 from sqlalchemy.sql.expression import bindparam
 
 from sqlalchemy_history.utils import version_table
-from sqlalchemy_history.exc import ClassNotVersioned
+from sqlalchemy_history.exc import TableNotVersioned
 
 
 class VersionExpressionReflector(sa.sql.visitors.ReplacingCloningVisitor):
@@ -17,7 +17,7 @@ class VersionExpressionReflector(sa.sql.visitors.ReplacingCloningVisitor):
             return
         try:
             table = version_table(column.table)
-        except ClassNotVersioned:
+        except TableNotVersioned:
             reflected_column = column
         else:
             reflected_column = table.c[column.name]

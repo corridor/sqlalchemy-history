@@ -4,7 +4,7 @@ import sqlalchemy as sa
 from tests import TestCase
 
 from sqlalchemy_history.utils import version_table
-from sqlalchemy_history.exc import ClassNotVersioned
+from sqlalchemy_history.exc import TableNotVersioned
 
 
 class TestVersionTableDefault(TestCase):
@@ -66,11 +66,11 @@ class TestVersionTableDefault(TestCase):
         assert AuthorVersionedTableName.fullname == "author_custom"
 
     def test_version_table_with_non_version_model(self):
-        with pytest.raises(ClassNotVersioned):
+        with pytest.raises(TableNotVersioned):
             version_table(self.User.__table__)
 
     def test_version_table_with_non_version_table(self):
-        with pytest.raises(ClassNotVersioned):
+        with pytest.raises(TableNotVersioned):
             version_table(self.user_activity_table)
 
 

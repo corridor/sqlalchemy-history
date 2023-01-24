@@ -7,7 +7,11 @@ Modules exported by this package:
 """
 
 import sqlalchemy as sa
-from sqlalchemy_history.exc import ClassNotVersioned, ImproperlyConfigured
+from sqlalchemy_history.exc import (
+    ClassNotVersioned,
+    ImproperlyConfigured,
+    TableNotVersioned,
+)
 from sqlalchemy_history.manager import VersioningManager
 from sqlalchemy_history.operation import Operation
 from sqlalchemy_history.transaction import TransactionFactory

@@ -11,7 +11,7 @@ from sqlalchemy_utils.functions import (
     naturally_equivalent,
 )
 
-from sqlalchemy_history.exc import ClassNotVersioned
+from sqlalchemy_history.exc import ClassNotVersioned, TableNotVersioned
 
 
 def get_versioning_manager(item):
@@ -42,12 +42,9 @@ def get_versioning_manager(item):
         return versioned_item.__versioning_manager__
     except AttributeError:
         if isinstance(versioned_item, sa.Table):
-            name = 'Table "%s"' % versioned_item.name
+            raise TableNotVersioned('Table "%s"' % versioned_item.name)
         else:
-            name = versioned_item.__name__
-        # NOTE: We say ClassNotVersioned - but it can also throw an error for a table.
-        #       Maybe we want to make this exc more generic ?
-        raise ClassNotVersioned(name)
+            raise ClassNotVersioned(versioned_item.__name__)
 
 
 def option(obj_or_class, option_name):
