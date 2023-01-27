@@ -14,8 +14,19 @@
 git clone https://github.com/corridor/sqlalchemy-history.git
 cd sqlalchemy-history
 ```
-- Create a python virtual environment
+- Install Poetry in your local system
+```
+# Refer https://python-poetry.org/docs/#installation 
+curl -sSL https://install.python-poetry.org | python3 -
+```
 - Install requirements of project into virtual environment.
+```
+poetry install   # Poetry creates a virtual environment in your local
+# NOTE: If poetry is not set in your $PATH variable you can use
+# '~/.local/share/pypoetry/venv/bin/poetry install' instead!
+# Activate this virtual environment in your local by calling
+source ./.venv/bin/activate
+```
 - Checkout branch with name relevant to issue issue you are working
 ```
 git checkout -b short-issue-desc 
@@ -29,6 +40,8 @@ git checkout -b add-issue-num
 ```
 export DB=sqlite # for local dev testing
 pytest
+# Lint
+black .
 ```
 - Add commit for your changes with message title and message description brifly explaining the approach
     - Keep commit message title 72 characters
