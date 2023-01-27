@@ -44,3 +44,5 @@ nosetests.xml
 # Py virtual env
 venv*/*
 poetry.lock
+
+site/*
