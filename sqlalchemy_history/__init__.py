@@ -47,19 +47,25 @@ def make_versioned(
     """This is the public API function of SQLAlchemy-History for making certain mappers and sessions versioned.
     By default this applies to all mappers and all sessions.
 
-    Examples:
+    **Examples**
+
         >>> make_versioned(user_cls=None, options={'table_name': '%_tracker'})
         None
 
     :param mapper: SQLAlchemy mapper to apply the versioning to. (Default value = sa.orm.mapper)
+    :type mapper: sa.orm.mapper
     :param session: SQLAlchemy session to apply the versioning to. By default this is sa.orm.session.Session meaning it applies to all Session subclasses.
     :param manager: SQLAlchemy-History versioning manager. (Default value = versioning_manager)
+    :type manager: VersioningManager
     :param plugins: Plugins to pass for versioning manager. (Default value = None)
     :param options: A dictionary of VersioningManager options. (Default value = None)
+    :type options: dict
     :param user_cls: User class which the Transaction class should have relationship to.
             This can either be a class or string name of a class for lazy
             evaluation. (Default value = "User")
+
     :returns: None
+    :rtype: NoneType
     """
     if plugins is not None:
         manager.plugins = plugins
@@ -86,13 +92,20 @@ def make_versioned(
 def remove_versioning(mapper=sa.orm.mapper, session=sa.orm.session.Session, manager=versioning_manager):
     """Remove the versioning from given mapper / session and manager.
 
-    Examples:
+    **Examples**
+
         >>> remove_versioning()
+        None
 
     :param mapper: SQLAlchemy mapper to remove the versioning from. (Default value = sa.orm.mapper)
+    :type mapper: sa.orm.mapper
     :param session: SQLAlchemy session to remove the versioning from. By default this is
                     sa.orm.session.Session meaning it applies to all sessions. (Default value = sa.orm.session.Session)
     :param manager: SQLAlchemy-History versioning manager. (Default value = versioning_manager)
+    :type manager: VersioningManager
+
+    :returns: None
+    :rtype: NoneType
     """
     manager.reset()
     manager.remove_class_configuration_listeners(mapper)

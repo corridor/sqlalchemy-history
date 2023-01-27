@@ -88,14 +88,14 @@ print(article.name) # 'Some article'
 
 ## More information
 
-- http://en.wikipedia.org/wiki/Slowly_changing_dimension
-- http://en.wikipedia.org/wiki/Change_data_capture
-- http://en.wikipedia.org/wiki/Anchor_Modeling
-- http://en.wikipedia.org/wiki/Shadow_table
-- https://wiki.postgresql.org/wiki/Audit_trigger
-- https://wiki.postgresql.org/wiki/Audit_trigger_91plus
-- http://kosalads.blogspot.fi/2014/06/implement-audit-functionality-in.html
-- https://github.com/2ndQuadrant/pgaudit
+- [http://en.wikipedia.org/wiki/Slowly_changing_dimension](http://en.wikipedia.org/wiki/Slowly_changing_dimension)
+- [http://en.wikipedia.org/wiki/Change_data_capture](http://en.wikipedia.org/wiki/Change_data_capture)
+- [http://en.wikipedia.org/wiki/Anchor_Modeling](http://en.wikipedia.org/wiki/Anchor_Modeling)
+- [http://en.wikipedia.org/wiki/Shadow_table](http://en.wikipedia.org/wiki/Shadow_table)
+- [https://wiki.postgresql.org/wiki/Audit_trigger](https://wiki.postgresql.org/wiki/Audit_trigger)
+- [https://wiki.postgresql.org/wiki/Audit_trigger_91plus](https://wiki.postgresql.org/wiki/Audit_trigger_91plus)
+- [http://kosalads.blogspot.fi/2014/06/implement-audit-functionality-in.html](http://kosalads.blogspot.fi/2014/06/implement-audit-functionality-in.html)
+- [https://github.com/2ndQuadrant/pgaudit](https://github.com/2ndQuadrant/pgaudit)
 
 ## Comparison
 

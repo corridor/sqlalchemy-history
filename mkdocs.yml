@@ -11,6 +11,10 @@ theme:
   name: "readthedocs"
 
 plugins:
-  - mkdocstrings
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: "sphinx"
   - awesome-pages
   - search
