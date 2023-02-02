@@ -30,7 +30,7 @@ from sqlalchemy_history.utils import (
 )
 
 
-__version__ = "2.0.0.rc1"
+__version__ = "2.0.0"
 
 
 versioning_manager = VersioningManager()
