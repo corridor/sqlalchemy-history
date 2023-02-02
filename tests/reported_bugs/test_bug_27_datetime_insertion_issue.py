@@ -7,7 +7,6 @@ from tests import TestCase
 class TestBug27(TestCase):
     # ref: https://github.com/corridor/sqlalchemy-history/issues/27
     def create_models(self):
-
         article_author_table = sa.Table(
             "article_author",
             self.Model.metadata,
@@ -50,7 +49,6 @@ class TestBug27(TestCase):
         self.article_author_table = article_author_table
 
     def test_inserting_entries(self):
-
         article = self.Article(name="Article 1")
         author = self.Author(name="Author 1", articles=[article])
         self.session.add(article)

@@ -214,15 +214,12 @@ class UnitOfWork(object):
 
         """
         session = sa.orm.object_session(version_obj)
-
         for class_ in version_obj.__class__.__mro__:
             if class_ in self.manager.version_class_map.values():
-
                 subquery = self.version_validity_subquery(
                     parent, version_obj, alias=sa.orm.aliased(class_.__table__)
                 )
                 subquery = subquery.scalar_subquery()
-
                 query = session.query(class_.__table__).filter(
                     sa.and_(
                         getattr(class_, tx_column_name(version_obj)) == subquery,

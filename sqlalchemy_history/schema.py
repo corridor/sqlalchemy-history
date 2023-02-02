@@ -2,13 +2,10 @@ import sqlalchemy as sa
 
 
 def get_end_tx_column_query(table, end_tx_column_name="end_transaction_id", tx_column_name="transaction_id"):
-
     v1 = sa.alias(table, name="v")
     v2 = sa.alias(table, name="v2")
     v3 = sa.alias(table, name="v3")
-
     primary_keys = [c.name for c in table.c if c.primary_key]
-
     tx_criterion = sa.select([sa.func.min(getattr(v3.c, tx_column_name))]).where(
         sa.and_(
             getattr(v3.c, tx_column_name) > getattr(v1.c, tx_column_name),

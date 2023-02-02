@@ -293,7 +293,6 @@ class TestManyToManySelfReferential(TestCase):
         self.referenced_articles_table = article_references
 
     def test_single_insert(self):
-
         article = self.Article(name="article")
         reference1 = self.Article(name="referred article 1")
         article.references.append(reference1)
