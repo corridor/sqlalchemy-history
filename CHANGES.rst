@@ -3,6 +3,23 @@ Changelog
 
 Here you can see the full list of changes between each release.
 
+2.0.0 (2023-02-02)
+^^^^^^^^^^^^^^^^^^^
+
+-   Fix Datetime issue for sqlite based table
+-   Fix `version_table` bug to allow custom version table suffix
+-   Enhancements for faster version traversal
+
+2.0.0b0 (2022-12-21)
+^^^^^^^^^^^^^^^^^^^
+
+-   Add support for MSSQL and Oracle
+-   Remove support for SQLA<1.4 
+-   Remove support for Py<3.6 (thanks to @15jgme, @nnrepos, @kishan3)
+-   Publish Documentation at https://corridor.github.io/sqlalchemy-history/
+
+*Changeslog from here is from sqlalchemy-continuum project*
+**********
 
 1.3.13 (2022-09-07)
 ^^^^^^^^^^^^^^^^^^^
