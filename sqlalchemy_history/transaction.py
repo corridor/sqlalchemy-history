@@ -8,17 +8,13 @@ from collections import OrderedDict
 import sqlalchemy as sa
 from sqlalchemy.ext.compiler import compiles
 
-from sqlalchemy_history.exc import ImproperlyConfigured
+from sqlalchemy_history.exc import ImproperlyConfigured, NoChangesAttribute
 from sqlalchemy_history.factory import ModelFactory
 
 
 @compiles(sa.types.BigInteger, "sqlite")
 def compile_big_integer(element, compiler, **kw):
     return "INTEGER"
-
-
-class NoChangesAttribute(Exception):
-    pass
 
 
 class TransactionBase(object):
