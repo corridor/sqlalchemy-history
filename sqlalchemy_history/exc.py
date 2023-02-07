@@ -12,3 +12,7 @@ class TableNotVersioned(VersioningError):
 
 class ImproperlyConfigured(VersioningError):
     pass
+
+
+class NoChangesAttribute(Exception):
+    pass
