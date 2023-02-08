@@ -7,9 +7,11 @@ from functools import partial
 from collections import OrderedDict
 import sqlalchemy as sa
 from sqlalchemy.ext.compiler import compiles
+from sqlalchemy_utils.functions import get_primary_keys
 
 from sqlalchemy_history.exc import ImproperlyConfigured
 from sqlalchemy_history.factory import ModelFactory
+from sqlalchemy_history.operation import Operation
 
 
 @compiles(sa.types.BigInteger, "sqlite")
@@ -61,6 +63,50 @@ class TransactionBase(object):
             entities[version_class] = (
                 session.query(version_class).filter(getattr(version_class, tx_column) == self.id)
             ).all()
+        return entities
+
+    @property
+    def restore_db_state(self) -> dict:
+        """
+        Gives you a dictionary having keys as table_name and values as list for any particular transaction.
+
+        """
+        manager = self.__versioning_manager__
+        tuples = set(manager.version_class_map.items())
+        # FIXME: Need to add Table handle manager to support option for table.!
+        # tuples = tuples.union(set(manager.version_table_map.items()))
+        entities = {}
+
+        session = sa.orm.object_session(self)
+        for class_or_table, version_class_or_table in tuples:
+
+            tx_column = manager.option(class_or_table, "transaction_column_name")
+            operation_type_column_name = manager.option(class_or_table, "operation_type_column_name")
+            # Get the primary_keys for version_class
+            primary_keys = get_primary_keys(class_or_table)
+
+            # To get state of object that are being traced we get
+            # Closest transaction ID in version class by grouping over primary key of class.
+            entities[version_class_or_table] = (
+                session.query(version_class_or_table)
+                .where(
+                    getattr(version_class_or_table, tx_column) <= self.id,
+                )
+                .group_by(*primary_keys)
+                .having(
+                    sa.and_(
+                        # NOTE: We don't want deleted objects or do we?
+                        # state of DB should not provide the deleted object or shall it inform that
+                        # this object is deleted via operation_type col?
+                        getattr(version_class_or_table, operation_type_column_name) != Operation.DELETE,
+                        sa.func.max(getattr(version_class_or_table, tx_column))
+                        == getattr(version_class_or_table, tx_column),
+                    )
+                )
+            ).all()
+        # TODO: The entities currently being returned as a dictionary {'table_name': [..., ...], 'table_name2': [..., ...]},
+        # - want to return a custom/scoped_session where user can use this session object to query these entities on fly(in memory?).
+        # - ...
         return entities
 
 
