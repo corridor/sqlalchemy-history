@@ -5,6 +5,7 @@ import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import column_property
 from sqlalchemy_utils.functions import get_declarative_base
+from sqlalchemy_utils.models import generic_repr
 
 from sqlalchemy_history.utils import adapt_columns, option
 from sqlalchemy_history.version import VersionClassBase
@@ -246,7 +247,7 @@ class ModelBuilder(object):
             )
         else:
             name = "%sVersion" % (self.model.__name__,)
-        return type(name, self.base_classes(), args)
+        return generic_repr(type(name, self.base_classes(), args))
 
     def __call__(self, table, tx_class):
         """Build history model and relationships to parent model, transaction log model."""
