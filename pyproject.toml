@@ -29,6 +29,9 @@ cached-property = "*"
 [tool.poetry.dev-dependencies]
 black = {version = "*", allow-prereleases = true}
 flake8 = "*"
+# The hook `black` requires pre-commit version 2.9.2 but version 2.1.1 is installed.
+# pre-commit 2.9.2 doesn't support Python3.6 so only enabling flake8 for pre-commit 
+pre-commit = "2.1.1"
 
 # [tool.poetry.group.test.dependencies]
 pytest = ">=2.3.5"
