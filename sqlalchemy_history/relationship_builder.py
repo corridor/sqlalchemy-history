@@ -1,4 +1,5 @@
-"""Relationship Builder builds and manages relations between versioned model built by builder module for versioned package
+"""Relationship Builder builds and manages relations between versioned model built by builder
+ module for versioned package
 """
 import sqlalchemy as sa
 
@@ -210,7 +211,8 @@ class RelationshipBuilder(object):
 
     @property
     def reflected_relationship(self):
-        """Builds a reflected one-to-many, one-to-one and many-to-one relationship between two version classes."""
+        """Builds a reflected one-to-many, one-to-one and many-to-one relationship between two version
+        classes."""
 
         @property
         def relationship(obj):
@@ -322,7 +324,8 @@ class RelationshipBuilder(object):
             self.association_version_table = metadata.tables[table_name]
 
     def __call__(self):
-        """Builds reflected relationship between version classes based on given parent object's RelationshipProperty."""
+        """Builds reflected relationship between version classes based on given parent object's
+        RelationshipProperty."""
         self.local_cls = version_class(self.model)
         self.versioned = False
         try:

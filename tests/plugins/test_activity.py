@@ -1,4 +1,3 @@
-import pytest
 import sqlalchemy as sa
 from sqlalchemy_history import versioning_manager
 from sqlalchemy_history.plugins import ActivityPlugin

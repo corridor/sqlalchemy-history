@@ -37,8 +37,9 @@ class TestAssociationProxy(TestCase):
 
     def test_association_proxy_detection(self):
         """
-        Currently Versioned Model have a proxy mapped as a property due limitation in the way relationships are handled,
-        For now a property in versioned model should be available for proxy attributes of orginal model
+        Currently Versioned Model have a proxy mapped as a property due limitation in the way relationships
+         are handled, For now a property in versioned model should be available for proxy attributes of
+         orginal model
         """
         assert issubclass(type(self.Article.upanaam), sa.ext.associationproxy.AssociationProxyInstance)
         assert isinstance(version_class(self.Article).upanaam, property)

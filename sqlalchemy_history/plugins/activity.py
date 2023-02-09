@@ -156,7 +156,7 @@ target is the given article.
 #### Also Read
 - [_activity stream specification](http://www.activitystrea.ms)
 - [_generic relationships](https://sqlalchemy-utils.readthedocs.io/en/latest/generic_relationship.html)
-"""
+"""  # noqa: E501
 
 import sqlalchemy as sa
 from sqlalchemy.ext.hybrid import hybrid_property

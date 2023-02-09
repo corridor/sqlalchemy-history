@@ -181,7 +181,7 @@ def create_test_cases(base_class, setting_variants=setting_variants):
     frm = inspect.stack()[1]
     module = inspect.getmodule(frm[0])
 
-    class_suffix = base_class.__name__[0 : -len("TestCase")]
+    class_suffix = base_class.__name__[0 : -len("TestCase")]  # noqa: E203
     for index, combination in enumerate(combinations):
         class_name = "Test%s%i" % (class_suffix, index)
         # Assign a new test case class for current module.

@@ -1,4 +1,5 @@
-"""Builder Module Detects and builds version class for models and version tables collected during instrument phase by the manager
+"""Builder Module Detects and builds version class for models and version tables collected during instrument
+ phase by the manager
 """
 
 from copy import copy
@@ -12,7 +13,6 @@ from sqlalchemy_history.utils import get_association_proxies, version_class
 from sqlalchemy_history.model_builder import ModelBuilder
 from sqlalchemy_history.relationship_builder import RelationshipBuilder
 from sqlalchemy_history.table_builder import TableBuilder
-from sqlalchemy_history.utils import version_class
 
 
 def prevent_reentry(handler):

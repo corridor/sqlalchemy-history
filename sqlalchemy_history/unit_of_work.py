@@ -161,7 +161,8 @@ class UnitOfWork(object):
         operation.processed = True
 
     def create_version_objects(self, session):
-        """Create version objects for given session based on operations collected by insert, update and deleted trackers.
+        """Create version objects for given session based on operations collected by insert, update and
+         deleted trackers.
 
         :param session: SQLAlchemy session object
 
@@ -205,7 +206,8 @@ class UnitOfWork(object):
         return subquery
 
     def update_version_validity(self, parent, version_obj):
-        """Updates previous version object end_transaction_id based on given parent object and newly created version object.
+        """Updates previous version object end_transaction_id based on given parent object and newly created
+         version object.
 
         This method is only used when using 'validity' versioning strategy.
 

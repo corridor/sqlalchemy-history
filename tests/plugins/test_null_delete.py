@@ -1,4 +1,3 @@
-import pytest
 from sqlalchemy_history.plugins import NullDeletePlugin
 from tests import TestCase
 

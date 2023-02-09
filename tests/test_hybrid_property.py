@@ -1,5 +1,4 @@
 import datetime
-import pytest
 import sqlalchemy as sa
 from sqlalchemy_history.utils import version_class
 

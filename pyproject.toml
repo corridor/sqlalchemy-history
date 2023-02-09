@@ -28,6 +28,7 @@ cached-property = "*"
 
 [tool.poetry.dev-dependencies]
 black = {version = "*", allow-prereleases = true}
+flake8 = "*"
 
 # [tool.poetry.group.test.dependencies]
 pytest = ">=2.3.5"

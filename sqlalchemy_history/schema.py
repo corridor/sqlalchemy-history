@@ -28,7 +28,8 @@ def update_end_tx_column(
 ):
     """Calculates end transaction columns and updates the version table with the calculated values.
 
-    This function can be used for migrating between subquery versioning strategy and validity versioning strategy.
+    This function can be used for migrating between subquery versioning strategy and validity versioning
+     strategy.
 
     :param table: SQLAlchemy table object
     :param end_tx_column_name: Name of the end transaction column (Default value = "end_transaction_id")
@@ -117,7 +118,8 @@ def update_property_mod_flags(
 ):
     """Update property modification flags for given table and given columns.
 
-    This function can be used for migrating an existing schema to use property mod flags (provided by PropertyModTracker plugin).
+    This function can be used for migrating an existing schema to use property mod flags
+     (provided by PropertyModTracker plugin).
 
     :param table: SQLAlchemy table object
     :param mod_suffix: Modification tracking columns suffix (Default value = "_mod")

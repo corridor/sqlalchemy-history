@@ -1,4 +1,4 @@
-"""This is ExpressionReflector used for 
+"""This is ExpressionReflector used for generating expression queries.
 """
 import sqlalchemy as sa
 from sqlalchemy.sql.expression import bindparam
