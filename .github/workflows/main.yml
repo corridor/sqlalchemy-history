@@ -11,6 +11,25 @@ on:
       - "docs/**"
 
 jobs:
+  lint:
+    name: lint-python${{ matrix.python-version }}
+    strategy:
+      matrix:
+        python-version:
+         - "3.6"
+         - "3.10"
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Black Validation
+        uses: psf/black@stable
+      - name: Check Flake8 Formatting
+        uses: py-actions/flake8@v2
+
   test-sqlite:
     name: test-python${{ matrix.python-version }}-sqlite
     strategy:
@@ -25,7 +44,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: psf/black@stable
       - name: Install Project
         run: |
           python -m pip install --upgrade pip
@@ -65,7 +83,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: psf/black@stable
       - name: Install Project
         run: |
           python -m pip install --upgrade pip
@@ -105,7 +122,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: psf/black@stable
       - name: Install Project
         run: |
           python -m pip install --upgrade pip
@@ -145,7 +161,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: psf/black@stable
       - name: Install Project
         run: |
           python -m pip install --upgrade pip
@@ -184,7 +199,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: psf/black@stable
       - name: Install Project
         run: |
           python -m pip install --upgrade pip
