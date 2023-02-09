@@ -98,7 +98,8 @@ def copy_mapper_args(model):
 
 
 class ModelBuilder(object):
-    """VersionedModelBuilder handles the building of Version models based on parent table attributes and versioning configuration."""
+    """VersionedModelBuilder handles the building of Version models based on parent table attributes and
+    versioning configuration."""
 
     def __init__(self, versioning_manager, model):
         """
@@ -113,7 +114,8 @@ class ModelBuilder(object):
         self.model = model
 
     def build_parent_relationship(self):
-        """Builds a relationship between currently built version class and parent class (the model whose history the currently build version class represents)."""
+        """Builds a relationship between currently built version class and parent class (the model whose
+        history the currently build version class represents)."""
         conditions = []
         foreign_keys = []
         model_keys = []

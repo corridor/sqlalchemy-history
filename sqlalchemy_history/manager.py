@@ -1,10 +1,11 @@
-"""Manager Module handles versioning configuration and communications between `builder` and `unit_of_work` package.
+"""Manager Module handles versioning configuration and communications between `builder` and `unit_of_work`
+ package.
 
 The Module contains following Class
-- `VersioningManager`: VersioningManager delegates versioning configuration operations to builder classes and the actual versioning to UnitOfWork class.
+- `VersioningManager`: VersioningManager delegates versioning configuration operations to builder classes
+ and the actual versioning to UnitOfWork class.
 
 """
-import re
 from functools import wraps
 
 import sqlalchemy as sa
@@ -259,7 +260,8 @@ class VersioningManager(object):
             sa.event.listen(session, event_name, listener)
 
     def remove_session_tracking(self, session):
-        """Remove listeners that track the operations (flushing, committing and rolling back) of given session.
+        """Remove listeners that track the operations (flushing, committing and rolling back) of given
+         session.
         This method should be used in conjunction with `remove_operations_tracking`.
 
         :param session: SQLAlchemy session to remove the operations tracking from
@@ -313,7 +315,8 @@ class VersioningManager(object):
 
     def before_flush(self, session, flush_context, instances):
         """Before flush listener for SQLAlchemy sessions.
-        If this manager has versioning enabled this listener invokes the process before flush of associated UnitOfWork object.
+        If this manager has versioning enabled this listener invokes the process before flush of associated
+         UnitOfWork object.
 
         :param session: SQLAlchemy session
         :param flush_context:
@@ -342,7 +345,8 @@ class VersioningManager(object):
         uow.process_after_flush(session)
 
     def clear(self, session):
-        """Simple SQLAlchemy listener that is being invoked after successful transaction commit or when transaction rollback occurs.
+        """Simple SQLAlchemy listener that is being invoked after successful transaction commit or when
+         transaction rollback occurs.
         The purpose of this listener is to reset this UnitOfWork back to its initialization state.
 
         :param session: SQLAlchemy session object
@@ -456,11 +460,13 @@ class VersioningManager(object):
                 if context.invoked_statement.table.schema
                 else context.invoked_statement.table.name
             )
-            # ORM tables are tracked using `mapper_listeners`. We only need to track table which do not have mappers here
+            # ORM tables are tracked using `mapper_listeners`. We only need to track table which do not
+            #  have mappers here
             orm_tracked_tables = {
                 c.__table__
                 for c in self.version_class_map
-                # NOTE: We add hasattr(c, '__table__') cause some ORM may not have a physical table associated to them
+                # NOTE: We add hasattr(c, '__table__') cause some ORM may not have a physical table
+                #  associated to them
                 if hasattr(c, "__table__")
             }
             table_names = [

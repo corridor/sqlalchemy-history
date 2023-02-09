@@ -1,5 +1,5 @@
 from pytest import mark
-from packaging import version
+from packaging import version  # noqa: F401
 
 import sqlalchemy as sa
 from sqlalchemy_history import version_class

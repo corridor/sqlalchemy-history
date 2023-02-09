@@ -2,7 +2,6 @@
 """
 
 from datetime import datetime
-from functools import partial
 
 from collections import OrderedDict
 import sqlalchemy as sa

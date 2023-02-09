@@ -1,4 +1,3 @@
-import copy
 import datetime
 import sqlalchemy as sa
 from sqlalchemy_history.utils import parent_table, version_table

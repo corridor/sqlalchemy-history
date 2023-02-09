@@ -1,4 +1,3 @@
-from pytest import raises
 from sqlalchemy.orm.session import Session
 from sqlalchemy_history import versioning_manager, UnitOfWork
 from tests import TestCase

@@ -25,7 +25,6 @@ import sqlalchemy as sa
 
 from sqlalchemy_history.plugins.base import Plugin
 from sqlalchemy_history.factory import ModelFactory
-from sqlalchemy_history.utils import option
 
 
 class TransactionChangesBase(object):

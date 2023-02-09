@@ -1,7 +1,6 @@
 """Table Builder Builds versioned table.
 """
 import sqlalchemy as sa
-from sqlalchemy_utils import get_column_key
 
 
 class ColumnReflector(object):
@@ -89,7 +88,8 @@ class ColumnReflector(object):
 
 
 class TableBuilder(object):
-    """TableBuilder handles the building of version tables based on parent table's structure and versioning configuration options."""
+    """TableBuilder handles the building of version tables based on parent table's structure and versioning
+    configuration options."""
 
     def __init__(self, versioning_manager, parent_table, model=None):
         self.manager = versioning_manager

@@ -1,5 +1,4 @@
 import sqlalchemy as sa
-from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_history import versioning_manager, version_class
 from tests import TestCase, create_test_cases
 
