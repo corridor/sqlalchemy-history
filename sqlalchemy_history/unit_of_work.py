@@ -193,17 +193,11 @@ class UnitOfWork(object):
         fetcher = self.manager.fetcher(parent)
         session = sa.orm.object_session(version_obj)
 
-        subquery = fetcher._transaction_id_subquery(version_obj, next_or_prev="prev", alias=alias)
-        if session.connection().engine.dialect.name == "mysql":
-            return sa.select(
-                [sa.text("max_1")],
-                from_obj=[
-                    sa.sql.expression.alias(
-                        subquery.subquery() if hasattr(subquery, "subquery") else subquery,
-                        name="subquery",
-                    )
-                ],
-            )
+        subquery = fetcher._transaction_id_subquery(
+            version_obj,
+            next_or_prev='prev',
+            alias=alias
+        )
         return subquery
 
     def update_version_validity(self, parent, version_obj):
