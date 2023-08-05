@@ -1,5 +1,6 @@
 import pytest
 import sqlalchemy as sa
+from sqlalchemy_history import versioning_manager
 from tests import TestCase, create_test_cases
 
 
@@ -117,6 +118,33 @@ class OneToManyRelationshipsTestCase(TestCase):
         self.session.delete(tag)
         article.name = "Updated article"
         self.session.commit()
+        assert len(article.versions[0].tags) == 1
+        assert len(article.versions[1].tags) == 0
+
+    def test_unordered_transaction_id(self):
+        # In some DBs - the sequence of IDs used for primary keys is not monotonic
+        # This example is taken from: test_delete
+
+        def create_transaction(id):
+            # Use this fucntion to explicitly create transaction records where the ID
+            # is not in increasing order
+            transaction = versioning_manager.unit_of_work(self.session).create_transaction(self.session)
+            transaction.id = id
+
+        article = self.Article()
+        article.name = "Some article"
+        article.content = "Some content"
+        tag = self.Tag(name="some tag")
+        article.tags.append(tag)
+        self.session.add(article)
+        create_transaction(id=2)
+        self.session.commit()
+
+        self.session.delete(tag)
+        article.name = "Updated article"
+        create_transaction(id=1)
+        self.session.commit()
+
         assert len(article.versions[0].tags) == 1
         assert len(article.versions[1].tags) == 0
 

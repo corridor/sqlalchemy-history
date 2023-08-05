@@ -20,6 +20,7 @@ class RelationshipBuilder(object):
         tx_column = option(obj, "transaction_column_name")
 
         remote_alias = sa.orm.aliased(self.remote_cls)
+        transaction_alias = sa.orm.aliased(self.manager.transaction_cls)
         primary_keys = [
             getattr(remote_alias, column.name)
             for column in sa.inspect(remote_alias).mapper.columns
@@ -28,9 +29,12 @@ class RelationshipBuilder(object):
 
         return sa.exists(
             sa.select([1])
+            .select_from(remote_alias)
+            .join(transaction_alias, transaction_alias.id == getattr(remote_alias, tx_column))
             .where(
                 sa.and_(
-                    getattr(remote_alias, tx_column) <= getattr(obj, tx_column),
+                    # NOTE: obj.transaction is the relationship to transaction table
+                    transaction_alias.issued_at <= obj.transaction.issued_at,
                     *[
                         getattr(remote_alias, pk.name) == getattr(self.remote_cls, pk.name)
                         for pk in primary_keys
@@ -38,8 +42,8 @@ class RelationshipBuilder(object):
                 )
             )
             .group_by(*primary_keys)
-            .having(sa.func.max(getattr(remote_alias, tx_column)) == getattr(self.remote_cls, tx_column))
-            .correlate(self.local_cls, self.remote_cls)
+            .having(sa.func.max(transaction_alias.issued_at) == self.manager.transaction_cls.issued_at)
+            .correlate(self.local_cls, self.remote_cls, self.manager.transaction_cls)
         )
 
     def many_to_one_subquery(self, obj):
@@ -56,7 +60,23 @@ class RelationshipBuilder(object):
 
     def query(self, obj):
         session = sa.orm.object_session(obj)
-        return session.query(self.remote_cls).filter(self.criteria(obj))
+        query = session.query(self.remote_cls)
+        direction = self.property.direction
+        if self.versioned:
+            tx_column = option(obj, "transaction_column_name")
+            query = query.join(
+                self.manager.transaction_cls,
+                self.manager.transaction_cls.id == getattr(self.remote_cls, tx_column),
+            )
+            if direction.name == "ONETOMANY":
+                return query.filter(self.one_to_many_criteria(obj))
+            elif direction.name == "MANYTOMANY":
+                return query.filter(self.many_to_many_criteria(obj))
+            elif direction.name == "MANYTOONE":
+                return query.filter(self.many_to_one_criteria(obj))
+        else:
+            reflector = VersionExpressionReflector(obj, self.property)
+            return query.filter(reflector(self.property.primaryjoin))
 
     def process_query(self, query):
         """Process given SQLAlchemy Query object depending on the associated RelationshipProperty object.
@@ -69,20 +89,6 @@ class RelationshipBuilder(object):
         if self.property.uselist is False:
             return query.first()
         return query.all()
-
-    def criteria(self, obj):
-        direction = self.property.direction
-
-        if self.versioned:
-            if direction.name == "ONETOMANY":
-                return self.one_to_many_criteria(obj)
-            elif direction.name == "MANYTOMANY":
-                return self.many_to_many_criteria(obj)
-            elif direction.name == "MANYTOONE":
-                return self.many_to_one_criteria(obj)
-        else:
-            reflector = VersionExpressionReflector(obj, self.property)
-            return reflector(self.property.primaryjoin)
 
     def many_to_many_criteria(self, obj):
         """Returns the many-to-many query.
@@ -179,24 +185,28 @@ class RelationshipBuilder(object):
 
         Examples:
 
-        Using the Article-Tags relationship, where we look for tags of
-        article_version with id = 3 and transaction = 5 the sql produced is
+        Using the Article-Tags relationship, where we look for tags of article_version with id = 3
+        and transaction = 5 (issued_at=2020-01-01) the sql produced is:
 
         .. code-block:: sql
 
         SELECT tags_version.*
         FROM tags_version
+        JOIN transaction
+            ON transaction.id = tags_version.transaction_id
         WHERE tags_version.article_id = 3
         AND tags_version.operation_type != 2
         AND EXISTS (
             SELECT 1
             FROM tags_version as tags_version_last
-            WHERE tags_version_last.transaction_id <= 5
+            JOIN transaction as transaction_last
+                ON transaction_last.id = tags_version_last.transaction_id
+            WHERE transaction_last.issued_at <= '2020-01-01'
             AND tags_version_last.id = tags_version.id
             GROUP BY tags_version_last.id
             HAVING
-                MAX(tags_version_last.transaction_id) =
-                tags_version.transaction_id
+                MAX(transaction_last.issued_at) =
+                transaction.issued_at
         )
 
         :param obj:
