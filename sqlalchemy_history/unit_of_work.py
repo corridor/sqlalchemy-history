@@ -112,6 +112,20 @@ class UnitOfWork(object):
             setattr(self.current_transaction, key, value)
         if not self.version_session:
             self.version_session = sa.orm.session.Session(bind=session.connection())
+
+        # Fetch the last-id in Transaction table
+        # We are manually setting the transaction ID - to guarantee that the transaction ID is always
+        # increasing. In some cases like Oracle RAC - the order of the IDs generated are not sequential.
+        # Ref: https://stackoverflow.com/questions/57620096
+        # So, here we ourselves are setting the transaction IDs using table locks
+        # NOTE: If we ever remove this and start relying on the DB to set these values - the sequence's
+        #       NEXTVAL needs to be manually updated
+
+        # FIXME: There is a small race condition here when 2 APIs could write concurrently between the
+        #        last_transaction_id fetching and FLUSH
+        last_transaction_id = self.version_session.query(sa.func.max(Transaction.id)).scalar()
+        self.current_transaction.id = last_transaction_id + 1
+
         self.version_session.add(self.current_transaction)
         self.version_session.flush()
         self.version_session.expunge(self.current_transaction)

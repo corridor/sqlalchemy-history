@@ -3,6 +3,13 @@ Changelog
 
 Here you can see the full list of changes between each release.
 
+Unreleased
+^^^^^^^^^^
+
+-   Set the Transaction.id ourselves to ensure that the values are always ascending
+    order. This leaves a slight chance for a race condition - but will safeguard us
+    from DB specific nuances in autoincrement handling
+
 2.0.0 (2023-02-02)
 ^^^^^^^^^^^^^^^^^^^
 
