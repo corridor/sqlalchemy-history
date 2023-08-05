@@ -96,7 +96,9 @@ class ManyToManyRelationshipsTestCase(TestCase):
         article1.name = "Some other name"
         self.session.commit()
 
+        assert len(article1.versions[0].tags) == 1
         assert len(article1.versions[1].tags) == 1
+        assert len(article2.versions[0].tags) == 1
 
     def test_multi_insert(self):
         article = self.Article()
@@ -126,11 +128,13 @@ class ManyToManyRelationshipsTestCase(TestCase):
         article.tags.append(tag)
         self.session.add(article)
         self.session.commit()
+
         article.tags.remove(tag)
         article.name = "Updated name"
         self.session.commit()
-        tags = article.versions[1].tags
-        assert len(tags) == 0
+
+        assert len(article.versions[0].tags) == 1
+        assert len(article.versions[1].tags) == 0
 
     def test_delete_multiple_associations(self):
         article = self.Article()
@@ -142,10 +146,13 @@ class ManyToManyRelationshipsTestCase(TestCase):
         article.tags.append(tag2)
         self.session.add(article)
         self.session.commit()
+
         article.tags.remove(tag)
         article.tags.remove(tag2)
         article.name = "Updated name"
         self.session.commit()
+
+        assert len(article.versions[0].tags) == 2
         assert len(article.versions[1].tags) == 0
 
     def test_remove_node_but_not_the_link(self):
@@ -159,8 +166,8 @@ class ManyToManyRelationshipsTestCase(TestCase):
         self.session.delete(tag)
         article.name = "Updated name"
         self.session.commit()
-        tags = article.versions[1].tags
-        assert len(tags) == 0
+        assert len(article.versions[0].tags) == 1
+        assert len(article.versions[1].tags) == 0
 
     def test_multiple_parent_objects_added_within_same_transaction(self):
         article = self.Article(name="Some article")
@@ -172,10 +179,12 @@ class ManyToManyRelationshipsTestCase(TestCase):
         article2.tags.append(tag2)
         self.session.add(article2)
         self.session.commit()
+
         article.tags.remove(tag)
         self.session.commit()
         self.session.refresh(article)
         tags = article.versions[0].tags
+
         assert tags == [tag.versions[0]]
 
     def test_relations_with_varying_transactions(self):
@@ -199,6 +208,49 @@ class ManyToManyRelationshipsTestCase(TestCase):
         # update article and first tag only
         tag1.name = "updated tag1 x2"
         article.name = "updated article x2"
+        self.session.commit()
+
+        assert len(article.versions[0].tags) == 1
+        assert article.versions[0].tags[0] is tag1.versions[0]
+
+        assert len(article.versions[1].tags) == 2
+        assert tag1.versions[1] in article.versions[1].tags
+        assert tag2.versions[0] in article.versions[1].tags
+
+        assert len(article.versions[2].tags) == 2
+        assert tag1.versions[2] in article.versions[2].tags
+        assert tag2.versions[0] in article.versions[2].tags
+
+    def test_unordered_transaction_id(self):
+        # In some DBs - the sequence of IDs used for primary keys is not monotonic
+        # This example is taken from: test_relations_with_varying_transactions
+
+        def create_transaction(id):
+            # Use this fucntion to explicitly create transaction records where the ID
+            # is not in increasing order
+            transaction = versioning_manager.unit_of_work(self.session).create_transaction(self.session)
+            transaction.id = id
+
+        # one article with one tag
+        article = self.Article(name="Some article")
+        tag1 = self.Tag(name="some tag")
+        article.tags.append(tag1)
+        self.session.add(article)
+        create_transaction(id=3)
+        self.session.commit()
+
+        # update article and tag, add a 2nd tag
+        tag2 = self.Tag(name="some other tag")
+        article.tags.append(tag2)
+        tag1.name = "updated tag1"
+        article.name = "updated article"
+        create_transaction(id=2)
+        self.session.commit()
+
+        # update article and first tag only
+        tag1.name = "updated tag1 x2"
+        article.name = "updated article x2"
+        create_transaction(id=1)
         self.session.commit()
 
         assert len(article.versions[0].tags) == 1

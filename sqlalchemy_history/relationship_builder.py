@@ -108,36 +108,44 @@ class RelationshipBuilder(object):
 
         Examples:
 
-        Select all tags of article with id 3 and transaction 5
+        Select all tags of article with id 3 and transaction 5 (issued_at=2020-01-01)
 
         .. code-block:: sql
 
         SELECT tags_version.*
         FROM tags_version
+        JOIN transaction
+            ON transaction.id = tags_version.tx_id
         WHERE EXISTS (
             SELECT 1
             FROM article_tag_version
+            JOIN transaction
+                ON transaction.id = article_tag_version.tx_id
             WHERE article_id = 3
             AND tag_id = tags_version.id
             AND operation_type != 2
             AND EXISTS (
                 SELECT 1
                 FROM article_tag_version as article_tag_version2
+                JOIN transaction as transaction2
+                    ON transaction2.id = article_tag_version2.tx_id
                 WHERE article_tag_version2.tag_id = article_tag_version.tag_id
-                AND article_tag_version2.tx_id <= 5
+                AND transaction2.issued_at <= '2020-01-01'
                 GROUP BY article_tag_version2.tag_id
                 HAVING
-                    MAX(article_tag_version2.tx_id) =
-                    article_tag_version.tx_id
+                    MAX(transaction2.issued_at) =
+                    transaction.issued_at
             )
         )
         AND EXISTS (
             SELECT 1
             FROM tags_version as tags_version_2
+            JOIN transaction as transaction_2
+                ON transaction_2.id = tags_version_2.tx_id
             WHERE tags_version_2.id = tags_version.id
-            AND tags_version_2.tx_id <= 5
+            AND transaction_2.issued_at <= '2020-01-01'
             GROUP BY tags_version_2.id
-            HAVING MAX(tags_version_2.tx_id) = tags_version.tx_id
+            HAVING MAX(transaction_2.issued_at) = transaction.issued_at
         )
         AND operation_type != 2
 
@@ -256,19 +264,24 @@ class RelationshipBuilder(object):
         EXISTS (
             SELECT 1
             FROM article_tag_version
+            JOIN transaction
+                ON transaction.id = article_tag_version.tx_id
             WHERE article_id = 3
             AND tag_id = tags_version.id
             AND operation_type != 2
             AND EXISTS (
                 SELECT 1
                 FROM article_tag_version as article_tag_version2
+                JOIN transaction as transaction2
+                    ON transaction2.id = article_tag_version2.tx_id
                 WHERE article_tag_version2.tag_id = article_tag_version.tag_id
-                AND article_tag_version2.tx_id <=5
                 AND article_tag_version2.article_id = 3
+                AND transaction2.issued_at <= '2020-01-01'
                 GROUP BY article_tag_version2.tag_id
                 HAVING
-                    MAX(article_tag_version2.tx_id) =
-                    article_tag_version.tx_id
+                    MAX(transaction2.issued_at) =
+                    transaction.issued_at
+
             )
         )
 
@@ -282,6 +295,7 @@ class RelationshipBuilder(object):
         reflector = VersionExpressionReflector(obj, self.property)
 
         association_table_alias = self.association_version_table.alias()
+        transaction_alias = sa.orm.aliased(self.manager.transaction_cls)
         association_cols = [
             association_table_alias.c[association_col.name]
             for _, association_col in self.remote_to_association_column_pairs
@@ -289,9 +303,11 @@ class RelationshipBuilder(object):
 
         association_exists = sa.exists(
             sa.select([1])
+            .select_from(association_table_alias)
+            .join(transaction_alias, transaction_alias.id == association_table_alias.c[tx_column])
             .where(
                 sa.and_(
-                    association_table_alias.c[tx_column] <= getattr(obj, tx_column),
+                    transaction_alias.issued_at <= obj.transaction.issued_at,
                     association_table_alias.c[join_column] == getattr(obj, object_join_column),
                     *[
                         association_col == self.association_version_table.c[association_col.name]
@@ -300,14 +316,16 @@ class RelationshipBuilder(object):
                 )
             )
             .group_by(*association_cols)
-            .having(
-                sa.func.max(association_table_alias.c[tx_column])
-                == self.association_version_table.c[tx_column]
-            )
-            .correlate(self.association_version_table)
+            .having(sa.func.max(transaction_alias.issued_at) == self.manager.transaction_cls.issued_at)
+            .correlate(self.association_version_table, self.manager.transaction_cls)
         )
         return sa.exists(
             sa.select([1])
+            .select_from(self.association_version_table)
+            .join(
+                self.manager.transaction_cls,
+                self.manager.transaction_cls.id == self.association_version_table.c[tx_column],
+            )
             .where(
                 sa.and_(
                     reflector(self.property.primaryjoin),
