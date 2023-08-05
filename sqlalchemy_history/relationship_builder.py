@@ -49,14 +49,22 @@ class RelationshipBuilder(object):
     def many_to_one_subquery(self, obj):
         tx_column = option(obj, "transaction_column_name")
         reflector = VersionExpressionReflector(obj, self.property)
-        subquery = sa.select([sa.func.max(getattr(self.remote_cls, tx_column))]).where(
-            sa.and_(
-                getattr(self.remote_cls, tx_column) <= getattr(obj, tx_column),
-                reflector(self.property.primaryjoin),
+        subquery = (
+            sa.select([sa.func.max(self.manager.transaction_cls.issued_at)])
+            .select_from(self.remote_cls)
+            .join(
+                self.manager.transaction_cls,
+                self.manager.transaction_cls.id == getattr(self.remote_cls, tx_column),
+            )
+            .where(
+                sa.and_(
+                    self.manager.transaction_cls.issued_at <= obj.transaction.issued_at,
+                    reflector(self.property.primaryjoin),
+                )
             )
         )
         subquery = subquery.scalar_subquery()
-        return getattr(self.remote_cls, tx_column) == subquery
+        return self.manager.transaction_cls.issued_at == subquery
 
     def query(self, obj):
         session = sa.orm.object_session(obj)
@@ -151,17 +159,21 @@ class RelationshipBuilder(object):
         Examples:
 
         Look up the Article of a Tag with article_id = 4 and
-        transaction_id = 5
+        transaction_id = 5 (issued_at=2020-01-01)
 
         .. code-block:: sql
 
         SELECT *
         FROM articles_version
+        JOIN transaction
+            ON transaction.id = articles_version.transaction_id
         WHERE id = 4
-        AND transaction_id = (
-            SELECT max(transaction_id)
+        AND issued_at = (
+            SELECT max(issued_at)
             FROM articles_version
-            WHERE transaction_id <= 5
+            JOIN transaction
+                ON transaction.id = articles_version.transaction_id
+            WHERE issued_at <= '2020-01-01'
             AND id = 4
         )
         AND operation_type != 2
