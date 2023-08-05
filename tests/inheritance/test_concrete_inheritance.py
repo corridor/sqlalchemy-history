@@ -67,9 +67,9 @@ class TestConreteTableInheritance(TestCase):
         self.session.add(textitem)
         self.session.commit()
 
-        assert type(textitem.versions[0]) == self.TextItemVersion
-        assert type(article.versions[0]) == self.ArticleVersion
-        assert type(blogpost.versions[0]) == self.BlogPostVersion
+        assert type(textitem.versions[0]) is self.TextItemVersion
+        assert type(article.versions[0]) is self.ArticleVersion
+        assert type(blogpost.versions[0]) is self.BlogPostVersion
 
     def test_transaction_changed_entities(self):
         article = self.Article()
