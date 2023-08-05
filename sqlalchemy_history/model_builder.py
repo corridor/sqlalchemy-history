@@ -132,7 +132,14 @@ class ModelBuilder(object):
                 self.version_class,
                 primaryjoin=sa.and_(*conditions),
                 foreign_keys=foreign_keys,
-                order_by=lambda: getattr(self.version_class, option(self.model, "transaction_column_name")),
+                order_by=(
+                    sa.select([self.manager.transaction_cls.issued_at])
+                    .where(
+                        self.manager.transaction_cls.id
+                        == getattr(self.version_class, option(self.model, "transaction_column_name"))
+                    )
+                    .scalar_subquery()
+                ),
                 lazy="dynamic",
                 viewonly=True,
             )
