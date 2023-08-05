@@ -24,8 +24,9 @@ curl -sSL https://install.python-poetry.org | python3 -
 poetry install   # Poetry creates a virtual environment in your local
 # NOTE: If poetry is not set in your $PATH variable you can use
 # '~/.local/share/pypoetry/venv/bin/poetry install' instead!
+
 # Activate this virtual environment in your local by calling
-source ./.venv/bin/activate
+poetry shell
 ```
 - Checkout branch with name relevant to issue issue you are working
 ```
@@ -38,10 +39,11 @@ git checkout -b add-issue-num
 - Make changes as per the issue you are working on and add/modify testfile(s) if you are adding new feature or fixing bugs in existing code
 - Before commiting, verify if the changes are working in your local system
 ```
-export DB=sqlite # for local dev testing
-pytest
+# Run tests locally
+DB=sqlite poetry run pytest
+
 # Lint
-black .
+poetry run black .
 ```
 - Add commit for your changes with message title and message description brifly explaining the approach
     - Keep commit message title 72 characters
