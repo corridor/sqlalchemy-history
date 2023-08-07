@@ -171,7 +171,7 @@ from sqlalchemy_history.utils import version_class, version_obj
 class ActivityBase(object):
     id = sa.Column(
         sa.BigInteger,
-        sa.schema.Sequence("activity_id_seq", start=1),
+        sa.schema.Sequence("activity_id_seq", start=1, order=True),
         primary_key=True,
         autoincrement=True,
     )
