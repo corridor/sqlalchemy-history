@@ -41,6 +41,7 @@ PyMySQL = ">=0.8.0"
 sqlalchemy_i18n = "*"
 pymssql = ">=2.2.0"
 cx-Oracle = "8.3.0"
+pytest-cov = "*"
 
 
 [tool.black]
