@@ -20,18 +20,16 @@ classifiers=[
 ]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 
 SQLAlchemy = ">=1.4,<2"
 SQLAlchemy-Utils = ">=0.30.12"
 cached-property = "*"
 
 [tool.poetry.dev-dependencies]
-black = {version = "*", allow-prereleases = true}
+black = "*"
 flake8 = "*"
-# The hook `black` requires pre-commit version 2.9.2 but version 2.1.1 is installed.
-# pre-commit 2.9.2 doesn't support Python3.6 so only enabling flake8 for pre-commit 
-pre-commit = "2.1.1"
+pre-commit = "2.21.0"
 
 # [tool.poetry.group.test.dependencies]
 pytest = ">=2.3.5"
@@ -47,4 +45,4 @@ pytest-cov = "*"
 [tool.black]
 # Set line-length lower than 120 as black will go 10% above if needed
 line-length = 110
-target-version = ['py36']
+target-version = ['py37']

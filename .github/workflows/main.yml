@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.6"
+          - "3.7"
           - "3.10"
     runs-on: ubuntu-20.04
     steps:
@@ -28,7 +28,7 @@ jobs:
       - name: Black Validation
         uses: psf/black@stable
         with:
-          version: "22.8.0"  # Last version which can be used in py3.6 and py3.7
+          version: "22.8.0" # Last version which can be used in py3.6 and py3.7
       - name: Check Flake8 Formatting
         uses: py-actions/flake8@v2
 
@@ -37,7 +37,7 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.6"
+          - "3.7"
           - "3.10"
     runs-on: ubuntu-20.04 # refer: https://github.com/actions/setup-python/issues/541
     steps:
@@ -68,7 +68,7 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.6"
+          - "3.7"
           - "3.10"
     services:
       mysql:
@@ -112,7 +112,7 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.6"
+          - "3.7"
           - "3.10"
     services:
       postgres:
@@ -156,7 +156,7 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.6"
+          - "3.7"
           - "3.10"
     services:
       mssql:
@@ -200,7 +200,7 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.6"
+          - "3.7"
           - "3.10"
     services:
       oracle:
