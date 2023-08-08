@@ -53,8 +53,7 @@ jobs:
           poetry install
       - name: Run tests
         run: |
-          source "$( poetry env list --full-path | grep Activated | cut -d' ' -f1 )/bin/activate"
-          pytest --cov
+          poetry run pytest --cov
         env:
           DB: sqlite
           COVERAGE_FILE: .coverage.sqlite.${{ matrix.python-version }}
@@ -97,8 +96,7 @@ jobs:
           poetry install
       - name: Run tests
         run: |
-          source "$( poetry env list --full-path | grep Activated | cut -d' ' -f1 )/bin/activate"
-          pytest --cov
+          poetry run pytest --cov
         env:
           DB: mysql
           COVERAGE_FILE: .coverage.mysql.${{ matrix.python-version }}
@@ -141,8 +139,7 @@ jobs:
           poetry install
       - name: Run tests
         run: |
-          source "$( poetry env list --full-path | grep Activated | cut -d' ' -f1 )/bin/activate"
-          pytest --cov
+          poetry run pytest --cov
         env:
           DB: postgres
           COVERAGE_FILE: .coverage.postgresql.${{ matrix.python-version }}
@@ -185,8 +182,7 @@ jobs:
           poetry install
       - name: Run tests
         run: |
-          source "$( poetry env list --full-path | grep Activated | cut -d' ' -f1 )/bin/activate"
-          pytest --cov
+          poetry run pytest --cov
         env:
           DB: mssql
           COVERAGE_FILE: .coverage.mssql.${{ matrix.python-version }}
@@ -237,8 +233,7 @@ jobs:
       - name: Run tests
         run: |
           export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_8/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
-          source "$( poetry env list --full-path | grep Activated | cut -d' ' -f1 )/bin/activate"
-          pytest --cov
+          poetry run pytest --cov
         env:
           DB: oracle
           COVERAGE_FILE: .coverage.oracle.${{ matrix.python-version }}
