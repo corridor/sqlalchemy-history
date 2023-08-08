@@ -16,8 +16,8 @@ jobs:
     strategy:
       matrix:
         python-version:
-         - "3.6"
-         - "3.10"
+          - "3.6"
+          - "3.10"
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
@@ -35,8 +35,8 @@ jobs:
     strategy:
       matrix:
         python-version:
-         - "3.6"
-         - "3.10"
+          - "3.6"
+          - "3.10"
     runs-on: ubuntu-20.04 # refer: https://github.com/actions/setup-python/issues/541
     steps:
       - uses: actions/checkout@v1
@@ -61,8 +61,8 @@ jobs:
     strategy:
       matrix:
         python-version:
-         - "3.6"
-         - "3.10"
+          - "3.6"
+          - "3.10"
     services:
       mysql:
         image: mysql
@@ -100,8 +100,8 @@ jobs:
     strategy:
       matrix:
         python-version:
-         - "3.6"
-         - "3.10"
+          - "3.6"
+          - "3.10"
     services:
       postgres:
         image: postgres
@@ -139,11 +139,11 @@ jobs:
     strategy:
       matrix:
         python-version:
-         - "3.6"
-         - "3.10"
+          - "3.6"
+          - "3.10"
     services:
       mssql:
-        image: mcr.microsoft.com/mssql/server:2017-latest  # https://mcr.microsoft.com/en-us/product/mssql/server/about
+        image: mcr.microsoft.com/mssql/server:2017-latest # https://mcr.microsoft.com/en-us/product/mssql/server/about
         ports:
           - 1433:1433
         env:
@@ -178,8 +178,8 @@ jobs:
     strategy:
       matrix:
         python-version:
-         - "3.6"
-         - "3.10"
+          - "3.6"
+          - "3.10"
     services:
       oracle:
         image: gvenzl/oracle-xe:21
@@ -205,7 +205,8 @@ jobs:
           pip install --upgrade poetry 
           poetry install
       - name: install oracle dependencies
-        run: | # https://cx-oracle.readthedocs.io/en/latest/user_guide/installation.html#installing-cx-oracle-on-linux
+        run:
+          | # https://cx-oracle.readthedocs.io/en/latest/user_guide/installation.html#installing-cx-oracle-on-linux
           mkdir -p /opt/oracle
           cd /opt/oracle
           wget https://download.oracle.com/otn_software/linux/instantclient/218000/instantclient-basic-linux.x64-21.8.0.0.0dbru.zip
