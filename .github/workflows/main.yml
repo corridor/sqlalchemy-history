@@ -56,6 +56,10 @@ jobs:
         env:
           DB: sqlite
           COVERAGE_FILE: .coverage.sqlite.${{ matrix.python-version }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: sqlite-coverage-files
+          path: .coverage.*
 
   test-mysql:
     name: test-python${{ matrix.python-version }}-mysql
@@ -96,6 +100,10 @@ jobs:
         env:
           DB: mysql
           COVERAGE_FILE: .coverage.mysql.${{ matrix.python-version }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: mysql-coverage-files
+          path: .coverage.*
 
   test-postgres:
     name: test-python${{ matrix.python-version }}-postgres
@@ -136,6 +144,10 @@ jobs:
         env:
           DB: postgres
           COVERAGE_FILE: .coverage.postgresql.${{ matrix.python-version }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: postgres-coverage-files
+          path: .coverage.*
 
   test-mssql:
     name: test-python${{ matrix.python-version }}-mssql
@@ -176,6 +188,10 @@ jobs:
         env:
           DB: mssql
           COVERAGE_FILE: .coverage.mssql.${{ matrix.python-version }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: mssql-coverage-files
+          path: .coverage.*
 
   test-oracle:
     name: test-python${{ matrix.python-version }}-oracle
@@ -224,3 +240,36 @@ jobs:
         env:
           DB: oracle
           COVERAGE_FILE: .coverage.oracle.${{ matrix.python-version }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: oracle-coverage-files
+          path: .coverage.*
+
+  generate-coverage-report:
+    runs-on: ubuntu-20.04
+    # ref: https://github.com/actions/runner/issues/491#issuecomment-850884422
+    if: |
+      always() &&
+      (needs.test-oracle.result == 'success' && needs.test-sqlite.result == 'success' && needs.test-mssql.result == 'success' && needs.test-mysql.result == 'success'  && needs.test-postgres.result == 'success')
+    needs: [test-oracle, test-sqlite, test-mssql, test-mysql, test-postgres]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Download coverage files
+        uses: actions/download-artifact@v3 # Downloads all artifact files
+        with:
+          path: /opt/coveragedata/
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.7"
+      - name: Install coverage and combine coverage to generate lcov
+        run: |
+          pip install coverage==7.2.7
+          coverage combine /opt/coveragedata/oracle-coverage-files/ /opt/coveragedata/mssql-coverage-files/ /opt/coveragedata/postgres-coverage-files/ /opt/coveragedata/mysql-coverage-files/ /opt/coveragedata/sqlite-coverage-files/
+          coverage lcov
+      - name: Coveralls
+        env:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        uses: coverallsapp/github-action@master
+        with:
+          path-to-lcov: ./coverage.lcov
