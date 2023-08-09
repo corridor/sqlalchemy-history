@@ -53,14 +53,17 @@ jobs:
           poetry install
       - name: Run tests
         run: |
-          poetry run pytest --cov
+          poetry run pytest --cov --cov-report=lcov
         env:
           DB: sqlite
-          COVERAGE_FILE: .coverage.sqlite.${{ matrix.python-version }}
-      - uses: actions/upload-artifact@v3
+      - name: send coverage data to Coveralls
+        env:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        uses: coverallsapp/github-action@master
         with:
-          name: sqlite-coverage-files
-          path: .coverage.*
+          path-to-lcov: ./coverage.lcov
+          flag-name: lcov-sqlite-py${{ matrix.python-version }}
+          parallel: true
 
   test-mysql:
     name: test-python${{ matrix.python-version }}-mysql
@@ -96,14 +99,17 @@ jobs:
           poetry install
       - name: Run tests
         run: |
-          poetry run pytest --cov
+          poetry run pytest --cov --cov-report=lcov
         env:
           DB: mysql
-          COVERAGE_FILE: .coverage.mysql.${{ matrix.python-version }}
-      - uses: actions/upload-artifact@v3
+      - name: send coverage data to Coveralls
+        env:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        uses: coverallsapp/github-action@master
         with:
-          name: mysql-coverage-files
-          path: .coverage.*
+          path-to-lcov: ./coverage.lcov
+          flag-name: lcov-mysql-py${{ matrix.python-version }}
+          parallel: true
 
   test-postgres:
     name: test-python${{ matrix.python-version }}-postgres
@@ -139,14 +145,17 @@ jobs:
           poetry install
       - name: Run tests
         run: |
-          poetry run pytest --cov
+          poetry run pytest --cov --cov-report=lcov
         env:
           DB: postgres
-          COVERAGE_FILE: .coverage.postgresql.${{ matrix.python-version }}
-      - uses: actions/upload-artifact@v3
+      - name: send coverage data to Coveralls
+        env:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        uses: coverallsapp/github-action@master
         with:
-          name: postgres-coverage-files
-          path: .coverage.*
+          path-to-lcov: ./coverage.lcov
+          flag-name: lcov-postgres-py${{ matrix.python-version }}
+          parallel: true
 
   test-mssql:
     name: test-python${{ matrix.python-version }}-mssql
@@ -182,14 +191,17 @@ jobs:
           poetry install
       - name: Run tests
         run: |
-          poetry run pytest --cov
+          poetry run pytest --cov --cov-report=lcov
         env:
           DB: mssql
-          COVERAGE_FILE: .coverage.mssql.${{ matrix.python-version }}
-      - uses: actions/upload-artifact@v3
+      - name: send coverage data to Coveralls
+        env:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        uses: coverallsapp/github-action@master
         with:
-          name: mssql-coverage-files
-          path: .coverage.*
+          path-to-lcov: ./coverage.lcov
+          flag-name: lcov-mssql-py${{ matrix.python-version }}
+          parallel: true
 
   test-oracle:
     name: test-python${{ matrix.python-version }}-oracle
@@ -233,14 +245,17 @@ jobs:
       - name: Run tests
         run: |
           export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_8/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
-          poetry run pytest --cov
+          poetry run pytest --cov --cov-report=lcov
         env:
           DB: oracle
-          COVERAGE_FILE: .coverage.oracle.${{ matrix.python-version }}
-      - uses: actions/upload-artifact@v3
+      - name: send coverage data to Coveralls
+        env:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        uses: coverallsapp/github-action@master
         with:
-          name: oracle-coverage-files
-          path: .coverage.*
+          path-to-lcov: ./coverage.lcov
+          flag-name: lcov-oracle-py${{ matrix.python-version }}
+          parallel: true
 
   generate-coverage-report:
     runs-on: ubuntu-20.04
@@ -250,23 +265,10 @@ jobs:
       (needs.test-oracle.result == 'success' && needs.test-sqlite.result == 'success' && needs.test-mssql.result == 'success' && needs.test-mysql.result == 'success'  && needs.test-postgres.result == 'success')
     needs: [test-oracle, test-sqlite, test-mssql, test-mysql, test-postgres]
     steps:
-      - uses: actions/checkout@v1
-      - name: Download coverage files
-        uses: actions/download-artifact@v3 # Downloads all artifact files
-        with:
-          path: /opt/coveragedata/
-      - name: Install Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.7"
-      - name: Install coverage and combine coverage to generate lcov
-        run: |
-          pip install coverage==7.2.7
-          coverage combine /opt/coveragedata/oracle-coverage-files/ /opt/coveragedata/mssql-coverage-files/ /opt/coveragedata/postgres-coverage-files/ /opt/coveragedata/mysql-coverage-files/ /opt/coveragedata/sqlite-coverage-files/
-          coverage lcov
       - name: Coveralls
         env:
           github-token: ${{ secrets.GITHUB_TOKEN }}
         uses: coverallsapp/github-action@master
         with:
-          path-to-lcov: ./coverage.lcov
+          parallel-finished: true
+          carryforward: "lcov-mssql-py3.10, lcov-mssql-py3.7, lcov-mysql-py3.10, lcov-mysql-py3.7, lcov-oracle-py3.10, lcov-oracle-py3.7, lcov-postgres-py3.10, lcov-postgres-py3.7, lcov-sqlite-py3.10, lcov-sqlite-py3.7"
