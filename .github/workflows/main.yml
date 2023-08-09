@@ -259,10 +259,6 @@ jobs:
 
   generate-coverage-report:
     runs-on: ubuntu-20.04
-    # ref: https://github.com/actions/runner/issues/491#issuecomment-850884422
-    if: |
-      always() &&
-      (needs.test-oracle.result == 'success' && needs.test-sqlite.result == 'success' && needs.test-mssql.result == 'success' && needs.test-mysql.result == 'success'  && needs.test-postgres.result == 'success')
     needs: [test-oracle, test-sqlite, test-mssql, test-mysql, test-postgres]
     steps:
       - name: Coveralls
