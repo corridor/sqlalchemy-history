@@ -81,16 +81,16 @@ class ManyToManyRelationshipsTestCase(TestCase):
             name="Some article",
         )
         article1.name = "Some article"
+        self.session.add(article1)
         article1.tags.append(tag1)
 
-        self.session.add(article1)
         self.session.commit()
 
         article2 = self.Article()
         article2.name = "Some article2"
+        self.session.add(article2)
         article2.tags.append(tag1)
 
-        self.session.add(article2)
         self.session.commit()
 
         article1.name = "Some other name"
@@ -379,16 +379,16 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
 
     def create_tables(self):
         try:
-            self.connection.execute("DROP SCHEMA IF EXISTS other")
-            self.connection.execute("CREATE SCHEMA other")
+            self.connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
+            self.connection.execute(sa.text("CREATE SCHEMA other"))
         except sa.exc.DatabaseError:  # pragma: no cover
             try:
                 # Create a User for Oracle DataBase as it does not have concept of schema
                 # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa E501
-                self.connection.execute("CREATE USER other identified by other")
+                self.connection.execute(sa.text("CREATE USER other identified by other"))
                 # need to give privilege to create table to this new user
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
-                self.connection.execute("GRANT UNLIMITED TABLESPACE TO other")
+                self.connection.execute(sa.text("GRANT UNLIMITED TABLESPACE TO other"))
             except sa.exc.DatabaseError as dbe:
                 if (
                     "ORA-01920: user name 'OTHER' conflicts with another user or role name"
@@ -397,6 +397,8 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
                     # NOTE: prior to oracle 23c we don't have concept of if not exists
                     #       so we just try to create if fails we continue
                     raise
+        finally:
+            self.connection.commit()
 
         TestManyToManySelfReferential.create_tables(self)
 
@@ -444,16 +446,16 @@ class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTe
 
     def create_tables(self):
         try:
-            self.connection.execute("DROP SCHEMA IF EXISTS other")
-            self.connection.execute("CREATE SCHEMA other")
+            self.connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
+            self.connection.execute(sa.text("CREATE SCHEMA other"))
         except sa.exc.DatabaseError:
             try:
                 # Create a User for Oracle DataBase as it does not have concept of schema
                 # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa E501
-                self.connection.execute("CREATE USER other identified by other")
+                self.connection.execute(sa.text("CREATE USER other identified by other"))
                 # need to give privilege to create table to this new user
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
-                self.connection.execute("GRANT UNLIMITED TABLESPACE TO other")  # pragma: no cover
+                self.connection.execute(sa.text("GRANT UNLIMITED TABLESPACE TO other"))  # pragma: no cover
             except sa.exc.DatabaseError as dbe:  # pragma: no cover
                 if (
                     "ORA-01920: user name 'OTHER' conflicts with another user or role name"
@@ -462,6 +464,8 @@ class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTe
                     # NOTE: prior to oracle 23c we don't have concept of if not exists
                     #       so we just try to create if fails we continue
                     raise
+        finally:
+            self.connection.commit()
         ManyToManyRelationshipsTestCase.create_tables(self)
 
 

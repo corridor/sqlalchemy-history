@@ -5,8 +5,7 @@ import os
 import pytest
 import sqlalchemy as sa
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, column_property, close_all_sessions
+from sqlalchemy.orm import sessionmaker, column_property, close_all_sessions, declarative_base
 from sqlalchemy_history import (
     ClassNotVersioned,
     version_class,
@@ -136,10 +135,12 @@ class TestCase(object):
         assert not session_map_leaks
 
     def create_tables(self):
-        self.Model.metadata.create_all(self.connection)
+        with self.connection.begin():
+            self.Model.metadata.create_all(self.connection)
 
     def drop_tables(self):
-        self.Model.metadata.drop_all(self.connection)
+        with self.connection.begin():
+            self.Model.metadata.drop_all(self.connection)
 
     def create_models(self):
         class Article(self.Model):

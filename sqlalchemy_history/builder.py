@@ -7,6 +7,7 @@ from inspect import getmro
 from functools import wraps
 
 import sqlalchemy as sa
+from sqlalchemy.orm.descriptor_props import ConcreteInheritedProperty
 from sqlalchemy_utils.functions import get_declarative_base, get_hybrid_properties
 from sqlalchemy_history.utils import get_association_proxies, version_class
 
@@ -178,7 +179,10 @@ class Builder(object):
         """
         for cls in version_classes:
             for prop in sa.inspect(cls).iterate_properties:
-                getattr(cls, prop.key).impl.active_history = True
+                if isinstance(prop, ConcreteInheritedProperty):
+                    continue
+                attr = getattr(cls, prop.key)
+                attr.impl.active_history = True
 
     def create_column_aliases(self, version_classes):
         """

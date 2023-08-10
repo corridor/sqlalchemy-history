@@ -27,4 +27,4 @@ class TestBug97(TestCase):
         self.session.commit()
         assert article.name is None
         assert article.versions.count() == 2
-        assert article.versions[-1].name is None
+        assert article.versions.all()[-1].name is None

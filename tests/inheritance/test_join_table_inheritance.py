@@ -90,8 +90,8 @@ class JoinTableInheritanceTestCase(TestCase):
         article = self.Article()
         self.session.add(article)
         self.session.commit()
-        assert self.session.execute("SELECT %s FROM article_version" % tx_column).fetchone()[0]
-        assert self.session.execute("SELECT %s FROM text_item_version" % tx_column).fetchone()[0]
+        assert self.session.execute(sa.text("SELECT %s FROM article_version" % tx_column)).fetchone()[0]
+        assert self.session.execute(sa.text("SELECT %s FROM text_item_version" % tx_column)).fetchone()[0]
 
     def test_primary_keys(self):
         tx_column = self.options["transaction_column_name"]
@@ -118,10 +118,10 @@ class JoinTableInheritanceTestCase(TestCase):
         assert article.versions.count() == 2
 
         assert self.session.execute(
-            "SELECT %s FROM text_item_version " "ORDER BY %s" % (end_tx_column, tx_column)
+            sa.text("SELECT %s FROM text_item_version " "ORDER BY %s" % (end_tx_column, tx_column))
         ).fetchone()[0]
         assert self.session.execute(
-            "SELECT %s FROM article_version " "ORDER BY %s" % (end_tx_column, tx_column)
+            sa.text("SELECT %s FROM article_version " "ORDER BY %s" % (end_tx_column, tx_column))
         ).fetchone()[0]
 
 
@@ -174,6 +174,6 @@ class TestDeepJoinedTableInheritance(TestCase):
         document = self.Document()
         self.session.add(document)
         self.session.commit()
-        assert self.session.execute("SELECT COUNT(1) FROM document_version").scalar() == 1
-        assert self.session.execute("SELECT COUNT(1) FROM content_version").scalar() == 1
-        assert self.session.execute("SELECT COUNT(1) FROM node_version").scalar() == 1
+        assert self.session.execute(sa.text("SELECT COUNT(1) FROM document_version")).scalar() == 1
+        assert self.session.execute(sa.text("SELECT COUNT(1) FROM content_version")).scalar() == 1
+        assert self.session.execute(sa.text("SELECT COUNT(1) FROM node_version")).scalar() == 1
