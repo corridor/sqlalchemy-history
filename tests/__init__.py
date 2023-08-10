@@ -2,7 +2,6 @@ from copy import copy
 import inspect
 import itertools as it
 import os
-import warnings
 import sqlalchemy as sa
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -16,8 +15,6 @@ from sqlalchemy_history import (
 )
 from sqlalchemy_history.transaction import TransactionFactory
 from sqlalchemy_history.plugins import TransactionMetaPlugin, TransactionChangesPlugin
-
-warnings.simplefilter("error", sa.exc.SAWarning)
 
 
 class QueryPool(object):
