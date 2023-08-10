@@ -38,7 +38,7 @@ versioning_manager = VersioningManager()
 
 
 def make_versioned(
-    mapper=sa.orm.mapper,
+    mapper=sa.orm.Mapper,
     session=sa.orm.session.Session,
     manager=versioning_manager,
     plugins=None,
@@ -54,8 +54,8 @@ def make_versioned(
         >>> make_versioned(user_cls=None, options={'table_name': '%_tracker'})
         None
 
-    :param mapper: SQLAlchemy mapper to apply the versioning to. (Default value = sa.orm.mapper)
-    :type mapper: sa.orm.mapper
+    :param mapper: SQLAlchemy mapper to apply the versioning to. (Default value = sa.orm.Mapper)
+    :type mapper: sa.orm.Mapper
     :param session: SQLAlchemy session to apply the versioning to. By default this is
      sa.orm.session.Session
      meaning it applies to all Session subclasses.
@@ -93,7 +93,7 @@ def make_versioned(
     )
 
 
-def remove_versioning(mapper=sa.orm.mapper, session=sa.orm.session.Session, manager=versioning_manager):
+def remove_versioning(mapper=sa.orm.Mapper, session=sa.orm.session.Session, manager=versioning_manager):
     """Remove the versioning from given mapper / session and manager.
 
     **Examples**
@@ -101,8 +101,8 @@ def remove_versioning(mapper=sa.orm.mapper, session=sa.orm.session.Session, mana
         >>> remove_versioning()
         None
 
-    :param mapper: SQLAlchemy mapper to remove the versioning from. (Default value = sa.orm.mapper)
-    :type mapper: sa.orm.mapper
+    :param mapper: SQLAlchemy mapper to remove the versioning from. (Default value = sa.orm.Mapper)
+    :type mapper: sa.orm.Mapper
     :param session: SQLAlchemy session to remove the versioning from. By default this is
                     sa.orm.session.Session meaning it applies to all sessions.
                      (Default value = sa.orm.session.Session)

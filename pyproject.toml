@@ -22,7 +22,7 @@ classifiers=[
 [tool.poetry.dependencies]
 python = "^3.7"
 
-SQLAlchemy = ">=1.4,<2"
+SQLAlchemy = ">=1.4"
 SQLAlchemy-Utils = ">=0.30.12"
 cached-property = "*"
 

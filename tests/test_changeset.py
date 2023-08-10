@@ -42,12 +42,14 @@ class ChangeSetTestCase(ChangeSetBaseTestCase):
         self.session.commit()
 
         self.session.execute(
-            """INSERT INTO article_version
+            sa.text(
+                """INSERT INTO article_version
             (id, %s, name, content, operation_type)
             VALUES
             (1, %d, 'something', 'some content', 1)
             """
-            % (self.transaction_column_name, tx_log.id)
+                % (self.transaction_column_name, tx_log.id)
+            )
         )
 
         assert self.session.query(self.ArticleVersion).first().changeset == {
@@ -89,9 +91,7 @@ class TestChangeSetWhenParentContainsAdditionalColumns(ChangeSetTestCase):
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
             article = sa.orm.relationship(Article, backref="tags")
 
-        subquery = (
-            sa.select([sa.func.count(Tag.id)]).where(Tag.article_id == Article.id).correlate_except(Tag)
-        )
+        subquery = sa.select(sa.func.count(Tag.id)).where(Tag.article_id == Article.id).correlate_except(Tag)
         subquery = subquery.scalar_subquery()
         Article.tag_count = sa.orm.column_property(subquery)
 
