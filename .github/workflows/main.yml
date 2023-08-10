@@ -106,7 +106,7 @@ jobs:
           pip install --upgrade poetry 
           poetry install
       - name: install oracle dependencies
-        if: ${{ matrix.DB }} == "oracle"
+        if: ${{ matrix.DB == 'oracle' }}
         run:
           | # https://cx-oracle.readthedocs.io/en/latest/user_guide/installation.html#installing-cx-oracle-on-linux
           mkdir -p /opt/oracle
