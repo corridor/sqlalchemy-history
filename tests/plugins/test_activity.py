@@ -61,7 +61,7 @@ class TestActivityNotId(ActivityTestCase):
         assert activity
         assert activity.transaction_id
         assert activity.object == not_id_model
-        assert activity.object_version == not_id_model.versions[-1]
+        assert activity.object_version == not_id_model.versions.all()[-1]
 
 
 class TestActivity(ActivityTestCase):
@@ -77,7 +77,7 @@ class TestActivity(ActivityTestCase):
         assert activity
         assert activity.transaction_id
         assert activity.object == article
-        assert activity.object_version == article.versions[-1]
+        assert activity.object_version == article.versions.all()[-1]
 
     def test_delete_activity(self):
         article = self.create_article()
@@ -105,8 +105,9 @@ class TestActivity(ActivityTestCase):
         self.session.flush()
         self.create_activity(article)
         self.session.commit()
-        tag = self.Tag(name="some tag", article=article)
+        tag = self.Tag(name="some tag")
         self.session.add(tag)
+        tag.article = article
         self.session.flush()
         Activity = versioning_manager.activity_cls
         activity = Activity(
@@ -141,7 +142,7 @@ class TestObjectTxIdGeneration(ActivityTestCase):
         assert activity
         assert activity.transaction_id
         assert activity.object == article
-        assert activity.object_version == article.versions[-1]
+        assert activity.object_version == article.versions.all()[-1]
 
 
 class TestTargetTxIdGeneration(ActivityTestCase):
@@ -163,14 +164,15 @@ class TestTargetTxIdGeneration(ActivityTestCase):
         assert activity
         assert activity.transaction_id
         assert activity.target == article
-        assert activity.target_version == article.versions[-1]
+        assert activity.target_version == article.versions.all()[-1]
 
     def test_activity_target(self):
         article = self.create_article()
         self.create_activity(article)
         self.session.commit()
-        tag = self.Tag(name="some tag", article=article)
+        tag = self.Tag(name="some tag")
         self.session.add(tag)
+        tag.article = article
         self.session.flush()
         activity = versioning_manager.activity_cls(
             object=tag,
@@ -183,6 +185,6 @@ class TestTargetTxIdGeneration(ActivityTestCase):
         assert activity
         assert activity.transaction_id
         assert activity.object == tag
-        assert activity.object_version == tag.versions[-1]
+        assert activity.object_version == tag.versions.all()[-1]
         assert activity.target == article
-        assert activity.target_version == article.versions[-1]
+        assert activity.target_version == article.versions.all()[-1]

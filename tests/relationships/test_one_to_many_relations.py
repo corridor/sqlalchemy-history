@@ -18,8 +18,9 @@ class OneToManyRelationshipsTestCase(TestCase):
         article.content = "Some content"
         self.session.add(article)
         self.session.commit()
-
-        self.session.add(self.Tag(name="some tag", article=article))
+        tag = self.Tag(name="some tag")
+        self.session.add(tag)
+        tag.article = article
         self.session.commit()
         assert article.versions.count() == 1
 
@@ -83,7 +84,9 @@ class OneToManyRelationshipsTestCase(TestCase):
         # update the article and the tag, and add a 2nd tag
         article.name = "Updated article"
         tag.name = "updated tag"
-        tag2 = self.Tag(name="other tag", article=article)
+        tag2 = self.Tag(name="other tag")
+        self.session.add(tag2)
+        tag2.article = article
         self.session.commit()
 
         # update the article and the tag again
@@ -195,7 +198,9 @@ class TestOneToManySelfReferential(TestCase):
         # update articles, add a 2nd child
         parent_article.name = "Updated article"
         child_article1.name = "Updated child article1"
-        child_article2 = self.Article(name="Child article2", parent_article=parent_article)
+        child_article2 = self.Article(name="Child article2")
+        self.session.add(child_article2)
+        child_article2.parent_article = parent_article
         self.session.commit()
         # update the parent and 1st child
         parent_article.name = "Updated article x2"

@@ -49,16 +49,16 @@ class TestCustomSchema(TestCase):
 
     def create_tables(self):
         try:
-            self.connection.execute("DROP SCHEMA IF EXISTS sqlahistory")
-            self.connection.execute("CREATE SCHEMA sqlahistory")
+            self.connection.execute(sa.text("DROP SCHEMA IF EXISTS sqlahistory"))
+            self.connection.execute(sa.text("CREATE SCHEMA sqlahistory"))
         except sa.exc.DatabaseError:
-            try:
+            try:  
                 # Create a User for Oracle DataBase as it does not have concept of schema
                 # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa E501
-                self.connection.execute("CREATE USER sqlahistory identified by sqlahistory")
+                self.connection.execute(sa.text("CREATE USER sqlahistory identified by sqlahistory"))
                 # need to give privilege to create table to this new user
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
-                self.connection.execute("GRANT UNLIMITED TABLESPACE TO sqlahistory")
+                self.connection.execute(sa.text("GRANT UNLIMITED TABLESPACE TO sqlahistory"))
             except sa.exc.DatabaseError as dbe:  # pragma: no cover
                 if (
                     "ORA-01920: user name 'SQLAHISTORY' conflicts with another user or role name"
@@ -67,6 +67,8 @@ class TestCustomSchema(TestCase):
                     # NOTE: prior to oracle 23c we don't have concept of if not exists
                     #       so we just try to create if fails we continue
                     raise
+        finally:
+            self.connection.commit()
         TestCase.create_tables(self)
 
     def test_version_relations(self):

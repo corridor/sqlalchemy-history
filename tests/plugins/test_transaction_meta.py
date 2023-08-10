@@ -37,5 +37,5 @@ class TestTransaction(TestCase):
         tx.meta = meta
         self.session.commit()
 
-        tx = self.article.versions[-1].transaction
+        tx = self.article.versions.all()[-1].transaction
         assert tx.meta["some_key"] == "some_value"

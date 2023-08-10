@@ -341,7 +341,7 @@ def count_versions(obj):
     manager = get_versioning_manager(obj)
     table_name = manager.option(obj, "table_name") % obj.__table__.name
     criteria = ["%s = %r" % (pk, getattr(obj, pk)) for pk in get_primary_keys(obj)]
-    query = "SELECT COUNT(1) FROM %s WHERE %s" % (table_name, " AND ".join(criteria))
+    query = sa.text("SELECT COUNT(1) FROM %s WHERE %s" % (table_name, " AND ".join(criteria)))
     return session.execute(query).scalar()
 
 

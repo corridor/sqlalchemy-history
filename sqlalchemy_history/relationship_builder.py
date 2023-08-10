@@ -27,7 +27,7 @@ class RelationshipBuilder(object):
         ]
 
         return sa.exists(
-            sa.select([1])
+            sa.select(1)
             .where(
                 sa.and_(
                     getattr(remote_alias, tx_column) <= getattr(obj, tx_column),
@@ -45,7 +45,7 @@ class RelationshipBuilder(object):
     def many_to_one_subquery(self, obj):
         tx_column = option(obj, "transaction_column_name")
         reflector = VersionExpressionReflector(obj, self.property)
-        subquery = sa.select([sa.func.max(getattr(self.remote_cls, tx_column))]).where(
+        subquery = sa.select(sa.func.max(getattr(self.remote_cls, tx_column))).where(
             sa.and_(
                 getattr(self.remote_cls, tx_column) <= getattr(obj, tx_column),
                 reflector(self.property.primaryjoin),
@@ -266,7 +266,7 @@ class RelationshipBuilder(object):
         ]
 
         association_exists = sa.exists(
-            sa.select([1])
+            sa.select(1)
             .where(
                 sa.and_(
                     association_table_alias.c[tx_column] <= getattr(obj, tx_column),
@@ -285,7 +285,7 @@ class RelationshipBuilder(object):
             .correlate(self.association_version_table)
         )
         return sa.exists(
-            sa.select([1])
+            sa.select(1)
             .where(
                 sa.and_(
                     reflector(self.property.primaryjoin),

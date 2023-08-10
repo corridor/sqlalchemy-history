@@ -37,7 +37,7 @@ class TestPropertyModificationsTracking(TestCase):
         self.session.add(user)
         self.session.commit()
 
-        assert user.versions[-1].name_mod
+        assert user.versions.all()[-1].name_mod
 
     def test_mod_properties_with_update(self):
         user = self.User(name="John")
@@ -45,8 +45,8 @@ class TestPropertyModificationsTracking(TestCase):
         self.session.commit()
         user.age = 14
         self.session.commit()
-        assert user.versions[-1].age_mod
-        assert not user.versions[-1].name_mod
+        assert user.versions.all()[-1].age_mod
+        assert not user.versions.all()[-1].name_mod
 
     def test_mod_properties_with_delete(self):
         user = self.User(name="John")
@@ -65,8 +65,8 @@ class TestPropertyModificationsTracking(TestCase):
         self.session.flush()
         user.age = 15
         self.session.commit()
-        assert user.versions[-1].age_mod
-        assert user.versions[-1].name_mod
+        assert user.versions.all()[-1].age_mod
+        assert user.versions.all()[-1].name_mod
 
     def test_consequtive_update_and_update(self):
         user = self.User(name="John")
@@ -76,8 +76,8 @@ class TestPropertyModificationsTracking(TestCase):
         self.session.flush()
         user.age = 15
         self.session.commit()
-        assert user.versions[-1].age_mod
-        assert user.versions[-1].name_mod
+        assert user.versions.all()[-1].age_mod
+        assert user.versions.all()[-1].name_mod
 
 
 class TestChangeSetWithPropertyModPlugin(TestCase):
@@ -166,7 +166,7 @@ class TestModTrackingWithRelationships(TestCase):
         tag = self.Tag(article=self.Article(name="Some article"))
         self.session.add(tag)
         self.session.commit()
-        assert tag.versions[-1]
+        assert tag.versions.all()[-1]
 
     def test_with_update(self):
         tag = self.Tag(article=self.Article(name="Some article"))
@@ -175,4 +175,4 @@ class TestModTrackingWithRelationships(TestCase):
         tag.article = None
         self.session.commit()
 
-        assert tag.versions[-1].article_id_mod
+        assert tag.versions.all()[-1].article_id_mod

@@ -12,7 +12,7 @@ on:
 
 jobs:
   test-sqlalchemy-history:
-    name: test-python${{ matrix.python-version }}-${{ matrix.DB }}
+    name: test-python${{ matrix.python-version }}-${{ matrix.DB }}-sqla${{ matrix.sqla }}
     strategy:
       matrix:
         python-version:
@@ -24,6 +24,9 @@ jobs:
           - "mysql"
           - "oracle"
           - "postgres"
+        sqla:
+          - ">=1.4,<2"
+          - ">=2"
     services:
       mysql:
         image: mysql
@@ -84,6 +87,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install --upgrade poetry 
           poetry install
+          pip install 'sqlalchemy${{ matrix.sqla }}'
       - name: install oracle dependencies
         if: ${{ matrix.DB == 'oracle' }}
         run:
@@ -105,7 +109,7 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           file: ./coverage.lcov
-          flag-name: lcov-${{ matrix.DB }}-py${{ matrix.python-version }}
+          flag-name: lcov-${{ matrix.DB }}-py${{ matrix.python-version }}-sqla${{ matrix.sqla }}
           parallel: true
           
   lint:

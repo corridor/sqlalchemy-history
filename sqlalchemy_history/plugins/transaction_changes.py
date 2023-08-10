@@ -68,7 +68,7 @@ class TransactionChangesPlugin(Plugin):
     def before_create_version_objects(self, uow, session):
         for entity in uow.operations.entities:
             params = uow.current_transaction.id, str(entity.__name__)
-            changes = session.query(self.model_class).get(params)
+            changes = session.get(self.model_class, params)
             if not changes:
                 changes = self.model_class(
                     transaction_id=uow.current_transaction.id,

@@ -97,16 +97,16 @@ class TestTableBuilderInOtherSchema(TestCase):
 
     def create_tables(self):
         try:
-            self.connection.execute("DROP SCHEMA IF EXISTS other")
-            self.connection.execute("CREATE SCHEMA other")
+            self.connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
+            self.connection.execute(sa.text("CREATE SCHEMA other"))
         except sa.exc.DatabaseError:
             try:
                 # Create a User for Oracle DataBase as it does not have concept of schema
                 # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa E501
-                self.connection.execute("CREATE USER other identified by other")
+                self.connection.execute(sa.text("CREATE USER other identified by other"))
                 # need to give privilege to create table to this new user
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
-                self.connection.execute("GRANT UNLIMITED TABLESPACE TO other")
+                self.connection.execute(sa.text("GRANT UNLIMITED TABLESPACE TO other"))
             except sa.exc.DatabaseError as dbe:  # pragma: no cover
                 if (
                     "ORA-01920: user name 'OTHER' conflicts with another user or role name"
@@ -115,7 +115,8 @@ class TestTableBuilderInOtherSchema(TestCase):
                     # NOTE: prior to oracle 23c we don't have concept of if not exists
                     #       so we just try to create if fails we continue
                     raise
-
+        finally:
+            self.connection.commit()
         TestCase.create_tables(self)
 
     def test_created_tables_retain_schema(self):

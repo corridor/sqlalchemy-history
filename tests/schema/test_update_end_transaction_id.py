@@ -1,6 +1,5 @@
 import datetime
 import sqlalchemy as sa
-
 from sqlalchemy_history import version_class
 from sqlalchemy_history.utils import version_table
 from sqlalchemy_history.schema import update_end_tx_column
@@ -92,7 +91,9 @@ class UpdateEndTransactionID(TestCase):
         )
         if self.versioning_strategy == "validity":
             update_end_tx_column(table, conn=self.session)
-            rows = self.session.execute("SELECT * FROM article_version ORDER BY transaction_id").fetchall()
+            rows = self.session.execute(
+                sa.text("SELECT * FROM article_version ORDER BY transaction_id")
+            ).fetchall()
             assert rows[0].transaction_id == 1
             assert rows[0].end_transaction_id == 2
             assert rows[1].transaction_id == 2
@@ -104,7 +105,9 @@ class UpdateEndTransactionID(TestCase):
             assert rows[4].transaction_id == 5
             assert rows[4].end_transaction_id is None
         elif self.versioning_strategy == "subquery":
-            rows = self.session.execute("SELECT * FROM article_version ORDER BY transaction_id").fetchall()
+            rows = self.session.execute(
+                sa.text("SELECT * FROM article_version ORDER BY transaction_id")
+            ).fetchall()
             assert not hasattr(rows[0], "end_transaction_id")
 
     def test_assoc_update_end_transaction_id(self):
