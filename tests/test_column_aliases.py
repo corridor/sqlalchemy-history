@@ -1,5 +1,5 @@
-from pytest import mark
 import sqlalchemy as sa
+
 from sqlalchemy_history import version_class
 
 from tests import TestCase, create_test_cases
@@ -24,10 +24,9 @@ class ColumnAliasesBaseTestCase(TestCase):
         self.TextItem = TextItem
 
 
-@mark.skipif("True")
 class TestVersionTableWithColumnAliases(ColumnAliasesBaseTestCase):
     def test_column_reflection(self):
-        assert "_id" in version_class(self.TextItem).__table__.c
+        assert "_id" in [c.name for c in version_class(self.TextItem).__table__.c]
 
 
 class ColumnAliasesTestCase(ColumnAliasesBaseTestCase):

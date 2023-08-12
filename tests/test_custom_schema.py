@@ -4,7 +4,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from tests import TestCase
 
 
-@mark.skipif("os.environ.get('DB') in ['sqlite', 'oracle']")
+@mark.skipif(
+    "os.environ.get('DB') in ['sqlite']",
+    reason="sqlite doesn't have a concept of schema",
+)
 class TestCustomSchema(TestCase):
     def create_models(self):
         self.Model = declarative_base(metadata=sa.MetaData(schema="sqlahistory"))
@@ -45,8 +48,25 @@ class TestCustomSchema(TestCase):
         self.Tag = Tag
 
     def create_tables(self):
-        self.connection.execute("DROP SCHEMA IF EXISTS sqlahistory")
-        self.connection.execute("CREATE SCHEMA sqlahistory")
+        try:
+            self.connection.execute("DROP SCHEMA IF EXISTS sqlahistory")
+            self.connection.execute("CREATE SCHEMA sqlahistory")
+        except sa.exc.DatabaseError:
+            try:
+                # Create a User for Oracle DataBase as it does not have concept of schema
+                # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa E501
+                self.connection.execute("CREATE USER sqlahistory identified by sqlahistory")
+                # need to give privilege to create table to this new user
+                # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
+                self.connection.execute("GRANT UNLIMITED TABLESPACE TO sqlahistory")
+            except sa.exc.DatabaseError as dbe:  # pragma: no cover
+                if (
+                    "ORA-01920: user name 'SQLAHISTORY' conflicts with another user or role name"
+                    not in dbe.__str__()
+                ):
+                    # NOTE: prior to oracle 23c we don't have concept of if not exists
+                    #       so we just try to create if fails we continue
+                    raise
         TestCase.create_tables(self)
 
     def test_version_relations(self):

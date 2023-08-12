@@ -1,7 +1,7 @@
-import pytest
 import datetime
-from pytest import mark
+
 import sqlalchemy as sa
+from pytest import mark
 from sqlalchemy_history import versioning_manager
 
 from tests import TestCase, create_test_cases
@@ -179,9 +179,6 @@ class ManyToManyRelationshipsTestCase(TestCase):
         assert tags == [tag.versions[0]]
 
     def test_relations_with_varying_transactions(self):
-        if self.driver == "mysql" and self.connection.dialect.server_version_info < (5, 6):
-            pytest.skip()
-
         # one article with one tag
         article = self.Article(name="Some article")
         tag1 = self.Tag(name="some tag")
@@ -306,9 +303,6 @@ class TestManyToManySelfReferential(TestCase):
         assert article.versions[0] in reference1.versions[0].cited_by
 
     def test_multiple_inserts_over_multiple_transactions(self):
-        if self.driver == "mysql" and self.connection.dialect.server_version_info < (5, 6):
-            pytest.skip()
-
         # create 1 article with 1 reference
         article = self.Article(name="article")
         reference1 = self.Article(name="reference 1")
@@ -346,7 +340,7 @@ class TestManyToManySelfReferential(TestCase):
         assert article.versions[2] in reference1.versions[2].cited_by
 
 
-@mark.skipif("os.environ.get('DB') in ['sqlite', 'oracle']")
+@mark.skipif("os.environ.get('DB') in ['sqlite']", reason="sqlite doesn't have a concept of schema")
 class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
     def create_models(self):
         class Article(self.Model):
@@ -384,13 +378,31 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
         self.referenced_articles_table = article_references
 
     def create_tables(self):
-        self.connection.execute("DROP SCHEMA IF EXISTS other")
-        self.connection.execute("CREATE SCHEMA other")
+        try:
+            self.connection.execute("DROP SCHEMA IF EXISTS other")
+            self.connection.execute("CREATE SCHEMA other")
+        except sa.exc.DatabaseError:  # pragma: no cover
+            try:
+                # Create a User for Oracle DataBase as it does not have concept of schema
+                # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa E501
+                self.connection.execute("CREATE USER other identified by other")
+                # need to give privilege to create table to this new user
+                # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
+                self.connection.execute("GRANT UNLIMITED TABLESPACE TO other")
+            except sa.exc.DatabaseError as dbe:
+                if (
+                    "ORA-01920: user name 'OTHER' conflicts with another user or role name"
+                    not in dbe.__str__()
+                ):
+                    # NOTE: prior to oracle 23c we don't have concept of if not exists
+                    #       so we just try to create if fails we continue
+                    raise
+
         TestManyToManySelfReferential.create_tables(self)
 
 
-@mark.skipif("os.environ.get('DB') in ['sqlite', 'oracle']")
-class ManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTestCase):
+@mark.skipif("os.environ.get('DB') in ['sqlite']", reason="sqlite doesn't have a concept of schema")
+class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTestCase):
     def create_models(self):
         class Article(self.Model):
             __tablename__ = "article"
@@ -431,9 +443,26 @@ class ManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTestCa
         self.Tag = Tag
 
     def create_tables(self):
-        self.connection.execute("DROP SCHEMA IF EXISTS other")
-        self.connection.execute("CREATE SCHEMA other")
+        try:
+            self.connection.execute("DROP SCHEMA IF EXISTS other")
+            self.connection.execute("CREATE SCHEMA other")
+        except sa.exc.DatabaseError:
+            try:
+                # Create a User for Oracle DataBase as it does not have concept of schema
+                # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa E501
+                self.connection.execute("CREATE USER other identified by other")
+                # need to give privilege to create table to this new user
+                # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
+                self.connection.execute("GRANT UNLIMITED TABLESPACE TO other")  # pragma: no cover
+            except sa.exc.DatabaseError as dbe:  # pragma: no cover
+                if (
+                    "ORA-01920: user name 'OTHER' conflicts with another user or role name"
+                    not in dbe.__str__()
+                ):
+                    # NOTE: prior to oracle 23c we don't have concept of if not exists
+                    #       so we just try to create if fails we continue
+                    raise
         ManyToManyRelationshipsTestCase.create_tables(self)
 
 
-create_test_cases(ManyToManyRelationshipsInOtherSchemaTestCase)
+create_test_cases(TestManyToManyRelationshipsInOtherSchemaTestCase)

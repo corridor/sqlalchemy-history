@@ -74,7 +74,7 @@ class TestTableBuilderWithOnUpdate(TestCase):
         assert table.c.last_update.onupdate is None
 
 
-@mark.skipif("os.environ.get('DB') in ['sqlite', 'oracle']")
+@mark.skipif("os.environ.get('DB') in ['sqlite']", reason="sqlite doesn't have a concept of schema")
 class TestTableBuilderInOtherSchema(TestCase):
     def create_models(self):
         class Article(self.Model):
@@ -92,8 +92,26 @@ class TestTableBuilderInOtherSchema(TestCase):
         self.Article = Article
 
     def create_tables(self):
-        self.connection.execute("DROP SCHEMA IF EXISTS other")
-        self.connection.execute("CREATE SCHEMA other")
+        try:
+            self.connection.execute("DROP SCHEMA IF EXISTS other")
+            self.connection.execute("CREATE SCHEMA other")
+        except sa.exc.DatabaseError:
+            try:
+                # Create a User for Oracle DataBase as it does not have concept of schema
+                # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa E501
+                self.connection.execute("CREATE USER other identified by other")
+                # need to give privilege to create table to this new user
+                # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
+                self.connection.execute("GRANT UNLIMITED TABLESPACE TO other")
+            except sa.exc.DatabaseError as dbe:  # pragma: no cover
+                if (
+                    "ORA-01920: user name 'OTHER' conflicts with another user or role name"
+                    not in dbe.__str__()
+                ):
+                    # NOTE: prior to oracle 23c we don't have concept of if not exists
+                    #       so we just try to create if fails we continue
+                    raise
+
         TestCase.create_tables(self)
 
     def test_created_tables_retain_schema(self):
