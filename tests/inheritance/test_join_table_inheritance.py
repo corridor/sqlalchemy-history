@@ -33,11 +33,13 @@ class JoinTableInheritanceTestCase(TestCase):
         self.Article = Article
         self.BlogPost = BlogPost
 
-    def setup_method(self, method):
-        TestCase.setup_method(self, method)
+    @pytest.fixture(autouse=True)
+    def setup_method_for_join_inheritance(self):
         self.TextItemVersion = version_class(self.TextItem)
         self.ArticleVersion = version_class(self.Article)
         self.BlogPostVersion = version_class(self.BlogPost)
+        yield
+        del self.TextItemVersion, self.ArticleVersion, self.BlogPostVersion
 
     def test_each_class_has_distinct_version_table(self):
         assert self.TextItemVersion.__table__.name == "text_item_version"

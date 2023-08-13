@@ -1,3 +1,4 @@
+import pytest
 import sqlalchemy as sa
 from sqlalchemy_history import version_class
 from tests import TestCase
@@ -93,11 +94,13 @@ class TestJoinTableInheritanceWithValidityVersioning(TestCase):
         self.Article = Article
         self.BlogPost = BlogPost
 
-    def setup_method(self, method):
-        TestCase.setup_method(self, method)
+    @pytest.fixture(autouse=True)
+    def setup_method_for_table_inhritance(self):
         self.TextItemVersion = version_class(self.TextItem)
         self.ArticleVersion = version_class(self.Article)
         self.BlogPostVersion = version_class(self.BlogPost)
+        yield
+        del self.TextItemVersion, self.ArticleVersion, self.BlogPostVersion
 
     def test_all_tables_contain_transaction_id_column(self):
         assert "end_transaction_id" in self.TextItemVersion.__table__.c

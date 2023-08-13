@@ -1,3 +1,4 @@
+import pytest
 import sqlalchemy as sa
 from sqlalchemy_history import versioning_manager, version_class
 from tests import TestCase, create_test_cases
@@ -36,11 +37,13 @@ class SingleTableInheritanceTestCase(TestCase):
         self.Article = Article
         self.BlogPost = BlogPost
 
-    def setup_method(self, method):
-        TestCase.setup_method(self, method)
+    @pytest.fixture(autouse=True)
+    def setup_method_for_single_inheritance_objects(self):
         self.TextItemVersion = version_class(self.TextItem)
         self.ArticleVersion = version_class(self.Article)
         self.BlogPostVersion = version_class(self.BlogPost)
+        yield
+        del self.TextItemVersion, self.ArticleVersion, self.BlogPostVersion
 
     def test_inheritance(self):
         assert issubclass(self.ArticleVersion, self.TextItemVersion)

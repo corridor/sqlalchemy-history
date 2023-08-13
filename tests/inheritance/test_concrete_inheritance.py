@@ -1,6 +1,7 @@
-from pytest import mark
 import sqlalchemy as sa
-from sqlalchemy_history import versioning_manager, version_class
+from pytest import mark, fixture
+
+from sqlalchemy_history import version_class, versioning_manager
 from tests import TestCase
 
 
@@ -37,11 +38,13 @@ class TestConreteTableInheritance(TestCase):
         self.Article = Article
         self.BlogPost = BlogPost
 
-    def setup_method(self, method):
-        TestCase.setup_method(self, method)
+    @fixture(autouse=True)
+    def setup_method_for_concerete_inheritance(self):
         self.TextItemVersion = version_class(self.TextItem)
         self.ArticleVersion = version_class(self.Article)
         self.BlogPostVersion = version_class(self.BlogPost)
+        yield
+        del self.TextItemVersion, self.ArticleVersion, self.BlogPostVersion
 
     def test_inheritance(self):
         assert issubclass(self.ArticleVersion, self.TextItemVersion)
