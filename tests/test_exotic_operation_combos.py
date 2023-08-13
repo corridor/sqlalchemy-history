@@ -1,4 +1,6 @@
 from pytest import mark
+
+from sqlalchemy_history.operation import Operation
 from tests import TestCase, create_test_cases
 
 
@@ -16,8 +18,8 @@ class ExoticOperationCombosTestCase(TestCase):
         self.session.add(article2)
         self.session.commit()
         assert article2.versions.count() == 2
-        assert article2.versions[0].operation_type == 0
-        assert article2.versions[1].operation_type == 1
+        assert article2.versions[0].operation_type == Operation.INSERT
+        assert article2.versions[1].operation_type == Operation.UPDATE
 
     def test_insert_deleted_and_flushed_object(self):
         article = self.Article()
@@ -34,8 +36,8 @@ class ExoticOperationCombosTestCase(TestCase):
         self.session.add(article2)
         self.session.commit()
         assert article2.versions.count() == 2
-        assert article2.versions[0].operation_type == 0
-        assert article2.versions[1].operation_type == 1
+        assert article2.versions[0].operation_type == Operation.INSERT
+        assert article2.versions[1].operation_type == Operation.UPDATE
 
     # Ref for mssql: https://github.com/sqlalchemy/sqlalchemy/discussions/8829
     @mark.skipif(
@@ -58,8 +60,8 @@ class ExoticOperationCombosTestCase(TestCase):
         article2.id = article.id
         self.session.commit()
         assert article2.versions.count() == 2
-        assert article2.versions[0].operation_type == 0
-        assert article2.versions[1].operation_type == 1
+        assert article2.versions[0].operation_type == Operation.INSERT
+        assert article2.versions[1].operation_type == Operation.UPDATE
 
     def test_insert_flushed_object(self):
         article = self.Article()
@@ -70,7 +72,7 @@ class ExoticOperationCombosTestCase(TestCase):
         self.session.commit()
 
         assert article.versions.count() == 1
-        assert article.versions[0].operation_type == 0
+        assert article.versions[0].operation_type == Operation.INSERT
 
 
 # Skip the tests until SQLAlchemy has renewed its UOW handling:

@@ -1,4 +1,5 @@
 import pytest
+
 from sqlalchemy_history import versioning_manager
 from sqlalchemy_history.plugins import TransactionMetaPlugin
 from tests import TestCase

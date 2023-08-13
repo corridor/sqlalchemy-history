@@ -1,4 +1,6 @@
 import datetime
+
+import pytest
 import sqlalchemy as sa
 from sqlalchemy_history.utils import parent_table, version_table
 
@@ -42,3 +44,7 @@ class TestParentTable(TestCase):
     def test_parent_table_from_association_table(self):
         versioned_article_author_table = version_table(self.article_author_table)
         assert parent_table(versioned_article_author_table) == self.article_author_table
+
+    def test_parent_table_from_key_error(self):
+        with pytest.raises(KeyError):
+            parent_table(self.Author.__table__)

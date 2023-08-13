@@ -1,5 +1,5 @@
 import sqlalchemy as sa
-from pytest import mark, fixture
+from pytest import fixture, mark
 
 from sqlalchemy_history import version_class, versioning_manager
 from tests import TestCase

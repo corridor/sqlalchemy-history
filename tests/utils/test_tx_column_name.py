@@ -1,5 +1,5 @@
 from sqlalchemy_history import tx_column_name, version_class
-
+from sqlalchemy_history.utils import end_tx_attr
 from tests import TestCase, create_test_cases
 
 
@@ -21,3 +21,19 @@ class TxColumnNameTestCase(TestCase):
 
 
 create_test_cases(TxColumnNameTestCase, setting_variants=setting_variants)
+
+
+setting_variants = {
+    "versioning_strategy": ["validity"],
+}
+
+
+class TxColumnNameTestCaseWithValidity(TestCase):
+    def test_end_tx_attr(self):
+        article = self.Article(name="tc1")
+        self.session.add(article)
+        self.session.commit()
+        assert end_tx_attr(article.versions[0]).name == self.options["end_transaction_column_name"]
+
+
+create_test_cases(TxColumnNameTestCaseWithValidity, setting_variants=setting_variants)
