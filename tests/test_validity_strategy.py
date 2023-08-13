@@ -95,7 +95,7 @@ class TestJoinTableInheritanceWithValidityVersioning(TestCase):
         self.BlogPost = BlogPost
 
     @pytest.fixture(autouse=True)
-    def setup_method_for_table_inhritance(self):
+    def setup_method_for_table_inhritance(self, setup_session):
         self.TextItemVersion = version_class(self.TextItem)
         self.ArticleVersion = version_class(self.Article)
         self.BlogPostVersion = version_class(self.BlogPost)

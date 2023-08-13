@@ -7,7 +7,7 @@ from sqlalchemy_history.plugins import TransactionMetaPlugin
 
 class TestTransaction(TestCase):
     @fixture(autouse=True)
-    def setup_method_for_transaction(self):
+    def setup_method_for_transaction(self, setup_session):
         self.article = self.Article()
         self.article.name = "Some article"
         self.article.content = "Some content"

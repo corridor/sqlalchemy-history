@@ -62,24 +62,41 @@ class TestCase(object):
             "end_transaction_column_name": self.end_transaction_column_name,
         }
 
-    @pytest.fixture(autouse=True)
-    def setup_method(self):
+    @pytest.fixture
+    def setup_declarative_base(self):
         self.Model = declarative_base()
-        make_versioned(options=self.options)
+        yield
+        del self.Model
 
-        self.driver = os.environ.get("DB", "sqlite")
+    @pytest.fixture
+    def setup_versioning(self, setup_declarative_base):
+        make_versioned(options=self.options)
         versioning_manager.plugins = self.plugins
         versioning_manager.transaction_cls = self.transaction_cls
         versioning_manager.user_cls = self.user_cls
+        yield
 
+    @pytest.fixture
+    def setup_engine(self, setup_versioning):
+        self.driver = os.environ.get("DB", "sqlite")
         self.engine = create_engine(get_dns_from_driver(self.driver))
-        # self.engine.echo = True
+        yield
+        self.engine.dispose()
+
+    @pytest.fixture
+    def setup_models(self, setup_engine):
         self.create_models()
-
         sa.orm.configure_mappers()
+        yield
 
+    @pytest.fixture
+    def setup_connection(self, setup_models):
         self.connection = self.engine.connect()
+        yield
+        self.connection.close()
 
+    @pytest.fixture
+    def setup_tables(self, setup_connection):
         if hasattr(self, "Article"):
             try:
                 self.ArticleVersion = version_class(self.Article)
@@ -91,12 +108,14 @@ class TestCase(object):
             except ClassNotVersioned:
                 pass
         self.create_tables()
+        yield
+        self.drop_tables()
 
+    @pytest.fixture(autouse=True)
+    def setup_session(self, setup_tables):
         Session = sessionmaker(bind=self.connection)
         self.session = Session(autoflush=False)
-
         yield
-
         self.session.rollback()
         uow_leaks = versioning_manager.units_of_work
         session_map_leaks = versioning_manager.session_connection_map
@@ -107,9 +126,6 @@ class TestCase(object):
 
         close_all_sessions()
         self.session.expunge_all()
-        self.drop_tables()
-        self.engine.dispose()
-        self.connection.close()
 
         assert not uow_leaks
         assert not session_map_leaks

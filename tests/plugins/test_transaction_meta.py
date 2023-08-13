@@ -8,7 +8,7 @@ class TestTransaction(TestCase):
     plugins = [TransactionMetaPlugin()]
 
     @pytest.fixture(autouse=True)
-    def setup_method_for_meta_plugin_data(self):
+    def setup_method_for_meta_plugin_data(self, setup_session):
         self.article = self.Article()
         self.article.name = "Some article"
         self.article.content = "Some content"
