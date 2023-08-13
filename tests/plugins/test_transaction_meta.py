@@ -1,3 +1,4 @@
+import pytest
 from sqlalchemy_history import versioning_manager
 from sqlalchemy_history.plugins import TransactionMetaPlugin
 from tests import TestCase
@@ -6,14 +7,17 @@ from tests import TestCase
 class TestTransaction(TestCase):
     plugins = [TransactionMetaPlugin()]
 
-    def setup_method(self, method):
-        TestCase.setup_method(self, method)
+    @pytest.fixture(autouse=True)
+    def setup_method_for_meta_plugin_data(self):
         self.article = self.Article()
         self.article.name = "Some article"
         self.article.content = "Some content"
         self.article.tags.append(self.Tag(name="Some tag"))
         self.session.add(self.article)
         self.session.commit()
+        yield
+        self.session.expunge(self.article)
+        del self.article
 
     def test_has_meta_attribute(self):
         tx = self.article.versions[0].transaction

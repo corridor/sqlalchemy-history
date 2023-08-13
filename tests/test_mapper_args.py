@@ -1,3 +1,4 @@
+import pytest
 import sqlalchemy as sa
 
 from sqlalchemy_history import version_class
@@ -19,9 +20,11 @@ class TestColumnPrefix(TestCase):
 
         self.TextItem = TextItem
 
-    def setup_method(self, method):
-        TestCase.setup_method(self, method)
+    @pytest.fixture(autouse=True)
+    def setup_method_for_col_prefix(self):
         self.TextItemVersion = version_class(self.TextItem)
+        yield
+        del self.TextItemVersion
 
     def test_supports_column_prefix(self):
         assert self.TextItemVersion._id

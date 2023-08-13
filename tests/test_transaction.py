@@ -1,19 +1,22 @@
 import sqlalchemy as sa
 from sqlalchemy_history import versioning_manager
 from tests import TestCase
-from pytest import mark
+from pytest import mark, fixture
 from sqlalchemy_history.plugins import TransactionMetaPlugin
 
 
 class TestTransaction(TestCase):
-    def setup_method(self, method):
-        TestCase.setup_method(self, method)
+    @fixture(autouse=True)
+    def setup_method_for_transaction(self):
         self.article = self.Article()
         self.article.name = "Some article"
         self.article.content = "Some content"
         self.article.tags.append(self.Tag(name="Some tag"))
         self.session.add(self.article)
         self.session.commit()
+        yield
+        self.session.expunge(self.article)
+        del self.article
 
     def test_relationships(self):
         assert self.article.versions[0].transaction

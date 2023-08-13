@@ -2,6 +2,7 @@ from copy import copy
 import inspect
 import itertools as it
 import os
+import pytest
 import sqlalchemy as sa
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -61,7 +62,8 @@ class TestCase(object):
             "end_transaction_column_name": self.end_transaction_column_name,
         }
 
-    def setup_method(self, method):
+    @pytest.fixture(autouse=True)
+    def setup_method(self):
         self.Model = declarative_base()
         make_versioned(options=self.options)
 
@@ -93,13 +95,8 @@ class TestCase(object):
         Session = sessionmaker(bind=self.connection)
         self.session = Session(autoflush=False)
 
-    def create_tables(self):
-        self.Model.metadata.create_all(self.connection)
+        yield
 
-    def drop_tables(self):
-        self.Model.metadata.drop_all(self.connection)
-
-    def teardown_method(self, method):
         self.session.rollback()
         uow_leaks = versioning_manager.units_of_work
         session_map_leaks = versioning_manager.session_connection_map
@@ -116,6 +113,12 @@ class TestCase(object):
 
         assert not uow_leaks
         assert not session_map_leaks
+
+    def create_tables(self):
+        self.Model.metadata.create_all(self.connection)
+
+    def drop_tables(self):
+        self.Model.metadata.drop_all(self.connection)
 
     def create_models(self):
         class Article(self.Model):
