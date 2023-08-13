@@ -6,7 +6,7 @@ from tests import TestCase
 
 class TestBeforeFlushListener(TestCase):
     @pytest.fixture(autouse=True)
-    def setup_method_to_modify_listner(self):
+    def setup_method_to_modify_listner(self, setup_session):
         @sa.event.listens_for(sa.orm.Session, "before_flush")
         def before_flush(session, ctx, instances):
             for obj in session.dirty:

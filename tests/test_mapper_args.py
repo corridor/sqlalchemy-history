@@ -21,7 +21,7 @@ class TestColumnPrefix(TestCase):
         self.TextItem = TextItem
 
     @pytest.fixture(autouse=True)
-    def setup_method_for_col_prefix(self):
+    def setup_method_for_col_prefix(self, setup_session):
         self.TextItemVersion = version_class(self.TextItem)
         yield
         del self.TextItemVersion
