@@ -133,10 +133,7 @@ def version_class(model):
     :returns:
     """
     manager = get_versioning_manager(model)
-    try:
-        return manager.version_class_map[model]
-    except KeyError:
-        return model
+    return manager.version_class_map.get(model, None)
 
 
 def version_table(table):

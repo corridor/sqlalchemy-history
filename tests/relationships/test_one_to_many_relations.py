@@ -1,4 +1,3 @@
-import pytest
 import sqlalchemy as sa
 from tests import TestCase, create_test_cases
 
@@ -72,9 +71,6 @@ class OneToManyRelationshipsTestCase(TestCase):
         assert len(article.versions[1].tags) == 2
 
     def test_children_inserts_with_varying_versions(self):
-        if self.driver == "mysql" and self.connection.dialect.server_version_info < (5, 6):
-            pytest.skip()
-
         # one article with one tag
         article = self.Article()
         article.name = "Some article"
@@ -191,8 +187,6 @@ class TestOneToManySelfReferential(TestCase):
         assert child_article1.versions[0].parent_article is parent_article.versions[0]
 
     def test_multiple_inserts_over_multiple_transactions(self):
-        if self.driver == "mysql" and self.connection.dialect.server_version_info < (5, 6):
-            pytest.skip()
         parent_article = self.Article(name="Some article")
         child_article1 = self.Article(name="Child article1", parent_article=parent_article)
         self.session.add(parent_article)

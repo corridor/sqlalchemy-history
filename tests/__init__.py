@@ -27,7 +27,7 @@ def log_sql(conn, cursor, statement, parameters, context, executemany):
     QueryPool.queries.append(statement)
 
 
-def get_dns_from_driver(driver):
+def get_dns_from_driver(driver):  # pragma: no cover
     if driver == "postgres":
         return "postgresql://postgres:postgres@localhost/sqlalchemy_history_test"
     elif driver == "mysql":
@@ -70,8 +70,7 @@ class TestCase(object):
 
     @pytest.fixture
     def setup_versioning(self, setup_declarative_base):
-        make_versioned(options=self.options)
-        versioning_manager.plugins = self.plugins
+        make_versioned(options=self.options, plugins=self.plugins)
         versioning_manager.transaction_cls = self.transaction_cls
         versioning_manager.user_cls = self.user_cls
         yield
