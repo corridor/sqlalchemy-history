@@ -28,18 +28,7 @@ def tracked_operation(func):
             return
         session = object_session(target)
         conn = session.connection()
-        try:
-            uow = self.units_of_work[conn]
-        except KeyError:
-            try:
-                uow = self.units_of_work[conn.engine]
-            except KeyError:
-                for connection in self.units_of_work.keys():
-                    if not connection.closed and connection.connection is conn.connection:
-                        uow = self.unit_of_work(session)
-                        break  # The ConnectionFairy is the same, this connection is a clone
-                else:
-                    raise
+        uow = self.get_uow(conn)
         return func(self, uow, target)
 
     return wrapper
@@ -119,6 +108,19 @@ class VersioningManager(object):
             return SubqueryFetcher(self)
         else:
             return ValidityFetcher(self)
+
+    def get_uow(self, conn):
+        try:
+            return self.units_of_work[conn]
+        except KeyError:
+            try:
+                return self.units_of_work[conn.engine]
+            except KeyError:
+                for connection in self.units_of_work.keys():
+                    if not connection.closed and connection.connection is conn.connection:
+                        return self.unit_of_work(conn.session)
+                else:
+                    raise
 
     def reset(self):
         """Resets this manager's internal state.
@@ -399,18 +401,7 @@ class VersioningManager(object):
             .insert()
             .values({**params, "operation_type": op})
         )
-        try:
-            uow = self.units_of_work[conn]
-        except KeyError:
-            try:
-                uow = self.units_of_work[conn.engine]
-            except KeyError:
-                for connection in self.units_of_work.keys():
-                    if not connection.closed and connection.connection is conn.connection:
-                        uow = self.unit_of_work(conn.session)
-                        break  # The ConnectionFairy is the same, this connection is a clone
-                else:
-                    raise
+        uow = self.get_uow(conn)
         uow.pending_statements.append(stmt)
 
     def track_cloned_connections(self, c, opt):
