@@ -1,13 +1,23 @@
 from pytest import raises
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy_history import versioning_manager, ImproperlyConfigured, TransactionFactory
+from sqlalchemy_history import (
+    versioning_manager,
+    ImproperlyConfigured,
+    TransactionFactory,
+    version_class,
+    ClassNotVersioned,
+    TableNotVersioned,
+)
+from sqlalchemy_history.utils import version_table
 
 from tests import TestCase
 
 
 class TestVersionedModelWithoutVersioning(TestCase):
     def create_models(self):
+        TestCase.create_models(self)
+
         class TextItem(self.Model):
             __tablename__ = "text_item"
             __versioned__ = {"versioning": False}
@@ -19,10 +29,16 @@ class TestVersionedModelWithoutVersioning(TestCase):
         self.TextItem = TextItem
 
     def test_does_not_create_history_class(self):
-        assert "class" not in self.TextItem.__versioned__
+        # Normal Class is Versioned
+        assert version_class(self.Article).__name__ == "ArticleVersion"
+        # If disabled Versioning doesn't happen for specific class
+        with raises(ClassNotVersioned):
+            version_class(self.TextItem)
 
     def test_does_not_create_history_table(self):
-        assert "text_item_history" not in self.Model.metadata.tables
+        assert version_table(self.Article.__table__).name == "article_version"
+        with raises(TableNotVersioned):
+            version_table(self.TextItem.__table__)
 
     def test_does_add_objects_to_unit_of_work(self):
         self.session.add(self.TextItem())
@@ -81,7 +97,9 @@ class TestWithCreateModelsAsFalse(TestCase):
         self.Category = Category
 
     def test_does_not_create_models(self):
-        assert "class" not in self.Article.__versioned__
+        with raises(ClassNotVersioned):
+            version_class(self.Article)
+        assert version_table(self.Article.__table__).name == "article_version"
 
 
 class TestWithoutAnyVersionedModels(TestCase):
@@ -102,3 +120,4 @@ class TestWithoutAnyVersionedModels(TestCase):
         article = self.Article(name="Some article")
         self.session.add(article)
         self.session.commit()
+        assert not hasattr(article, "versions")
