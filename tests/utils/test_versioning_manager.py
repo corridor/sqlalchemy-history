@@ -8,7 +8,7 @@ from sqlalchemy_history.utils import get_versioning_manager
 from tests import TestCase
 
 
-class TestGetVersioningManager(TestCase):
+class TestVersioningManager(TestCase):
     def create_models(self):
         """
         Creates many-to-many relationship between Article and Tag
@@ -75,3 +75,7 @@ class TestGetVersioningManager(TestCase):
     def test_unknown_table(self):
         with raises(TableNotVersioned):
             get_versioning_manager(self.Tag.__table__)
+
+    def test_versioning_manager_uow(self):
+        with raises(KeyError):
+            versioning_manager.get_uow(self.session.connection())
