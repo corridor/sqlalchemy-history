@@ -123,9 +123,9 @@ jobs:
       - name: send coverage data to Coveralls
         env:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@v2
         with:
-          path-to-lcov: ./coverage.lcov
+          file: ./coverage.lcov
           flag-name: lcov-${{ matrix.DB }}-py${{ matrix.python-version }}
           parallel: true
 
@@ -136,6 +136,6 @@ jobs:
       - name: Coveralls
         env:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@v2
         with:
           parallel-finished: true
