@@ -336,10 +336,8 @@ class RelationshipBuilder(object):
         except ClassNotVersioned:
             self.remote_cls = self.property.mapper.class_
 
-        if (
-            self.property.secondary is not None
-            and not self.property.viewonly
-            and not self.manager.is_excluded_property(self.model, self.property.key)
+        if self.property.secondary is not None and not self.manager.is_excluded_property(
+            self.model, self.property.key
         ):
             self.build_association_version_tables()
 
