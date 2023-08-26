@@ -32,6 +32,11 @@ class ColumnReflector(object):
 
         if not column_copy.primary_key:
             column_copy.nullable = True
+            # ref: https://github.com/sqlalchemy/sqlalchemy/blob/rel_1_4_41/lib/sqlalchemy/sql/schema.py#L2018
+            # ref: https://github.com/kvesteri/sqlalchemy-continuum/issues/285#issuecomment-1239230120
+            # when copying `_user_defined_nullable` was set to parents value itself so alembic was
+            # probably picking this value to give nullable as False first so setting it explicitly to False
+            column_copy._user_defined_nullable = True
 
         # Find the right column key
         if self.model is not None:
