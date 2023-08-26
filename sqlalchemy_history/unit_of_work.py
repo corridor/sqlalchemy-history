@@ -13,6 +13,7 @@ from sqlalchemy_history.utils import (
     tx_column_name,
     versioned_column_properties,
 )
+from sqlalchemy_history.schema import update_end_tx_column
 
 
 class UnitOfWork(object):
@@ -249,6 +250,18 @@ class UnitOfWork(object):
                 **{self.manager.options["transaction_column_name"]: self.current_transaction.id}
             )
             session.execute(stmt)
+            if self.manager.options["strategy"] == "validity":
+                # FIXME: Currently we don't support setting versioning behaviour on bare table level
+                #        so we only refer to global configuration of manager and if it is set to validity
+                #        we always assign value to end_transaction_id table. which should have no impact as
+                #        if user is not using this column it won't impact except executing a redundant
+                #        assocition query for end_transaction_id, maybe provide a flag to disable this?
+                update_end_tx_column(
+                    stmt.table,
+                    end_tx_column_name=self.manager.options["end_transaction_column_name"],
+                    tx_column_name=self.manager.options["transaction_column_name"],
+                    conn=session.connection(),
+                )
         self.pending_statements = []
 
     def make_versions(self, session):
