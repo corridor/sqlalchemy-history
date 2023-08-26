@@ -17,7 +17,7 @@ jobs:
       matrix:
         python-version:
           - "3.7"
-          - "3.10"
+          - "3.11"
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
@@ -38,7 +38,7 @@ jobs:
       matrix:
         python-version:
           - "3.7"
-          - "3.10"
+          - "3.11"
         DB:
           - "sqlite"
           - "mssql"
