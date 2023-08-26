@@ -11,27 +11,6 @@ on:
       - "docs/**"
 
 jobs:
-  lint:
-    name: lint-python${{ matrix.python-version }}
-    strategy:
-      matrix:
-        python-version:
-          - "3.7"
-          - "3.11"
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v1
-      - name: Install Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Black Validation
-        uses: psf/black@stable
-        with:
-          version: "23.3.0" # Last version which can be used in py3.7
-      - name: Check Flake8 Formatting
-        uses: py-actions/flake8@v2
-
   test-sqlalchemy-history:
     name: test-python${{ matrix.python-version }}-${{ matrix.DB }}
     strategy:
@@ -115,6 +94,12 @@ jobs:
           unzip /opt/oracle/instantclient-basic-linux.x64-21.8.0.0.0dbru.zip
           sudo apt-get install libaio1
           echo "LD_LIBRARY_PATH=/opt/oracle/instantclient_21_8/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> $GITHUB_ENV
+      - name: Black Validation
+        uses: psf/black@stable
+        with:
+          version: "23.3.0" # Last version which can be used in py3.7
+      - name: Check Flake8 Formatting
+        uses: py-actions/flake8@v2
       - name: Run tests
         run: |
           poetry run pytest --cov --cov-report=lcov
