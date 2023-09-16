@@ -77,7 +77,13 @@ class TestCase(object):
 
     @pytest.fixture
     def setup_engine(self, setup_versioning):
-        self.driver = os.environ.get("DB", "sqlite")
+        if "DB" not in os.environ:  # pragma: no cover
+            # NOTE: We set DB environment variable explicitly if someone has not provided as this value
+            #       is used to skip other test cases and if one doesn't specifiy this value tests starts
+            #       breaking. We don't cover this in coverage as our CI always
+            #       specifies DB variable
+            os.environ["DB"] = "sqlite"
+        self.driver = os.environ.get("DB")
         self.engine = create_engine(get_dns_from_driver(self.driver))
         yield
         self.engine.dispose()
