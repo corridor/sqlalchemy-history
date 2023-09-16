@@ -73,6 +73,10 @@ class TestTableBuilderWithOnUpdate(TestCase):
         table = version_class(self.Article).__table__
         assert table.c.last_update.onupdate is None
 
+    def test_takes_out_default_triggers(self):
+        table = version_class(self.Article).__table__
+        assert table.c.last_update.default is None
+
 
 @mark.skipif("os.environ.get('DB') in ['sqlite']", reason="sqlite doesn't have a concept of schema")
 class TestTableBuilderInOtherSchema(TestCase):
