@@ -25,6 +25,8 @@ class ColumnReflector(object):
         column_copy = column._copy()
         column_copy.unique = False
         column_copy.onupdate = None
+        column_copy.default = None
+        column_copy.server_default = None
         if column_copy.autoincrement:
             column_copy.autoincrement = False
         if column_copy.name == self.option("transaction_column_name"):
