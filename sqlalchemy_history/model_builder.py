@@ -234,14 +234,13 @@ class ModelBuilder(object):
             args["__table__"] = table
 
         args.update(self.get_inherited_denormalized_columns(table))
-
+        class_suffix = self.manager.options.get("table_name", "version")
+        class_suffix = class_suffix.replace("%s", "")
+        class_suffix = class_suffix.title().replace("_", "")
         if self.manager.options.get("use_module_name", True):
-            name = "%s%sVersion" % (
-                self.model.__module__.title().replace(".", ""),
-                self.model.__name__,
-            )
+            name = self.model.__module__.title().replace(".", "") + self.model.__name__ + class_suffix
         else:
-            name = "%sVersion" % (self.model.__name__,)
+            name = self.model.__name__ + class_suffix
         primary_keys = list(get_primary_keys(self.model).keys()) + ["transaction_id", "operation_type"]
         return generic_repr(*primary_keys)(type(name, self.base_classes(), args))
 
