@@ -75,7 +75,20 @@ class VersioningManager(object):
         if user_cls is not None:
             self.user_cls = user_cls
 
-        self.options = {
+        self.options = self.default_options
+        if plugins is None:
+            self.plugins = []
+        else:
+            self.plugins = plugins
+        self.options.update(options)
+
+    @property
+    def plugins(self):
+        return self._plugins
+
+    @property
+    def default_options(self):
+        return {
             "versioning": True,
             "base_classes": None,
             "table_name": "%s_version",
@@ -89,15 +102,6 @@ class VersioningManager(object):
             "strategy": "validity",
             "use_module_name": False,
         }
-        if plugins is None:
-            self.plugins = []
-        else:
-            self.plugins = plugins
-        self.options.update(options)
-
-    @property
-    def plugins(self):
-        return self._plugins
 
     @plugins.setter
     def plugins(self, plugin_collection):
@@ -159,6 +163,7 @@ class VersioningManager(object):
         self.session_connection_map = {}
 
         self.metadata = None
+        self.options = self.default_options
 
     def create_transaction_model(self):
         """Create Transaction class but only if it doesn't already exist in declarative model registry."""
