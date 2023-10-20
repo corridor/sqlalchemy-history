@@ -10,7 +10,7 @@ class TestCommonBaseClass(TestCase):
             __versioned__ = {}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
 
         class ArticleVersionBase(self.Model):
@@ -20,7 +20,7 @@ class TestCommonBaseClass(TestCase):
             __tablename__ = "article"
             __versioned__ = {"base_classes": (ArticleVersionBase,)}
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
 
         self.TextItem = TextItem

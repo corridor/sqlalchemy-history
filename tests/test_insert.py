@@ -46,7 +46,7 @@ class TestInsertWithDeferredColumn(TestCase):
             __tablename__ = "text_item"
             __versioned__ = {}
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.orm.deferred(sa.Column(sa.Unicode(255)))
 
@@ -64,7 +64,7 @@ class TestInsertNonVersionedObject(TestCase):
         class TextItem(self.Model):
             __tablename__ = "text_item"
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.orm.deferred(sa.Column(sa.Unicode(255)))
 
@@ -72,7 +72,7 @@ class TestInsertNonVersionedObject(TestCase):
             __tablename__ = "tag"
             __versioned__ = {}
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.orm.deferred(sa.Column(sa.Unicode(255)))
 

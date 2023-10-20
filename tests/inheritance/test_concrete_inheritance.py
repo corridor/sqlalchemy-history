@@ -11,7 +11,7 @@ class TestConreteTableInheritance(TestCase):
             __tablename__ = "text_item"
             __versioned__ = {"base_classes": (self.Model,)}
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
 
             discriminator = sa.Column(sa.Unicode(100))
@@ -22,7 +22,7 @@ class TestConreteTableInheritance(TestCase):
             __tablename__ = "article"
             __mapper_args__ = {"polymorphic_identity": "article", "concrete": True}
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -30,7 +30,7 @@ class TestConreteTableInheritance(TestCase):
             __tablename__ = "blog_post"
             __mapper_args__ = {"polymorphic_identity": "blog_post", "concrete": True}
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             title = sa.Column(sa.Unicode(255))
 

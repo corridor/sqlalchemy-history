@@ -11,7 +11,7 @@ class TestBug97(TestCase):
             __versioned__ = copy(self.options)
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255), server_default="default name")
             content = sa.Column(sa.UnicodeText)
