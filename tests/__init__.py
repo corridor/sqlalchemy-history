@@ -34,7 +34,7 @@ def get_dns_from_driver(driver):  # pragma: no cover
     elif driver == "sqlite":
         return "sqlite:///:memory:"
     elif driver == "mssql":
-        return "mssql+pymssql://sa:MSsql2022@localhost:1433"
+        return "mssql+pyodbc://sa:MSsql2022@localhost:1433/tempdb?driver=ODBC+Driver+17+for+SQL+Server"
     elif driver == "oracle":
         return "oracle+cx_oracle://SYSTEM:Oracle2022@localhost:1521"
     else:
