@@ -14,7 +14,7 @@ class ColumnAliasesBaseTestCase(TestCase):
             id = sa.Column(
                 "_id",
                 sa.Integer,
-                sa.Sequence(f"{__tablename__}_seq"),
+                sa.Sequence(f"{__tablename__}_seq", start=1),
                 autoincrement=True,
                 primary_key=True,
             )

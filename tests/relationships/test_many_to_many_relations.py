@@ -14,7 +14,7 @@ class ManyToManyRelationshipsTestCase(TestCase):
             __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -42,7 +42,7 @@ class ManyToManyRelationshipsTestCase(TestCase):
             __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -220,7 +220,7 @@ class TestManyToManyRelationshipWithViewOnly(TestCase):
             __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -241,7 +241,7 @@ class TestManyToManyRelationshipWithViewOnly(TestCase):
             __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -262,7 +262,7 @@ class TestManyToManySelfReferential(TestCase):
             __versioned__ = {}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -349,7 +349,7 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
             __table_args__ = {"schema": "other"}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -412,7 +412,7 @@ class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTe
             __table_args__ = {"schema": "other"}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -435,7 +435,7 @@ class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTe
             __table_args__ = {"schema": "other"}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 

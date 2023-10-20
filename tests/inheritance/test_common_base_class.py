@@ -12,13 +12,13 @@ class TestCommonBaseClass(TestCase):
             __tablename__ = "text_item"
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
 
         class Article(self.Model, Versioned):
             __tablename__ = "article"
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
 
         self.TextItem = TextItem

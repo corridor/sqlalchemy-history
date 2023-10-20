@@ -10,7 +10,7 @@ class JoinTableInheritanceTestCase(TestCase):
             __tablename__ = "text_item"
             __versioned__ = {"base_classes": (self.Model,)}
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
 
             name = sa.Column(sa.Unicode(255))
@@ -139,7 +139,7 @@ class TestDeepJoinedTableInheritance(TestCase):
                 with_polymorphic="*",
             )
 
-            id = sa.Column(sa.Integer, sa.Sequence(f"{__tablename__}_seq"), primary_key=True)
+            id = sa.Column(sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), primary_key=True)
             type = sa.Column(sa.String(30), nullable=False)
 
         class Content(Node):
@@ -148,7 +148,7 @@ class TestDeepJoinedTableInheritance(TestCase):
             __mapper_args__ = {"polymorphic_identity": "content"}
             id = sa.Column(
                 sa.Integer,
-                sa.Sequence(f"{__tablename__}_seq"),
+                sa.Sequence(f"{__tablename__}_seq", start=1),
                 sa.ForeignKey("node.id"),
                 primary_key=True,
             )
@@ -160,7 +160,7 @@ class TestDeepJoinedTableInheritance(TestCase):
             __mapper_args__ = {"polymorphic_identity": "document"}
             id = sa.Column(
                 sa.Integer,
-                sa.Sequence(f"{__tablename__}_seq"),
+                sa.Sequence(f"{__tablename__}_seq", start=1),
                 sa.ForeignKey("content.id"),
                 primary_key=True,
             )
