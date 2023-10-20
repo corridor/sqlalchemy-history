@@ -9,7 +9,7 @@ class TestRelationshipToNonVersionedClass(TestCase):
             __tablename__ = "user"
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -18,7 +18,7 @@ class TestRelationshipToNonVersionedClass(TestCase):
             __versioned__ = copy(self.options)
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255), nullable=False)
             content = sa.Column(sa.UnicodeText)
@@ -62,7 +62,7 @@ class TestManyToManyRelationshipToNonVersionedClass(TestCase):
             __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -82,7 +82,7 @@ class TestManyToManyRelationshipToNonVersionedClass(TestCase):
             __tablename__ = "tag"
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 

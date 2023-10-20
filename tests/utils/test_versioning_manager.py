@@ -20,7 +20,7 @@ class TestVersioningManager(TestCase):
             __versioned__ = copy(self.options)
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -40,7 +40,7 @@ class TestVersioningManager(TestCase):
             __tablename__ = "tag"
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
             articles = sa.orm.relationship(Article, secondary=article_tag, backref="tags")

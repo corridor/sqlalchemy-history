@@ -11,7 +11,7 @@ class TestIsModified(TestCase):
             __tablename__ = "article"
             __versioned__ = {"exclude": "content"}
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq"), autoincrement=True, primary_key=True
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
             created_at = sa.Column(sa.DateTime, default=datetime.now)

@@ -74,7 +74,7 @@ class TransactionFactory(ModelFactory):
 
             id = sa.Column(
                 sa.types.BigInteger,
-                sa.schema.Sequence("transaction_id_seq"),
+                sa.schema.Sequence("transaction_id_seq", start=1),
                 primary_key=True,
                 autoincrement=True,
             )

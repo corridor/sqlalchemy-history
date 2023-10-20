@@ -31,7 +31,7 @@ class TestVersioningWithI18nExtension(TestCase):
             #        Due to which Indenity gets a conflict as Identity should always have `autoincrment=True`
             # refer: https://github.com/kvesteri/sqlalchemy-i18n/blob/master/sqlalchemy_i18n/manager.py#L55
             #      : https://docs.sqlalchemy.org/en/14/core/defaults.html#identity-ddl
-            id = sa.Column(sa.Integer, sa.Sequence(f"{__tablename__}_seq"), **kwargs)
+            id = sa.Column(sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), **kwargs)
             description = sa.Column(sa.UnicodeText)
 
         class ArticleTranslation(translation_base(Article)):
