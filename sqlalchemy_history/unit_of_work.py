@@ -191,13 +191,8 @@ class UnitOfWork(object):
         :param alias:  (Default value = None)
         """
         fetcher = self.manager.fetcher(parent)
-        session = sa.orm.object_session(version_obj)
 
-        subquery = fetcher._transaction_id_subquery(
-            version_obj,
-            next_or_prev='prev',
-            alias=alias
-        )
+        subquery = fetcher._transaction_id_subquery(version_obj, next_or_prev="prev", alias=alias)
         return subquery
 
     def update_version_validity(self, parent, version_obj):
@@ -224,11 +219,10 @@ class UnitOfWork(object):
                     .where(
                         vobj_tx_col == subquery,
                         *[
-                            getattr(version_obj, pk) ==
-                            getattr(class_.__table__.c, pk)
+                            getattr(version_obj, pk) == getattr(class_.__table__.c, pk)
                             for pk in get_primary_keys(class_)
                             if pk != tx_column_name(class_)
-                        ]
+                        ],
                     )
                     .execution_options(synchronize_session=False)
                 )
@@ -236,7 +230,6 @@ class UnitOfWork(object):
                 old_versions = session.scalars(query).all()
                 for old_version in old_versions:
                     setattr(old_version, end_tx_column_name(version_obj), self.current_transaction.id)
-
 
     def create_association_versions(self, session):
         """Creates association table version records for given session.
