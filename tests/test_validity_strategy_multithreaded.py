@@ -11,7 +11,7 @@ NUM_ROWS = 100
 NUM_THREADS = 4
 
 
-class ThreadFormatter(Formatter):
+class ThreadFormatter(Formatter):  # pragma: no cover
     thread_formatter = Formatter("%(threadName)s ")
 
     def __init__(self, inner):
@@ -22,7 +22,7 @@ class ThreadFormatter(Formatter):
 
 
 class TestValidityStrategyMultithreaded(TestCase):
-    class WrappedThread(Thread):
+    class WrappedThread(Thread):  # pragma: no cover
         """
         Wrapper around `threading.Thread` that propagates exceptions
         and includes threadName in SQLAlchemy log lines.
