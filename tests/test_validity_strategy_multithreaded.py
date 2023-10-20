@@ -63,7 +63,8 @@ class TestValidityStrategyMultithreaded(TestCase):
         class Article(self.Model):
             __tablename__ = "article"
             __versioned__ = {"base_classes": (self.Model,), "strategy": "validity"}
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(sa.Integer,  sa.Sequence(f"{__tablename__}_seq"), 
+            autoincrement=True, primary_key=True)
 
             name = sa.Column(sa.Unicode(255))
 
