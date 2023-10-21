@@ -113,7 +113,16 @@ jobs:
           file: ./coverage.lcov
           flag-name: lcov-${{ matrix.DB }}-py${{ matrix.python-version }}
           parallel: true
-
+          
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: ruff-action
+        uses: chartboost/ruff-action@v1
+        with:
+          parallel-finished: true
+               
   generate-coverage-report:
     runs-on: ubuntu-20.04
     needs: [test-sqlalchemy-history]
