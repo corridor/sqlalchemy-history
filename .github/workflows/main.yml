@@ -94,12 +94,6 @@ jobs:
           unzip /opt/oracle/instantclient-basic-linux.x64-21.8.0.0.0dbru.zip
           sudo apt-get install libaio1
           echo "LD_LIBRARY_PATH=/opt/oracle/instantclient_21_8/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> $GITHUB_ENV
-      - name: Black Validation
-        uses: psf/black@stable
-        with:
-          version: "23.3.0" # Last version which can be used in py3.7
-      - name: Check Flake8 Formatting
-        uses: py-actions/flake8@v2
       - name: Run tests
         run: |
           poetry run pytest --cov --cov-report=lcov
@@ -114,14 +108,16 @@ jobs:
           flag-name: lcov-${{ matrix.DB }}-py${{ matrix.python-version }}
           parallel: true
           
-  ruff:
+  lint:
     runs-on: ubuntu-latest
     steps:
+      - name: Black Validation
+        uses: psf/black@stable
+        with:
+          version: "23.3.0" # Last version which can be used in py3.7
       - uses: actions/checkout@v3
       - name: ruff-action
         uses: chartboost/ruff-action@v1
-        with:
-          parallel-finished: true
                
   generate-coverage-report:
     runs-on: ubuntu-20.04
