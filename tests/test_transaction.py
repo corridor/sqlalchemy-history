@@ -1,3 +1,4 @@
+import os
 import sqlalchemy as sa
 from sqlalchemy_history import versioning_manager
 from tests import TestCase
@@ -67,7 +68,7 @@ class TestAssigningUserClass(TestCase):
 
 
 @mark.skipif(
-    "os.environ.get('DB') in ['sqlite', 'oracle']",
+    os.environ.get("DB") in ["sqlite", "oracle"],
     reason="sqlite doesn't have a concept of schema for oracle refer below mentioned fixme!",
 )
 class TestAssigningUserClassInOtherSchema(TestCase):

@@ -1,3 +1,4 @@
+import os
 from copy import copy
 from datetime import datetime
 import sqlalchemy as sa
@@ -78,7 +79,7 @@ class TestTableBuilderWithOnUpdate(TestCase):
         assert table.c.last_update.default is None
 
 
-@mark.skipif("os.environ.get('DB') in ['sqlite']", reason="sqlite doesn't have a concept of schema")
+@mark.skipif(os.environ.get("DB") == "sqlite", reason="sqlite doesn't have a concept of schema")
 class TestTableBuilderInOtherSchema(TestCase):
     def create_models(self):
         class Article(self.Model):
