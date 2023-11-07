@@ -100,7 +100,7 @@ jobs:
           echo "LD_LIBRARY_PATH=/opt/oracle/instantclient_21_8/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> $GITHUB_ENV
       - name: Run tests
         run: |
-          poetry run pytest --cov --cov-report=lcov
+          poetry run pytest -x --cov --cov-report=lcov
         env:
           DB: ${{ matrix.DB }}
       - name: send coverage data to Coveralls
