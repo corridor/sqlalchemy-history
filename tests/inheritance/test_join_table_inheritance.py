@@ -106,7 +106,7 @@ class JoinTableInheritanceTestCase(TestCase):
 
     def test_updates_end_transaction_id_to_all_tables(self):
         if self.options["strategy"] == "subquery":
-            pytest.skip()
+            pytest.skip(reason="Skip end_tx_id test if not using validity strategy")
 
         end_tx_column = self.options["end_transaction_column_name"]
         tx_column = self.options["transaction_column_name"]
