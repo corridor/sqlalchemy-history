@@ -1,3 +1,4 @@
+import os
 from pytest import mark
 
 from sqlalchemy_history.operation import Operation
@@ -41,7 +42,7 @@ class ExoticOperationCombosTestCase(TestCase):
 
     # Ref for mssql: https://github.com/sqlalchemy/sqlalchemy/discussions/8829
     @mark.skipif(
-        "os.environ.get('DB') == 'mssql'", reason="mssql does not support changing the IDENTITY column"
+        os.environ.get("DB") == "mssql", reason="mssql does not support changing the IDENTITY column"
     )
     def test_replace_deleted_object_with_update(self):
         article = self.Article()

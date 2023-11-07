@@ -1,3 +1,4 @@
+import os
 import datetime
 
 import sqlalchemy as sa
@@ -340,7 +341,7 @@ class TestManyToManySelfReferential(TestCase):
         assert article.versions[2] in reference1.versions[2].cited_by
 
 
-@mark.skipif("os.environ.get('DB') in ['sqlite']", reason="sqlite doesn't have a concept of schema")
+@mark.skipif(os.environ.get("DB") == "sqlite", reason="sqlite doesn't have a concept of schema")
 class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
     def create_models(self):
         class Article(self.Model):
@@ -403,7 +404,7 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
         TestManyToManySelfReferential.create_tables(self)
 
 
-@mark.skipif("os.environ.get('DB') in ['sqlite']", reason="sqlite doesn't have a concept of schema")
+@mark.skipif(os.environ.get("DB") == "sqlite", reason="sqlite doesn't have a concept of schema")
 class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTestCase):
     def create_models(self):
         class Article(self.Model):

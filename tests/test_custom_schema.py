@@ -1,3 +1,4 @@
+import os
 import sqlalchemy as sa
 from pytest import mark
 from sqlalchemy.ext.declarative import declarative_base
@@ -5,7 +6,7 @@ from tests import TestCase
 
 
 @mark.skipif(
-    "os.environ.get('DB') in ['sqlite']",
+    os.environ.get("DB") == "sqlite",
     reason="sqlite doesn't have a concept of schema",
 )
 class TestCustomSchema(TestCase):
@@ -52,7 +53,7 @@ class TestCustomSchema(TestCase):
             self.connection.execute(sa.text("DROP SCHEMA IF EXISTS sqlahistory"))
             self.connection.execute(sa.text("CREATE SCHEMA sqlahistory"))
         except sa.exc.DatabaseError:
-            try:  
+            try:
                 # Create a User for Oracle DataBase as it does not have concept of schema
                 # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa E501
                 self.connection.execute(sa.text("CREATE USER sqlahistory identified by sqlahistory"))
