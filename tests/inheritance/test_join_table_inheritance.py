@@ -118,10 +118,10 @@ class JoinTableInheritanceTestCase(TestCase):
         assert article.versions.count() == 2
 
         assert self.session.execute(
-            sa.text("SELECT %s FROM text_item_version " "ORDER BY %s" % (end_tx_column, tx_column))
+            sa.text("SELECT %s FROM text_item_version ORDER BY %s" % (end_tx_column, tx_column))
         ).fetchone()[0]
         assert self.session.execute(
-            sa.text("SELECT %s FROM article_version " "ORDER BY %s" % (end_tx_column, tx_column))
+            sa.text("SELECT %s FROM article_version ORDER BY %s" % (end_tx_column, tx_column))
         ).fetchone()[0]
 
 
