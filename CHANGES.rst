@@ -3,6 +3,20 @@ Changelog
 
 Here you can see the full list of changes between each release.
 
+2.1.0 (To be decided)
+^^^^^^^^^^^^^^^^^^^
+
+-   Support sqlalchemy 2.x
+-   Fix issue with some columns in alembic generated migrations not setting `nullable=False`
+    correctly.
+-   Fix issue where version table was using `default` and `server_default` when setting colum
+    value to `None`.
+
+Internal Improvements:
+-   Add more tests for corner cases which were skipped earlier
+-   Add coveralls for coverage
+-   Move from flake8 to ruff for linting
+
 2.0.0 (2023-02-02)
 ^^^^^^^^^^^^^^^^^^^
 
