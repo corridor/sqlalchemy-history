@@ -3,7 +3,7 @@ Changelog
 
 Here you can see the full list of changes between each release.
 
-2.1.0 (To be decided)
+2.1.0 (2023-11-07)
 ^^^^^^^^^^^^^^^^^^^
 
 -   Support sqlalchemy 2.x
@@ -11,6 +11,9 @@ Here you can see the full list of changes between each release.
     correctly.
 -   Fix issue where version table was using `default` and `server_default` when setting colum
     value to `None`.
+-   Added support for proxy attributes of ORM model
+-   Dropped support for python3.6
+-   Set end_transaction_id for association tables
 
 Internal Improvements:
 -   Add more tests for corner cases which were skipped earlier
