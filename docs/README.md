@@ -7,7 +7,7 @@ An auditing extension for sqlalchemy which keeps a track of the history of your 
 
 ## Features
 
-- Supports sqlalchemy 1.4+ and python 3.6+
+- Supports sqlalchemy 1.4+ and python 3.7+
 - Tracks history for inserts, deletes, and updates
 - Does not store updates which don't change anything
 - Supports alembic migrations
@@ -57,7 +57,10 @@ For completeness, below is a working example.
 ```python
 from sqlalchemy_history import make_versioned
 from sqlalchemy import Column, Integer, Unicode, UnicodeText, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+try:
+   from sqlalchemy.ext.declarative import declarative_base
+except ImportError:  # sqla > 2.x
+   from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import create_session, configure_mappers
 make_versioned(user_cls=None)
 Base = declarative_base()
