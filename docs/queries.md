@@ -24,7 +24,6 @@ In the following example we find all articles which were affected by transaction
 >>> session.query(ArticleVersion).filter_by(transaction_id=33)
 ```
 
-
 ## Querying for transactions, at which entities of a given class changed
 
 In this example we find all transactions which affected any instance of 'Article' model. This query needs the TransactionChangesPlugin.
@@ -40,9 +39,7 @@ In this example we find all transactions which affected any instance of 'Article
 ... )
 ```
 
-
 ## Querying for versions of entity that modified given property
-
 
 In the following example we want to find all versions of Article class which changed the attribute 'name'. This example assumes you are using
 PropertyModTrackerPlugin.

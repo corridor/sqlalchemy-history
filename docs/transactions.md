@@ -2,7 +2,6 @@
 
 ## Transaction
 
-
 For each committed transaction SQLAlchemy-History creates a new Transaction record.
 
 Transaction can be queried just like any other sqlalchemy declarative model.
@@ -34,7 +33,6 @@ of the UnitOfWork class.
 The version objects are normally created during the after flush phase but you can also force create those at any time by
 calling make_versions method.
 
-
 ```python
 >>> uow.make_versions(session)
 ```
@@ -50,6 +48,7 @@ Consider the following code snippet where we create a new article.
 >>> session.add(article)
 >>> session.commit()
 ```
+
 This would execute the following SQL queries (on PostgreSQL)
 
 ```sql
@@ -60,4 +59,3 @@ This would execute the following SQL queries (on PostgreSQL)
 3. INSERT INTO article_version (id, name, content, transaction_id) VALUES (?, ?, ?, ?)
     params: (<article id from query 1>, 'Some article', 'Some content', <transaction id from query 2>)
 ```
-

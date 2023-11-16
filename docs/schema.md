@@ -10,15 +10,15 @@ and 'category', SQLAlchemy-History would create two version tables
 
 By default the version tables contain these columns:
 
-  - id of the original entity (this can be more then one column in the
-    case of composite primary keys)
-  - transactionid - an integer that matches to the id number in the
-    transactionlog table.
-  - endtransactionid - an integer that matches the next version
-    record's transactionid. If this is the current version record then
-    this field is null.
-  - operationtype - a small integer defining the type of the operation
-  - versioned fields from the original entity
+- id of the original entity (this can be more then one column in the
+  case of composite primary keys)
+- transactionid - an integer that matches to the id number in the
+  transactionlog table.
+- endtransactionid - an integer that matches the next version
+  record's transactionid. If this is the current version record then
+  this field is null.
+- operationtype - a small integer defining the type of the operation
+- versioned fields from the original entity
 
 If you are using `property-mod-tracker` SQLA-History also creates one
 boolean field for each versioned field. By default these boolean fields
@@ -32,7 +32,7 @@ transaction.
 ## Transaction tables
 
 By default SQLA-History creates one transaction table called
-**transaction. Many SQLA-History plugins also
+\*\*transaction. Many SQLA-History plugins also
 create additional tables for efficient transaction storage. If you wish
 to query efficiently transactions afterwards you should consider using
 some of these plugins.

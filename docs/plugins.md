@@ -16,11 +16,9 @@
 
 ::: sqlalchemy_history.plugins.property_mod_tracker
 
-
 ## TransactionChanges
 
 ::: sqlalchemy_history.plugins.transaction_changes
-
 
 ## TransactionMeta
 

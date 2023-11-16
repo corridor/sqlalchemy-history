@@ -1,6 +1,5 @@
 # Configuration
 
-
 ## Global and class level configuration
 
 All configuration parameters can be set on global level (manager level) and on class level. Setting an option at manager level affects all classes within the scope of the manager's class instrumentation listener (by default all SQLAlchemy declarative models).
@@ -11,8 +10,7 @@ In the following example we set 'transaction_column_name' configuration option t
 >>> make_versioned(options={'transaction_column_name': 'my_tx_id'})
 ```
 
-As the name suggests class level configuration only applies to given class. Class level configuration can be passed to __versioned__ class attribute.
-
+As the name suggests class level configuration only applies to given class. Class level configuration can be passed to **versioned** class attribute.
 
 ```python
 >>> class User(Base):
@@ -25,9 +23,7 @@ As the name suggests class level configuration only applies to given class. Clas
 
 Similar to Hibernate Envers SQLAlchemy-History offers two distinct versioning strategies 'validity' and 'subquery'. The default strategy is 'validity'.
 
-
 ### Validity
-
 
 The 'validity' strategy saves two columns in each history table, namely 'transaction_id' and 'end_transaction_id'. The names of these columns can be configured with configuration options `transaction_column_name` and `end_transaction_column_name`.
 
@@ -35,14 +31,13 @@ As with 'subquery' strategy for each inserted, updated and deleted entity SQLA-H
 
 With 'validity' strategy version traversal is very fast. When accessing previous version SQLA-History tries to find the version record where the primary keys match and end_transaction_id is the same as the transaction_id of the given version record. When accessing the next version SQLA-History tries to find the version record where the primary keys match and transaction_id is the same as the end_transaction_id of the given version record.
 
+**_Pros:_**
 
-***Pros:***
-  - Version traversal is much faster since no correlated subqueries are needed
+- Version traversal is much faster since no correlated subqueries are needed
 
+**_Cons:_**
 
-***Cons:***
-  - Updates, inserts and deletes are little bit slower
-
+- Updates, inserts and deletes are little bit slower
 
 ### Subquery
 
@@ -52,14 +47,13 @@ After each inserted, updated and deleted entity SQLA-History creates new version
 
 With 'subquery' strategy the version traversal is slow. When accessing previous and next versions of given version object needs correlated subqueries.
 
+**_Pros:_**
 
-***Pros:***
-  - Updates, inserts and deletes little bit faster than in 'validity' strategy
+- Updates, inserts and deletes little bit faster than in 'validity' strategy
 
-***Cons:***
-  - Version traversel much slower
+**_Cons:_**
 
-
+- Version traversel much slower
 
 ## Column exclusion and inclusion
 
@@ -80,25 +74,25 @@ With `exclude` configuration option you can define which entity attributes you w
 Here is a full list of configuration options:
 
 - base_classes (default: None)
-    A tuple defining history class base classes.
+  A tuple defining history class base classes.
 
 - table_name (default: '%s_version')
-    The name of the history table.
+  The name of the history table.
 
 - transaction_column_name (default: 'transaction_id')
-    The name of the transaction column (used by history tables).
+  The name of the transaction column (used by history tables).
 
 - end_transaction_column_name (default: 'end_transaction_id')
-    The name of the end transaction column in history table when using the validity versioning strategy.
+  The name of the end transaction column in history table when using the validity versioning strategy.
 
 - operation_type_column_name (default: 'operation_type')
-    The name of the operation type column (used by history tables).
+  The name of the operation type column (used by history tables).
 
 - strategy (default: 'validity')
-    The versioning strategy to use. Either 'validity' or 'subquery'
-
+  The versioning strategy to use. Either 'validity' or 'subquery'
 
 Example
+
 ```python
 >>> class Article(Base):
 ...     __versioned__ = {
@@ -113,7 +107,6 @@ Example
 ## Customizing transaction user class
 
 By default SQLA-History tries to build a relationship between 'User' class and Transaction class. If you have differently named user class you can simply pass its name to make_versioned:
-
 
 ```python
 >>> make_versioned(user_cls='MyUserClass')

@@ -2,7 +2,6 @@
 
 One of the major benefits of SQLAlchemy-History is its ability to revert changes.
 
-
 ## Revert update
 
 ```python
@@ -18,7 +17,6 @@ One of the major benefits of SQLAlchemy-History is its ability to revert changes
 'New article'
 ```
 
-
 ## Revert delete
 
 ```python
@@ -32,10 +30,10 @@ One of the major benefits of SQLAlchemy-History is its ability to revert changes
 >>> session.commit() # article lives again!
 >>> session.query(Article).first()
 ```
+
 ## Revert relationships
 
 Sometimes you may have cases where you want to revert an object as well as some of its relation to certain state. Consider the following model definition:
-
 
 ```python
 >>> class Article(Base):
@@ -54,7 +52,6 @@ Sometimes you may have cases where you want to revert an object as well as some 
 
 Now lets say some user first adds an article with couple of tags:
 
-
 ```python
 >>> article = Article(
 ...     name=u'Some article',
@@ -72,9 +69,7 @@ Then lets say another user deletes one of the tags:
 >>> session.commit()
 ```
 
-
 Now the first user wants to set the article back to its original state. It can be achieved as follows (notice how we use the relations parameter):
-
 
 ```python
 >>> article = session.query(Article).get(1)
