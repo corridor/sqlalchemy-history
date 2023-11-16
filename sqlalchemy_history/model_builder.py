@@ -242,8 +242,11 @@ class ModelBuilder(object):
             )
         else:
             name = "%sVersion" % (self.model.__name__,)
-        primary_keys = list(get_primary_keys(self.model).keys()) + ["transaction_id", "operation_type"]
-        return generic_repr(*primary_keys)(type(name, self.base_classes(), args))
+        version_cls = type(name, self.base_classes(), args)
+        if option(self.model, "base_classes") is None:
+            primary_keys = list(get_primary_keys(self.model).keys()) + ["transaction_id", "operation_type"]
+            version_cls = generic_repr(*primary_keys)(version_cls)
+        return version_cls
 
     def __call__(self, table, tx_class):
         """Build history model and relationships to parent model, transaction log model."""
