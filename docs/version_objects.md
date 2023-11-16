@@ -28,9 +28,9 @@ convenient constants for these values as shown below:
 >>> first_version.index
 >>> second_version = first_version.next
 >>> assert second_version == article.versions[1]
->>> second_version.previous == first_version 
+>>> second_version.previous == first_version
 True
->>> second_version.index 
+>>> second_version.index
 1
 ```
 
@@ -70,11 +70,10 @@ property which holds a dict of changed fields in that version.
 SQLAlchemy-History also provides a utility function called changeset. With this function
 you can easily check the changeset of given object in current transaction.
 
-
 ```python
 >>> from sqlalchemy_history import changeset
 >>> article = Article(name=u'Some article')
->>> changeset(article) 
+>>> changeset(article)
 {'name': [None, u'Some article']}
 ```
 
@@ -87,7 +86,6 @@ Lets say you have two models: Article and Category. Each Article has one Categor
 SQLA-History saves new ArticleVersion and CategoryVersion records in the background. After that we update the created article entity to use another category. SQLA-History creates new version objects accordingly.
 
 Lastly we check the category relations of different article versions.
-
 
 ```python
 >>> category = Category(name=u'Some category')
@@ -105,12 +103,9 @@ Lastly we check the category relations of different article versions.
 
 The logic how SQLAlchemy-History builds these relationships is within the RelationshipBuilder class.
 
-
 #### Relationships to non-versioned classes
 
-
 Let's take previous example of Articles and Categories. Now consider that only Article model is versioned:
-
 
 ```python
 >>> class Article(Base):
