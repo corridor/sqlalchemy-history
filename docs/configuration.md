@@ -75,6 +75,7 @@ Here is a full list of configuration options:
 
 - base_classes (default: None)
   A tuple defining history class base classes.
+  If base_classes is not specified version class is built through declarative base and a generic repr is added.
 
 - table_name (default: '%s_version')
   The name of the history table.
