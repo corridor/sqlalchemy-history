@@ -113,16 +113,16 @@ Primary reasons to create another library:
 We found multiple libraries which has an implementation of history tracking:
 
 1. [sqlalchemy-continuum](https://github.com/kvesteri/sqlalchemy-continuum)
-   - Does not support oracle, mssql
-   - Feature filled making it difficult to maintain all plugins/extensions
+    - Does not support oracle, mssql
+    - Feature filled making it difficult to maintain all plugins/extensions
 2. [flask-continuum](https://github.com/bprinty/flask-continuum)
-   - Thin wrapper on sqlalchemy-continuum specifically for flask
+    - Thin wrapper on sqlalchemy-continuum specifically for flask
 3. [postgresql-audit](https://github.com/kvesteri/postgresql-audit)
-   - Supports only postgres
+    - Supports only postgres
 4. [versionalchemy](https://github.com/NerdWalletOSS/versionalchemy)
-   - Not updated in a while
-   - No reverting capability, Relationship queries on history not available
+    - Not updated in a while
+    - No reverting capability, Relationship queries on history not available
 5. [django-simple-history](https://github.com/jazzband/django-simple-history)
-   - Uses django ORM, does not support sqlalchemy
+    - Uses django ORM, does not support sqlalchemy
 6. [sqlalchemy example versioning-objects](http://docs.sqlalchemy.org/en/latest/orm/examples.html#versioning-objects)
-   - Simple example to demonstrate implementation - but very minimal
+    - Simple example to demonstrate implementation - but very minimal
