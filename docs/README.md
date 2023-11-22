@@ -87,7 +87,7 @@ print(article.name) # 'Some article'
 
 ## Resources
 
-- [Documentation](https://sqlalchemy-continuum.readthedocs.io/)
+- [Documentation](https://corridor.github.io/sqlalchemy-history/)
 - [Issue Tracker](http://github.com/corridor/sqlalchemy-history/issues)
 - [Code](http://github.com/corridor/sqlalchemy-history/)
 
