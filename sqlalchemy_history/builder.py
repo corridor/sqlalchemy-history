@@ -215,12 +215,12 @@ class Builder(object):
         """
         for cls in version_classes:
             assoc_prox_maps = get_association_proxies(cls)
-            for key, prop in assoc_prox_maps.items():
+            for key in assoc_prox_maps.keys():
                 versioned_target_class = version_class(cls)
                 setattr(
                     versioned_target_class,
                     key,
-                    property(fget=prop.__get__),
+                    property(fget=getattr(cls, key).get),
                 )
 
     def create_hybrid_properties(self, version_classes):
