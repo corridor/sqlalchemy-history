@@ -10,7 +10,7 @@ class TestAssociationProxy(TestCase):
             __tablename__ = "article"
             __versioned__ = {}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255), nullable=False)
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
@@ -21,7 +21,7 @@ class TestAssociationProxy(TestCase):
             __tablename__ = "tag"
             __versioned__ = {}
 
-            id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+            id = sa.Column(sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
             article = sa.orm.relationship(Article, backref="tags")
@@ -43,3 +43,21 @@ class TestAssociationProxy(TestCase):
         """
         assert issubclass(type(self.Article.upanaam), sa.ext.associationproxy.AssociationProxyInstance)
         assert isinstance(version_class(self.Article).upanaam, property)
+
+    def test_association_proxy_retrieval(self):
+        tag = self.Tag(name="tag1")
+        self.session.add(tag)
+        article = self.Article(name="article1", tags=[tag])
+        self.session.add(article)
+        self.session.commit()
+        tag2 = self.Tag(name="tag2")
+        self.session.add(tag2)
+        article.tags += [tag2]
+        article.name = "updated"
+        self.session.add(article)
+        self.session.commit()
+        assert article.versions.count() == 2
+        assert len(article.versions.all()[0].tags) == 1
+        assert len(article.versions.all()[1].tags) == 2
+        assert set(article.versions.all()[0].upanaam) == {"tag1"}
+        assert set(article.versions.all()[1].upanaam) == {"tag1", "tag2"}
