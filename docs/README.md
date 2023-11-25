@@ -58,9 +58,9 @@ For completeness, below is a working example.
 from sqlalchemy_history import make_versioned
 from sqlalchemy import Column, Integer, Unicode, UnicodeText, create_engine
 try:
-   from sqlalchemy.ext.declarative import declarative_base
-except ImportError:  # sqla > 2.x
    from sqlalchemy.orm import declarative_base
+except ImportError:  # sqla < 2.x
+   from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import create_session, configure_mappers
 make_versioned(user_cls=None)
 Base = declarative_base()
