@@ -8,8 +8,8 @@ class TestVersionModelBuilder(TestCase):
     def test_parent_has_access_to_versioning_manager(self):
         assert self.Article.__versioning_manager__
 
-class TestGenericReprModelBuilder(TestCase):
 
+class TestGenericReprModelBuilder(TestCase):
     @property
     def options(self):
         return {
@@ -27,8 +27,8 @@ class TestGenericReprModelBuilder(TestCase):
         self.session.commit()
         assert repr(article.versions[0]) == "ArticleVersion(id=1, transaction_id=1, operation_type=0)"
 
-class TestNoGenericReprModelBuilder(TestCase):
 
+class TestNoGenericReprModelBuilder(TestCase):
     @property
     def options(self):
         class ReprMixin:
@@ -37,7 +37,7 @@ class TestNoGenericReprModelBuilder(TestCase):
 
         return {
             "create_models": self.should_create_models,
-            "base_classes": (self.Model,ReprMixin),
+            "base_classes": (self.Model, ReprMixin),
             "strategy": self.versioning_strategy,
             "transaction_column_name": self.transaction_column_name,
             "end_transaction_column_name": self.end_transaction_column_name,
