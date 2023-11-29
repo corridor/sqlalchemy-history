@@ -1,135 +1,135 @@
 name: "Test"
 
 on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - "docs/**"
-  pull_request:
-    paths-ignore:
-      - "docs/**"
+    push:
+        branches:
+            - master
+        paths-ignore:
+            - "docs/**"
+    pull_request:
+        paths-ignore:
+            - "docs/**"
 
 jobs:
-  test-sqlalchemy-history:
-    name: test-python${{ matrix.python-version }}-${{ matrix.DB }}-sqla${{ matrix.sqla }}
-    strategy:
-      matrix:
-        python-version:
-          - "3.7"
-          - "3.11"
-        DB:
-          - "sqlite"
-          - "mssql"
-          - "mysql"
-          - "oracle"
-          - "postgres"
-        sqla:
-          - ">=1.4,<2"
-          - ">=2"
-    services:
-      mysql:
-        image: mysql
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_DATABASE: sqlalchemy_history_test
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
-        options: >-
-          --health-cmd "mysqladmin ping"
-          --health-interval 5s
-          --health-timeout 2s
-          --health-retries 3
-      postgres:
-        image: postgres
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: sqlalchemy_history_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 5s
-          --health-timeout 2s
-          --health-retries 3
-      mssql:
-        image: mcr.microsoft.com/mssql/server:2017-latest # https://mcr.microsoft.com/en-us/product/mssql/server/about
-        ports:
-          - 1433:1433
-        env:
-          MSSQL_SA_PASSWORD: MSsql2022
-          ACCEPT_EULA: N
-        options: >-
-          --health-cmd "/opt/mssql-tools/bin/sqlcmd -U $DB_USER -P $SA_PASSWORD -Q 'select 1' -b -o /dev/null"
-          --health-interval 5s
-          --health-timeout 2s
-          --health-retries 3
-      oracle:
-        image: gvenzl/oracle-xe:21
-        ports:
-          - 1521:1521
-        env:
-          ORACLE_PASSWORD: Oracle2022
-        options: >-
-          --health-cmd healthcheck.sh
-          --health-interval 30s
-          --health-timeout 15s
-          --health-retries 5
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v1
-      - name: Install Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install Project
-        run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade poetry 
-          poetry install
-          pip install 'sqlalchemy${{ matrix.sqla }}'
-      - name: install oracle dependencies
-        if: ${{ matrix.DB == 'oracle' }}
-        run:
-          | # https://cx-oracle.readthedocs.io/en/latest/user_guide/installation.html#installing-cx-oracle-on-linux
-          mkdir -p /opt/oracle
-          cd /opt/oracle
-          wget https://download.oracle.com/otn_software/linux/instantclient/218000/instantclient-basic-linux.x64-21.8.0.0.0dbru.zip
-          unzip /opt/oracle/instantclient-basic-linux.x64-21.8.0.0.0dbru.zip
-          sudo apt-get install libaio1
-          echo "LD_LIBRARY_PATH=/opt/oracle/instantclient_21_8/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> $GITHUB_ENV
-      - name: Run tests
-        run: |
-          poetry run pytest -x --cov --cov-report=lcov
-        env:
-          DB: ${{ matrix.DB }}
-      - name: send coverage data to Coveralls
-        env:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-        uses: coverallsapp/github-action@v2
-        with:
-          file: ./coverage.lcov
-          flag-name: lcov-${{ matrix.DB }}-py${{ matrix.python-version }}-sqla${{ matrix.sqla }}
-          parallel: true
-          
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Black Validation
-        uses: psf/black@stable
-        with:
-          version: "23.3.0" # Last version which can be used in py3.7
-      - uses: actions/checkout@v3
-      - name: ruff-action
-        uses: chartboost/ruff-action@v1
-               
-  generate-coverage-report:
-    runs-on: ubuntu-20.04
-    needs: [test-sqlalchemy-history]
-    steps:
-      - name: Coveralls
-        env:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-        uses: coverallsapp/github-action@v2
-        with:
-          parallel-finished: true
+    test-sqlalchemy-history:
+        name: test-python${{ matrix.python-version }}-${{ matrix.DB }}-sqla${{ matrix.sqla }}
+        strategy:
+            matrix:
+                python-version:
+                    - "3.7"
+                    - "3.11"
+                DB:
+                    - "sqlite"
+                    - "mssql"
+                    - "mysql"
+                    - "oracle"
+                    - "postgres"
+                sqla:
+                    - ">=1.4,<2"
+                    - ">=2"
+        services:
+            mysql:
+                image: mysql
+                ports:
+                    - 3306:3306
+                env:
+                    MYSQL_DATABASE: sqlalchemy_history_test
+                    MYSQL_ALLOW_EMPTY_PASSWORD: yes
+                options: >-
+                    --health-cmd "mysqladmin ping"
+                    --health-interval 5s
+                    --health-timeout 2s
+                    --health-retries 3
+            postgres:
+                image: postgres
+                ports:
+                    - 5432:5432
+                env:
+                    POSTGRES_PASSWORD: postgres
+                    POSTGRES_DB: sqlalchemy_history_test
+                options: >-
+                    --health-cmd pg_isready
+                    --health-interval 5s
+                    --health-timeout 2s
+                    --health-retries 3
+            mssql:
+                image: mcr.microsoft.com/mssql/server:2017-latest # https://mcr.microsoft.com/en-us/product/mssql/server/about
+                ports:
+                    - 1433:1433
+                env:
+                    MSSQL_SA_PASSWORD: MSsql2022
+                    ACCEPT_EULA: N
+                options: >-
+                    --health-cmd "/opt/mssql-tools/bin/sqlcmd -U $DB_USER -P $SA_PASSWORD -Q 'select 1' -b -o /dev/null"
+                    --health-interval 5s
+                    --health-timeout 2s
+                    --health-retries 3
+            oracle:
+                image: gvenzl/oracle-xe:21
+                ports:
+                    - 1521:1521
+                env:
+                    ORACLE_PASSWORD: Oracle2022
+                options: >-
+                    --health-cmd healthcheck.sh
+                    --health-interval 30s
+                    --health-timeout 15s
+                    --health-retries 5
+        runs-on: ubuntu-20.04
+        steps:
+            - uses: actions/checkout@v1
+            - name: Install Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: ${{ matrix.python-version }}
+            - name: Install Project
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install --upgrade poetry 
+                  poetry install
+                  pip install 'sqlalchemy${{ matrix.sqla }}'
+            - name: install oracle dependencies
+              if: ${{ matrix.DB == 'oracle' }}
+              run:
+                  | # https://cx-oracle.readthedocs.io/en/latest/user_guide/installation.html#installing-cx-oracle-on-linux
+                  mkdir -p /opt/oracle
+                  cd /opt/oracle
+                  wget https://download.oracle.com/otn_software/linux/instantclient/218000/instantclient-basic-linux.x64-21.8.0.0.0dbru.zip
+                  unzip /opt/oracle/instantclient-basic-linux.x64-21.8.0.0.0dbru.zip
+                  sudo apt-get install libaio1
+                  echo "LD_LIBRARY_PATH=/opt/oracle/instantclient_21_8/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> $GITHUB_ENV
+            - name: Run tests
+              run: |
+                  poetry run pytest -x --cov --cov-report=lcov
+              env:
+                  DB: ${{ matrix.DB }}
+            - name: send coverage data to Coveralls
+              env:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+              uses: coverallsapp/github-action@v2
+              with:
+                  file: ./coverage.lcov
+                  flag-name: sqlalchemy-history
+                  parallel: true
+
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Black Validation
+              uses: psf/black@stable
+              with:
+                  version: "23.3.0" # Last version which can be used in py3.7
+            - uses: actions/checkout@v3
+            - name: ruff-action
+              uses: chartboost/ruff-action@v1
+
+    generate-coverage-report:
+        runs-on: ubuntu-20.04
+        needs: [test-sqlalchemy-history]
+        steps:
+            - name: Coveralls
+              env:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+              uses: coverallsapp/github-action@v2
+              with:
+                  parallel-finished: true
