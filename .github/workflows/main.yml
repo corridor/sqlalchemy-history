@@ -119,6 +119,7 @@ jobs:
               uses: psf/black@stable
               with:
                   version: "23.3.0" # Last version which can be used in py3.7
+                  options: "--check --verbose"
             - uses: actions/checkout@v3
             - name: ruff-action
               uses: chartboost/ruff-action@v1
