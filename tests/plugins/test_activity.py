@@ -1,3 +1,4 @@
+import pytest
 import sqlalchemy as sa
 from sqlalchemy_history import versioning_manager
 from sqlalchemy_history.plugins import ActivityPlugin
@@ -34,8 +35,8 @@ class ActivityTestCase(TestCase):
         )
         self.session.add(activity)
         return activity
-
-
+# ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
+@pytest.mark.skipif(str(sa.__version__).startswith('2.'), reason="sqla-utils generic relations has issue with sqla 2.x")
 class TestActivityNotId(ActivityTestCase):
     def create_models(self):
         TestCase.create_models(self)
@@ -62,8 +63,8 @@ class TestActivityNotId(ActivityTestCase):
         assert activity.transaction_id
         assert activity.object == not_id_model
         assert activity.object_version == not_id_model.versions.all()[-1]
-
-
+# ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
+@pytest.mark.skipif(str(sa.__version__).startswith('2.'), reason="sqla-utils generic relations has issue with sqla 2.x")
 class TestActivity(ActivityTestCase):
     def test_creates_activity_class(self):
         assert versioning_manager.activity_cls.__name__ == "Activity"
@@ -122,7 +123,8 @@ class TestActivity(ActivityTestCase):
         )
         assert activities.count() == 2
 
-
+# ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
+@pytest.mark.skipif(str(sa.__version__).startswith('2.'), reason="sqla-utils generic relations has issue with sqla 2.x")
 class TestObjectTxIdGeneration(ActivityTestCase):
     def test_does_not_query_db_if_version_obj_in_session(self):
         article = self.create_article()
@@ -144,7 +146,8 @@ class TestObjectTxIdGeneration(ActivityTestCase):
         assert activity.object == article
         assert activity.object_version == article.versions.all()[-1]
 
-
+# ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
+@pytest.mark.skipif(str(sa.__version__).startswith('2.'), reason="sqla-utils generic relations has issue with sqla 2.x")
 class TestTargetTxIdGeneration(ActivityTestCase):
     def test_does_not_query_db_if_version_obj_in_session(self):
         article = self.create_article()
