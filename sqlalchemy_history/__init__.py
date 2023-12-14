@@ -31,7 +31,7 @@ from sqlalchemy_history.utils import (  # noqa: F401
 )
 
 
-__version__ = "2.1.1"
+__version__ = "2.1.2"
 
 
 versioning_manager = VersioningManager()
