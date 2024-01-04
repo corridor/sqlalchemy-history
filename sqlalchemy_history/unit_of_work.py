@@ -21,6 +21,16 @@ class UnitOfWork(object):
         self.manager = manager
         self.reset()
 
+    def create_version_session(self, session):
+        """
+        In SQLA-2.0, when using an existing connection with savepoint, Set join_transaction_mode="rollback_only"
+        to replicate the rollback() behavior from SQLA-1.4
+        """
+        try:
+            return sa.orm.session.Session(bind=session.connection(), join_transaction_mode="rollback_only")
+        except TypeError:
+            return sa.orm.session.Session(bind=session.connection())
+
     def reset(self, session=None):
         """Reset the internal state of this UnitOfWork object.
         Normally this is called after transaction has been committed or rolled back.
@@ -65,7 +75,7 @@ class UnitOfWork(object):
             return
 
         if not self.version_session:
-            self.version_session = sa.orm.session.Session(bind=session.connection())
+            self.version_session = self.create_version_session(session)
 
         if not self.current_transaction:
             self.create_transaction(session)
@@ -88,7 +98,7 @@ class UnitOfWork(object):
             return
 
         if not self.version_session:
-            self.version_session = sa.orm.session.Session(bind=session.connection())
+            self.version_session = self.create_version_session(session)
 
         self.make_versions(session)
 
@@ -112,7 +122,7 @@ class UnitOfWork(object):
         for key, value in args.items():
             setattr(self.current_transaction, key, value)
         if not self.version_session:
-            self.version_session = sa.orm.session.Session(bind=session.connection())
+            self.version_session = self.create_version_session(session)
         self.version_session.add(self.current_transaction)
         self.version_session.flush()
         self.version_session.expunge(self.current_transaction)
