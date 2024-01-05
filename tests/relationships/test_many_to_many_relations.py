@@ -399,7 +399,14 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
                     #       so we just try to create if fails we continue
                     raise
         finally:
-            self.connection.commit()
+            try:
+                # NOTE: Sqlalchemy >= 2.0.0 requires user to explicitly do commit for a given transaction
+                # ref: https://docs.sqlalchemy.org/en/20/core/connections.html#commit-as-you-go
+                self.connection.commit()
+            except AttributeError:
+                # Sqlalchemy < 2.0.0 does not have commit available to connection as executes does commit
+                # automatically for a given ongoing transaction.
+                pass
 
         TestManyToManySelfReferential.create_tables(self)
 
@@ -466,7 +473,14 @@ class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTe
                     #       so we just try to create if fails we continue
                     raise
         finally:
-            self.connection.commit()
+            try:
+                # NOTE: Sqlalchemy >= 2.0.0 requires user to explicitly do commit for a given transaction
+                # ref: https://docs.sqlalchemy.org/en/20/core/connections.html#commit-as-you-go
+                self.connection.commit()
+            except AttributeError:
+                # Sqlalchemy < 2.0.0 does not have commit available to connection as executes does commit
+                # automatically for a given ongoing transaction.
+                pass
         ManyToManyRelationshipsTestCase.create_tables(self)
 
 

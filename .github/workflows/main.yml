@@ -87,7 +87,7 @@ jobs:
                   python -m pip install --upgrade pip
                   pip install --upgrade poetry 
                   poetry install
-                  pip install 'sqlalchemy${{ matrix.sqla }}'
+                  poetry add 'sqlalchemy${{ matrix.sqla }}'
             - name: install oracle dependencies
               if: ${{ matrix.DB == 'oracle' }}
               run:
