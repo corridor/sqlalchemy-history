@@ -103,6 +103,7 @@ jobs:
                   poetry run pytest -x --cov --cov-report=lcov
               env:
                   DB: ${{ matrix.DB }}
+                  SQLA_20_WARNING: 1
             - name: send coverage data to Coveralls
               env:
                   github-token: ${{ secrets.GITHUB_TOKEN }}

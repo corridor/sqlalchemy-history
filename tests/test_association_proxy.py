@@ -50,7 +50,6 @@ class TestAssociationProxy(TestCase):
 
     def test_association_proxy_retrieval(self):
         tag = self.Tag(name="tag1")
-        self.session.add(tag)
         article = self.Article(name="article1", tags=[tag])
         self.session.add(article)
         self.session.commit()
