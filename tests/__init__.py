@@ -118,7 +118,7 @@ class TestCase(object):
     @pytest.fixture(autouse=True)
     def setup_session(self, setup_tables):
         Session = sessionmaker(bind=self.connection)
-        self.session = Session(autoflush=False)
+        self.session = Session(autoflush=False, future=True)
         yield
         self.session.rollback()
         uow_leaks = versioning_manager.units_of_work
