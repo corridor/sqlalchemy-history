@@ -1,9 +1,8 @@
 """Transaction model makes transactions for history tables
 """
 
-from datetime import datetime
-
 from collections import OrderedDict
+import datetime
 import sqlalchemy as sa
 from sqlalchemy.ext.compiler import compiles
 
@@ -17,7 +16,7 @@ def compile_big_integer(element, compiler, **kw):
 
 
 class TransactionBase(object):
-    issued_at = sa.Column(sa.DateTime, default=datetime.utcnow)
+    issued_at = sa.Column(sa.DateTime, default=datetime.datetime.now(datetime.timezone.utc))
 
     @property
     def entity_names(self):

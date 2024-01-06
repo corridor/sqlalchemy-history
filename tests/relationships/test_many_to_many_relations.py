@@ -1,9 +1,10 @@
-import os
 import datetime
+import os
 
 import sqlalchemy as sa
 from pytest import mark
 from sqlalchemy_history import versioning_manager
+
 
 from tests import TestCase, create_test_cases
 
@@ -34,7 +35,7 @@ class ManyToManyRelationshipsTestCase(TestCase):
                 sa.DateTime,
                 nullable=False,
                 server_default=sa.func.current_timestamp(),
-                default=datetime.datetime.utcnow,
+                default=datetime.datetime.now(datetime.timezone.utc),
             ),
         )
 
