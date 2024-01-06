@@ -4,6 +4,7 @@ from sqlalchemy_history import version_class
 from sqlalchemy_history.utils import version_table
 from sqlalchemy_history.schema import update_end_tx_column
 from sqlalchemy_history.operation import Operation
+
 from tests import TestCase, create_test_cases
 
 
@@ -24,7 +25,7 @@ class UpdateEndTransactionID(TestCase):
                 sa.DateTime,
                 nullable=False,
                 server_default=sa.func.current_timestamp(),
-                default=datetime.datetime.utcnow,
+                default=datetime.datetime.now(datetime.timezone.utc)
             ),
         )
 

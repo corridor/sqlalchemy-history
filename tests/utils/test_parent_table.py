@@ -1,5 +1,5 @@
-import datetime
 
+import datetime
 import pytest
 import sqlalchemy as sa
 from sqlalchemy_history.utils import parent_table, version_table
@@ -23,7 +23,7 @@ class TestParentTable(TestCase):
                 sa.DateTime,
                 nullable=False,
                 server_default=sa.func.current_timestamp(),
-                default=datetime.datetime.utcnow,
+                default=datetime.datetime.now(datetime.timezone.utc)
             ),
         )
 
