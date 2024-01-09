@@ -9,7 +9,7 @@ version = "2.1.2"
 authors = ["Corridor Platforms <postmaster@corridorplatforms.com>"]
 license = "Apache-2.0, BSD-3-Clause"
 readme = "docs/README.md"
-packages = [{include = "sqlalchemy_history"}, {include = "sqlalchemy_history/plugins"}]
+packages = [{include = "sqlalchemy_history"}]
 repository = "https://github.com/corridor/sqlalchemy-history"
 classifiers=[
     "Intended Audience :: Developers",
