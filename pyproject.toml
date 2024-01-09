@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "SQLAlchemy-History"
 description = "History tracking extension for SQLAlchemy."
-version = "2.1.2"
+version = "0"
 authors = ["Corridor Platforms <postmaster@corridorplatforms.com>"]
 license = "Apache-2.0, BSD-3-Clause"
 readme = "docs/README.md"
@@ -50,3 +50,6 @@ target-version = ['py37']
 [tool.coverage.run]
 dynamic_context = "test_function"
 branch = true
+
+[tool.poetry-version-plugin]
+source = "init"
