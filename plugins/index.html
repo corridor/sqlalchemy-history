@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Corridor" /><link rel="canonical" href="https://corridor.github.io/sqlalchemy-history/plugins/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Plugins - SQLAlchemy-History</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Plugins";
+        var mkdocs_page_input_path = "plugins.md";
+        var mkdocs_page_url = "/sqlalchemy-history/plugins/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> SQLAlchemy-History
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../alembic/">Alembic migrations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../api/">API Documentation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../configuration/">Configuration</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Plugins</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#activity">Activity</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sqlalchemy_history.plugins.activity">sqlalchemy_history.plugins.activity</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#sqlalchemy_history.plugins.activity--limitations">Limitations</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sqlalchemy_history.plugins.activity--create-activities">Create activities</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sqlalchemy_history.plugins.activity--update-activities">Update activities</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sqlalchemy_history.plugins.activity--delete-activities">Delete activities</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sqlalchemy_history.plugins.activity--local-version-histories-using-targets">Local version histories using targets</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sqlalchemy_history.plugins.activity--also-read">Also Read</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sqlalchemy_history.plugins.activity.ActivityFactory">ActivityFactory</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#sqlalchemy_history.plugins.activity.ActivityFactory.create_class">create_class()</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sqlalchemy_history.plugins.activity.ActivityPlugin">ActivityPlugin</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#sqlalchemy_history.plugins.activity.ActivityPlugin.is_session_modified">is_session_modified()</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#propertymodtracker">PropertyModTracker</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sqlalchemy_history.plugins.property_mod_tracker">sqlalchemy_history.plugins.property_mod_tracker</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#transactionchanges">TransactionChanges</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sqlalchemy_history.plugins.transaction_changes">sqlalchemy_history.plugins.transaction_changes</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sqlalchemy_history.plugins.transaction_changes.TransactionChangesFactory">TransactionChangesFactory</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#sqlalchemy_history.plugins.transaction_changes.TransactionChangesFactory.create_class">create_class()</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#transactionmeta">TransactionMeta</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sqlalchemy_history.plugins.transaction_meta">sqlalchemy_history.plugins.transaction_meta</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sqlalchemy_history.plugins.transaction_meta.TransactionMetaFactory">TransactionMetaFactory</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#sqlalchemy_history.plugins.transaction_meta.TransactionMetaFactory.create_class">create_class()</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../queries/">Queries</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../revert/">Reverting changes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../schema/">Schema</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../transactions/">Transactions</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../tutorials/">Tutorial</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../utilities/">Utilities</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../version_objects/">Version objects</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">SQLAlchemy-History</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+      <li>Plugins</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/corridor/sqlalchemy-history/edit/master/docs/plugins.md">Edit on sqlalchemy-history</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="plugins">Plugins</h1>
+<pre><code class="language-python">&gt;&gt;&gt; from sqlalchemy_history.plugins import PropertyModTrackerPlugin
+&gt;&gt;&gt; versioning_manager.plugins.append(PropertyModTrackerPlugin())
+&gt;&gt;&gt; versioning_manager.plugins
+&lt;PluginCollection [...]&gt;
+&gt;&gt;&gt; del versioning_manager.plugins[0] # You can also remove plugin
+</code></pre>
+<h2 id="activity">Activity</h2>
+
+
+<div class="doc doc-object doc-module">
+
+
+<a id="sqlalchemy_history.plugins.activity"></a>
+  <div class="doc doc-contents first">
+  
+      <p>The ActivityPlugin is the most powerful plugin for tracking changes of individual entities.</p>
+<p>If you use ActivityPlugin you probably don't need to use
+TransactionChanges nor TransactionMeta plugins.</p>
+<p>You can initalize the ActivityPlugin by adding it to versioning manager.</p>
+<pre><code class="language-python">&gt;&gt;&gt; activity_plugin = ActivityPlugin()
+&gt;&gt;&gt; make_versioned(plugins=[activity_plugin])
+</code></pre>
+<p>ActivityPlugin uses single database table for tracking activities. This table
+follows the data structure in <code>activity stream specification</code>_, but it comes
+with a nice twist:</p>
+<pre><code>|Column          |Type        |Description
+|:-------------: |:---------: |:------------:
+|id              |BigInteger  |The primary key of the activity
+|verb            |Unicode     |Verb defines the action of the activity
+|data            |JSON        |Additional data for the activity in JSON format
+|transaction_id  |BigInteger  |The transaction this activity was associated with
+|object_id       |BigInteger  |The primary key of the object. Object can be any entity which has an integer as primary key.
+|object_type     |Unicode     |The type of the object (class name as string)
+|object_tx_id    |BigInteger  |The last transaction_id associated with the object. This is used for efficiently fetching the object version associated with this activity.
+|target_id       |BigInteger  |The primary key of the target. Target can be any entity which has an integer as primary key.
+|target_type     |Unicode     |The of the target (class name as string)
+|target_tx_id    |BigInteger  |The last transaction_id associated with the target.
+</code></pre>
+<p>Each Activity has relationships to actor, object and target but it also holds
+information about the associated transaction and about the last associated
+transactions with the target and object. This allows each activity to also have
+object_version and target_version relationships for introspecting what those
+objects and targets were in given point in time. All these relationship
+properties use <code>generic relationships</code>_ of the SQLAlchemy-Utils package.</p>
+<h5 id="sqlalchemy_history.plugins.activity--limitations">Limitations</h5>
+<p>Currently all changes to parent models must be flushed or committed before
+creating activities. This is due to a fact that there is still no dependency
+processors for generic relationships. So when you create activities and assign
+objects / targets for those please remember to flush the session before
+creating an activity::</p>
+<pre><code class="language-python">&gt;&gt;&gt; article = Article(name=u'Some article')
+&gt;&gt;&gt; session.add(article)
+&gt;&gt;&gt; session.flush()  # &lt;- IMPORTANT!
+&gt;&gt;&gt; first_activity = Activity(verb=u'create', object=article)
+&gt;&gt;&gt; session.add(first_activity)
+&gt;&gt;&gt; session.commit()
+</code></pre>
+<p>Targets and objects of given activity must have an integer primary key
+column id.</p>
+<h5 id="sqlalchemy_history.plugins.activity--create-activities">Create activities</h5>
+<p>Once your models have been configured you can get the Activity model from the
+ActivityPlugin class with activity_cls property::</p>
+<pre><code class="language-python">    Activity = activity_plugin.activity_cls
+</code></pre>
+<p>Now let's say we have model called Article and Category. Each Article has one
+Category. Activities should be created along with the changes you make on
+these models.</p>
+<pre><code class="language-python">&gt;&gt;&gt; article = Article(name=u'Some article')
+&gt;&gt;&gt; session.add(article)
+&gt;&gt;&gt; session.flush()
+&gt;&gt;&gt; first_activity = Activity(verb=u'create', object=article)
+&gt;&gt;&gt; session.add(first_activity)
+&gt;&gt;&gt; session.commit()
+</code></pre>
+<p>Current transaction gets automatically assigned to activity object::</p>
+<pre><code class="language-python">&gt;&gt;&gt; first_activity.transaction  # Transaction object
+</code></pre>
+<h5 id="sqlalchemy_history.plugins.activity--update-activities">Update activities</h5>
+<p>The object property of the Activity object holds the current object and the
+object_version holds the object version at the time when the activity was
+created.</p>
+<pre><code class="language-python">&gt;&gt;&gt; article.name = u'Some article updated!'
+&gt;&gt;&gt; session.flush()
+&gt;&gt;&gt; second_activity = Activity(verb=u'update', object=article)
+&gt;&gt;&gt; session.add(second_activity)
+&gt;&gt;&gt; session.commit()
+&gt;&gt;&gt; second_activity.object.name  # u'Some article updated!'
+&gt;&gt;&gt; first_activity.object.name  # u'Some article updated!'
+&gt;&gt;&gt; first_activity.object_version.name  # u'Some article'
+</code></pre>
+<h5 id="sqlalchemy_history.plugins.activity--delete-activities">Delete activities</h5>
+<p>The version properties are especially useful for delete activities. Once the
+activity is fetched from the database the object is no longer available (
+since its deleted), hence the only way we could show some information about the
+object the user deleted is by accessing the object_version property.</p>
+<pre><code class="language-python">&gt;&gt;&gt; session.delete(article)
+&gt;&gt;&gt; session.flush()
+&gt;&gt;&gt; third_activity = Activity(verb=u'delete', object=article)
+&gt;&gt;&gt; session.add(third_activity)
+&gt;&gt;&gt; session.commit()
+&gt;&gt;&gt; third_activity.object_version.name  # u'Some article updated!'
+</code></pre>
+<h5 id="sqlalchemy_history.plugins.activity--local-version-histories-using-targets">Local version histories using targets</h5>
+<p>The target property of the Activity model offers a way of tracking changes of
+given related object. In the example below we create a new activity when adding
+a category for article and then mark the article as the target of this
+activity.</p>
+<pre><code class="language-python">&gt;&gt;&gt; session.add(Category(name=u'Fist category', article=article))
+&gt;&gt;&gt; session.flush()
+&gt;&gt;&gt; activity = Activity(
+...     verb=u'create',
+...     object=category,
+...     target=article
+...     )
+&gt;&gt;&gt; session.add(activity)
+&gt;&gt;&gt; session.commit()
+</code></pre>
+<p>Now if we wanted to find all the changes that affected given article we could
+do so by searching through all the activities where either the object or
+target is the given article.</p>
+<pre><code class="language-python">&gt;&gt;&gt; import sqlalchemy as sa
+&gt;&gt;&gt; activities = session.query(Activity).filter(
+...     sa.or_(
+...         Activity.object == article,
+...         Activity.target == article
+...     )
+... )
+</code></pre>
+<h5 id="sqlalchemy_history.plugins.activity--also-read">Also Read</h5>
+<ul>
+<li><a href="http://www.activitystrea.ms">_activity stream specification</a></li>
+<li><a href="https://sqlalchemy-utils.readthedocs.io/en/latest/generic_relationship.html">_generic relationships</a></li>
+</ul>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="sqlalchemy_history.plugins.activity.ActivityFactory" class="doc doc-heading">
+          <code>ActivityFactory</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="sqlalchemy_history.factory.ModelFactory">ModelFactory</span></code></p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>sqlalchemy_history/plugins/activity.py</code></summary>
+              <pre class="highlight"><code class="language-python">class ActivityFactory(ModelFactory):
+    model_name = "Activity"
+
+    def create_class(self, manager):
+        """Create Activity class.
+
+        :param manager:
+
+        """
+
+        class Activity(manager.declarative_base, ActivityBase):
+            __tablename__ = "activity"
+            manager = self
+
+            transaction_id = sa.Column(sa.BigInteger, index=True, nullable=False)
+
+            data = sa.Column(JSONType)
+
+            object_type = sa.Column(sa.String(255))
+
+            object_id = sa.Column(sa.BigInteger)
+
+            object_tx_id = sa.Column(sa.BigInteger)
+
+            target_type = sa.Column(sa.String(255))
+
+            target_id = sa.Column(sa.BigInteger)
+
+            target_tx_id = sa.Column(sa.BigInteger)
+
+            def _calculate_tx_id(self, obj):
+                session = sa.orm.object_session(self)
+                if obj:
+                    object_version = version_obj(session, obj)
+                    if object_version:
+                        return object_version.transaction_id
+
+                    model = obj.__class__
+                    version_cls = version_class(model)
+                    primary_key = inspect(model).primary_key[0].name
+                    return (
+                        session.query(sa.func.max(version_cls.transaction_id))
+                        .filter(getattr(version_cls, primary_key) == getattr(obj, primary_key))
+                        .scalar()
+                    )
+
+            def calculate_object_tx_id(self):
+                self.object_tx_id = self._calculate_tx_id(self.object)
+
+            def calculate_target_tx_id(self):
+                self.target_tx_id = self._calculate_tx_id(self.target)
+
+            object = generic_relationship(object_type, object_id)
+
+            @hybrid_property
+            def object_version_type(self):
+                return self.object_type + "Version"
+
+            @object_version_type.expression
+            def object_version_type(cls):
+                return sa.func.concat(cls.object_type, "Version")
+
+            object_version = generic_relationship(object_version_type, (object_id, object_tx_id))
+
+            target = generic_relationship(target_type, target_id)
+
+            @hybrid_property
+            def target_version_type(self):
+                return self.target_type + "Version"
+
+            @target_version_type.expression
+            def target_version_type(cls):
+                return sa.func.concat(cls.target_type, "Version")
+
+            target_version = generic_relationship(target_version_type, (target_id, target_tx_id))
+
+        Activity.transaction = sa.orm.relationship(
+            manager.transaction_cls,
+            backref=sa.orm.backref(
+                "activities",
+            ),
+            primaryjoin=("%s.id == Activity.transaction_id" % manager.transaction_cls.__name__),
+            foreign_keys=[Activity.transaction_id],
+        )
+        return Activity</code></pre>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="sqlalchemy_history.plugins.activity.ActivityFactory.create_class" class="doc doc-heading">
+<code class="highlight language-python">create_class(manager)</code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create Activity class.</p>
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b>manager</b>
+              –
+              <div class="doc-md-description">
+                
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+          <details class="quote">
+            <summary> <code>sqlalchemy_history/plugins/activity.py</code></summary>
+            <pre class="highlight"><code class="language-python">def create_class(self, manager):
+    """Create Activity class.
+
+    :param manager:
+
+    """
+
+    class Activity(manager.declarative_base, ActivityBase):
+        __tablename__ = "activity"
+        manager = self
+
+        transaction_id = sa.Column(sa.BigInteger, index=True, nullable=False)
+
+        data = sa.Column(JSONType)
+
+        object_type = sa.Column(sa.String(255))
+
+        object_id = sa.Column(sa.BigInteger)
+
+        object_tx_id = sa.Column(sa.BigInteger)
+
+        target_type = sa.Column(sa.String(255))
+
+        target_id = sa.Column(sa.BigInteger)
+
+        target_tx_id = sa.Column(sa.BigInteger)
+
+        def _calculate_tx_id(self, obj):
+            session = sa.orm.object_session(self)
+            if obj:
+                object_version = version_obj(session, obj)
+                if object_version:
+                    return object_version.transaction_id
+
+                model = obj.__class__
+                version_cls = version_class(model)
+                primary_key = inspect(model).primary_key[0].name
+                return (
+                    session.query(sa.func.max(version_cls.transaction_id))
+                    .filter(getattr(version_cls, primary_key) == getattr(obj, primary_key))
+                    .scalar()
+                )
+
+        def calculate_object_tx_id(self):
+            self.object_tx_id = self._calculate_tx_id(self.object)
+
+        def calculate_target_tx_id(self):
+            self.target_tx_id = self._calculate_tx_id(self.target)
+
+        object = generic_relationship(object_type, object_id)
+
+        @hybrid_property
+        def object_version_type(self):
+            return self.object_type + "Version"
+
+        @object_version_type.expression
+        def object_version_type(cls):
+            return sa.func.concat(cls.object_type, "Version")
+
+        object_version = generic_relationship(object_version_type, (object_id, object_tx_id))
+
+        target = generic_relationship(target_type, target_id)
+
+        @hybrid_property
+        def target_version_type(self):
+            return self.target_type + "Version"
+
+        @target_version_type.expression
+        def target_version_type(cls):
+            return sa.func.concat(cls.target_type, "Version")
+
+        target_version = generic_relationship(target_version_type, (target_id, target_tx_id))
+
+    Activity.transaction = sa.orm.relationship(
+        manager.transaction_cls,
+        backref=sa.orm.backref(
+            "activities",
+        ),
+        primaryjoin=("%s.id == Activity.transaction_id" % manager.transaction_cls.__name__),
+        foreign_keys=[Activity.transaction_id],
+    )
+    return Activity</code></pre>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="sqlalchemy_history.plugins.activity.ActivityPlugin" class="doc doc-heading">
+          <code>ActivityPlugin</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="sqlalchemy_history.plugins.base.Plugin">Plugin</span></code></p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>sqlalchemy_history/plugins/activity.py</code></summary>
+              <pre class="highlight"><code class="language-python">class ActivityPlugin(Plugin):
+    activity_cls = None
+
+    def after_build_models(self, manager):
+        self.activity_cls = ActivityFactory()(manager)
+        manager.activity_cls = self.activity_cls
+
+    def is_session_modified(self, session):
+        """Return that the session has been modified if the session contains an
+        activity class.
+
+        :param session: SQLAlchemy session object
+
+        """
+        return any(isinstance(obj, self.activity_cls) for obj in session)
+
+    def before_flush(self, uow, session):
+        for obj in session:
+            if isinstance(obj, self.activity_cls):
+                obj.transaction = uow.current_transaction
+                obj.calculate_target_tx_id()
+                obj.calculate_object_tx_id()
+
+    def after_version_class_built(self, parent_cls, version_cls):
+        pass</code></pre>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="sqlalchemy_history.plugins.activity.ActivityPlugin.is_session_modified" class="doc doc-heading">
+<code class="highlight language-python">is_session_modified(session)</code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Return that the session has been modified if the session contains an
+activity class.</p>
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b>session</b>
+              –
+              <div class="doc-md-description">
+                <p>SQLAlchemy session object</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+          <details class="quote">
+            <summary> <code>sqlalchemy_history/plugins/activity.py</code></summary>
+            <pre class="highlight"><code class="language-python">def is_session_modified(self, session):
+    """Return that the session has been modified if the session contains an
+    activity class.
+
+    :param session: SQLAlchemy session object
+
+    """
+    return any(isinstance(obj, self.activity_cls) for obj in session)</code></pre>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div><h2 id="propertymodtracker">PropertyModTracker</h2>
+
+
+<div class="doc doc-object doc-module">
+
+
+<a id="sqlalchemy_history.plugins.property_mod_tracker"></a>
+  <div class="doc doc-contents first">
+  
+      <p>The PropertyModTrackerPlugin offers a way of efficiently tracking individual
+property modifications. With PropertyModTrackerPlugin you can make efficient
+queries such as:</p>
+<p>Find all versions of model X where user updated the property A or property B.</p>
+<p>Find all versions of model X where user didn't update property A.</p>
+<p>PropertyModTrackerPlugin adds separate modified tracking column for each
+versioned column. So for example if you have versioned model called Article
+with columns <code>name</code> and <code>content</code>, this plugin would add two additional boolean
+columns <code>name_mod</code> and <code>content_mod</code> for the version model. When user commits
+transactions the plugin automatically updates these boolean columns.</p>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div><h2 id="transactionchanges">TransactionChanges</h2>
+
+
+<div class="doc doc-object doc-module">
+
+
+<a id="sqlalchemy_history.plugins.transaction_changes"></a>
+  <div class="doc doc-contents first">
+  
+      <p>TransactionChanges provides way of keeping track efficiently which declarative
+models were changed in given transaction. This can be useful when transactions
+need to be queried afterwards for problems such as:</p>
+<ol>
+<li>
+<p>Find all transactions which affected <code>User</code> model.</p>
+</li>
+<li>
+<p>Find all transactions which didn't affect models <code>Entity</code> and <code>Event</code>.</p>
+</li>
+</ol>
+<p>The plugin works in two ways. On class instrumentation phase this plugin
+creates a special transaction model called <code>TransactionChanges</code>. This model is
+associated with table called <code>transaction_changes</code>, which has only only two
+fields: transaction_id and entity_name. If for example transaction consisted
+of saving 5 new User entities and 1 Article entity, two new rows would be
+inserted into transaction_changes table.</p>
+<p>================    =================
+transaction_id          entity_name
+----------------    -----------------
+233678                  User
+233678                  Article
+================    =================</p>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="sqlalchemy_history.plugins.transaction_changes.TransactionChangesFactory" class="doc doc-heading">
+          <code>TransactionChangesFactory</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="sqlalchemy_history.factory.ModelFactory">ModelFactory</span></code></p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>sqlalchemy_history/plugins/transaction_changes.py</code></summary>
+              <pre class="highlight"><code class="language-python">class TransactionChangesFactory(ModelFactory):
+    model_name = "TransactionChanges"
+
+    def create_class(self, manager):
+        """Create TransactionChanges class.
+
+        :param manager:
+
+        """
+
+        class TransactionChanges(manager.declarative_base, TransactionChangesBase):
+            __tablename__ = "transaction_changes"
+
+        TransactionChanges.transaction = sa.orm.relationship(
+            manager.transaction_cls,
+            backref=sa.orm.backref(
+                "changes",
+            ),
+            primaryjoin=("%s.id == TransactionChanges.transaction_id" % manager.transaction_cls.__name__),
+            foreign_keys=[TransactionChanges.transaction_id],
+        )
+        return TransactionChanges</code></pre>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="sqlalchemy_history.plugins.transaction_changes.TransactionChangesFactory.create_class" class="doc doc-heading">
+<code class="highlight language-python">create_class(manager)</code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create TransactionChanges class.</p>
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b>manager</b>
+              –
+              <div class="doc-md-description">
+                
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+          <details class="quote">
+            <summary> <code>sqlalchemy_history/plugins/transaction_changes.py</code></summary>
+            <pre class="highlight"><code class="language-python">def create_class(self, manager):
+    """Create TransactionChanges class.
+
+    :param manager:
+
+    """
+
+    class TransactionChanges(manager.declarative_base, TransactionChangesBase):
+        __tablename__ = "transaction_changes"
+
+    TransactionChanges.transaction = sa.orm.relationship(
+        manager.transaction_cls,
+        backref=sa.orm.backref(
+            "changes",
+        ),
+        primaryjoin=("%s.id == TransactionChanges.transaction_id" % manager.transaction_cls.__name__),
+        foreign_keys=[TransactionChanges.transaction_id],
+    )
+    return TransactionChanges</code></pre>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div><h2 id="transactionmeta">TransactionMeta</h2>
+
+
+<div class="doc doc-object doc-module">
+
+
+<a id="sqlalchemy_history.plugins.transaction_meta"></a>
+  <div class="doc doc-contents first">
+  
+      <p>TransactionMetaPlugin offers a way of saving key-value data for transations.
+You can use the plugin in same way as other plugins::</p>
+<pre><code>meta_plugin = TransactionMetaPlugin()
+
+versioning_manager.plugins.add(meta_plugin)
+</code></pre>
+<p>TransactionMetaPlugin creates a simple model called TransactionMeta. This class
+has three columns: transaction_id, key and value. TransactionMeta plugin also
+creates an association proxy between TransactionMeta and Transaction classes
+for easy dictionary based access of key-value pairs.</p>
+<p>You can easily 'tag' transactions with certain key value pairs by giving these
+keys and values to the meta property of Transaction class.</p>
+<p>::</p>
+<pre><code>from sqlalchemy_history import versioning_manager
+
+
+article = Article()
+session.add(article)
+
+uow = versioning_manager.unit_of_work(session)
+tx = uow.create_transaction(session)
+tx.meta = {u'some_key': u'some value'}
+session.commit()
+
+TransactionMeta = meta_plugin.model_class
+Transaction = versioning_manager.transaction_cls
+
+# find all transactions with 'article' tags
+query = (
+    session.query(Transaction)
+    .join(Transaction.meta_relation)
+    .filter(
+        db.and_(
+            TransactionMeta.key == 'some_key',
+            TransactionMeta.value == 'some value'
+        )
+    )
+)
+</code></pre>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="sqlalchemy_history.plugins.transaction_meta.TransactionMetaFactory" class="doc doc-heading">
+          <code>TransactionMetaFactory</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="sqlalchemy_history.factory.ModelFactory">ModelFactory</span></code></p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>sqlalchemy_history/plugins/transaction_meta.py</code></summary>
+              <pre class="highlight"><code class="language-python">class TransactionMetaFactory(ModelFactory):
+    model_name = "TransactionMeta"
+
+    def create_class(self, manager):
+        """Create TransactionMeta class.
+
+        :param manager:
+
+        """
+
+        class TransactionMeta(manager.declarative_base, TransactionMetaBase):
+            __tablename__ = "transaction_meta"
+
+        TransactionMeta.transaction = sa.orm.relationship(
+            manager.transaction_cls,
+            backref=sa.orm.backref("meta_relation", collection_class=attribute_mapped_collection("key")),
+            primaryjoin=("%s.id == TransactionMeta.transaction_id" % manager.transaction_cls.__name__),
+            foreign_keys=[TransactionMeta.transaction_id],
+        )
+
+        manager.transaction_cls.meta = association_proxy(
+            "meta_relation",
+            "value",
+            creator=lambda key, value: TransactionMeta(key=key, value=value),
+        )
+
+        return TransactionMeta</code></pre>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="sqlalchemy_history.plugins.transaction_meta.TransactionMetaFactory.create_class" class="doc doc-heading">
+<code class="highlight language-python">create_class(manager)</code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create TransactionMeta class.</p>
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b>manager</b>
+              –
+              <div class="doc-md-description">
+                
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+          <details class="quote">
+            <summary> <code>sqlalchemy_history/plugins/transaction_meta.py</code></summary>
+            <pre class="highlight"><code class="language-python">def create_class(self, manager):
+    """Create TransactionMeta class.
+
+    :param manager:
+
+    """
+
+    class TransactionMeta(manager.declarative_base, TransactionMetaBase):
+        __tablename__ = "transaction_meta"
+
+    TransactionMeta.transaction = sa.orm.relationship(
+        manager.transaction_cls,
+        backref=sa.orm.backref("meta_relation", collection_class=attribute_mapped_collection("key")),
+        primaryjoin=("%s.id == TransactionMeta.transaction_id" % manager.transaction_cls.__name__),
+        foreign_keys=[TransactionMeta.transaction_id],
+    )
+
+    manager.transaction_cls.meta = association_proxy(
+        "meta_relation",
+        "value",
+        creator=lambda key, value: TransactionMeta(key=key, value=value),
+    )
+
+    return TransactionMeta</code></pre>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../configuration/" class="btn btn-neutral float-left" title="Configuration"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../queries/" class="btn btn-neutral float-right" title="Queries">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../configuration/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../queries/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Corridor" /><link rel="canonical" href="https://corridor.github.io/sqlalchemy-history/revert/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Reverting changes - SQLAlchemy-History</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Reverting changes";
+        var mkdocs_page_input_path = "revert.md";
+        var mkdocs_page_url = "/sqlalchemy-history/revert/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> SQLAlchemy-History
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../alembic/">Alembic migrations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../api/">API Documentation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../configuration/">Configuration</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../plugins/">Plugins</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../queries/">Queries</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Reverting changes</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#revert-update">Revert update</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#revert-delete">Revert delete</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#revert-relationships">Revert relationships</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../schema/">Schema</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../transactions/">Transactions</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../tutorials/">Tutorial</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../utilities/">Utilities</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../version_objects/">Version objects</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">SQLAlchemy-History</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+      <li>Reverting changes</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/corridor/sqlalchemy-history/edit/master/docs/revert.md">Edit on sqlalchemy-history</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="reverting-changes">Reverting changes</h1>
+<p>One of the major benefits of SQLAlchemy-History is its ability to revert changes.</p>
+<h2 id="revert-update">Revert update</h2>
+<pre><code class="language-python">&gt;&gt;&gt; article = Article(name=u'New article', content=u'Some content')
+&gt;&gt;&gt; session.add(article)
+&gt;&gt;&gt; session.commit(article)
+&gt;&gt;&gt; version = article.versions[0]
+&gt;&gt;&gt; article.name = u'Updated article'
+&gt;&gt;&gt; session.commit()
+&gt;&gt;&gt; version.revert()
+&gt;&gt;&gt; session.commit()
+&gt;&gt;&gt; article.name
+'New article'
+</code></pre>
+<h2 id="revert-delete">Revert delete</h2>
+<pre><code class="language-python">&gt;&gt;&gt; article = Article(name=u'New article', content=u'Some content')
+&gt;&gt;&gt; session.add(article)
+&gt;&gt;&gt; session.commit(article)
+&gt;&gt;&gt; version = article.versions[0]
+&gt;&gt;&gt; session.delete(article)
+&gt;&gt;&gt; session.commit()
+&gt;&gt;&gt; version.revert()
+&gt;&gt;&gt; session.commit() # article lives again!
+&gt;&gt;&gt; session.query(Article).first()
+</code></pre>
+<h2 id="revert-relationships">Revert relationships</h2>
+<p>Sometimes you may have cases where you want to revert an object as well as some of its relation to certain state. Consider the following model definition:</p>
+<pre><code class="language-python">&gt;&gt;&gt; class Article(Base):
+...     __tablename__ = 'article'
+...     __versioned__ = {}
+...     id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+...     name = sa.Column(sa.Unicode(255))
+&gt;&gt;&gt; class Tag(Base):
+...     __tablename__ = 'tag'
+...     __versioned__ = {}
+...     id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+...     name = sa.Column(sa.Unicode(255))
+...     article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
+...     article = sa.orm.relationship(Article, backref='tags')
+</code></pre>
+<p>Now lets say some user first adds an article with couple of tags:</p>
+<pre><code class="language-python">&gt;&gt;&gt; article = Article(
+...     name=u'Some article',
+...     tags=[Tag(u'Good'), Tag(u'Interesting')]
+... )
+&gt;&gt;&gt; session.add(article)
+&gt;&gt;&gt; session.commit()
+</code></pre>
+<p>Then lets say another user deletes one of the tags:</p>
+<pre><code class="language-python">&gt;&gt;&gt; tag = session.query(Tag).filter_by(name=u'Interesting')
+&gt;&gt;&gt; session.delete(tag)
+&gt;&gt;&gt; session.commit()
+</code></pre>
+<p>Now the first user wants to set the article back to its original state. It can be achieved as follows (notice how we use the relations parameter):</p>
+<pre><code class="language-python">&gt;&gt;&gt; article = session.query(Article).get(1)
+&gt;&gt;&gt; article.versions[0].revert(relations=['tags'])
+&gt;&gt;&gt; session.commit()
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../queries/" class="btn btn-neutral float-left" title="Queries"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../schema/" class="btn btn-neutral float-right" title="Schema">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../queries/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../schema/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

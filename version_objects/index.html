@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Corridor" /><link rel="canonical" href="https://corridor.github.io/sqlalchemy-history/version_objects/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Version objects - SQLAlchemy-History</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Version objects";
+        var mkdocs_page_input_path = "version_objects.md";
+        var mkdocs_page_url = "/sqlalchemy-history/version_objects/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> SQLAlchemy-History
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../alembic/">Alembic migrations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../api/">API Documentation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../configuration/">Configuration</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../plugins/">Plugins</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../queries/">Queries</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../revert/">Reverting changes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../schema/">Schema</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../transactions/">Transactions</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../tutorials/">Tutorial</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../utilities/">Utilities</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Version objects</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#operation-types">Operation types</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#version-traversal">Version traversal</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#changeset">Changeset</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#version-relationships">Version relationships</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#relationships-to-non-versioned-classes">Relationships to non-versioned classes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#dynamic-relationships">Dynamic relationships</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">SQLAlchemy-History</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+      <li>Version objects</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/corridor/sqlalchemy-history/edit/master/docs/version_objects.md">Edit on sqlalchemy-history</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="version-objects">Version objects</h1>
+<h2 id="operation-types">Operation types</h2>
+<p>When changing entities and committing results into database SQLA-History saves the used
+operations (INSERT, UPDATE or DELETE) into version entities. The operation types are stored
+by default to a small integer field named 'operation_type'. Class called 'Operation' holds
+convenient constants for these values as shown below:</p>
+<pre><code class="language-python">&gt;&gt;&gt; from sqlalchemy_history import Operation
+&gt;&gt;&gt; article = Article(name=u'Some article')
+&gt;&gt;&gt; session.add(article)
+&gt;&gt;&gt; session.commit()
+&gt;&gt;&gt; article.versions[0].operation_type == Operation.INSERT
+&gt;&gt;&gt; article.name = u'Some updated article'
+&gt;&gt;&gt; session.commit()
+&gt;&gt;&gt; article.versions[1].operation_type == Operation.UPDATE
+&gt;&gt;&gt; session.delete(article)
+&gt;&gt;&gt; session.commit()
+&gt;&gt;&gt; article.versions[2].operation_type == Operation.DELETE
+</code></pre>
+<h2 id="version-traversal">Version traversal</h2>
+<pre><code class="language-python">&gt;&gt;&gt; first_version = article.versions[0]
+&gt;&gt;&gt; first_version.index
+&gt;&gt;&gt; second_version = first_version.next
+&gt;&gt;&gt; assert second_version == article.versions[1]
+&gt;&gt;&gt; second_version.previous == first_version
+True
+&gt;&gt;&gt; second_version.index
+1
+</code></pre>
+<h2 id="changeset">Changeset</h2>
+<p>SQLA-History provides easy way for getting the changeset of given version object. Each version contains a changeset
+property which holds a dict of changed fields in that version.</p>
+<pre><code class="language-python">&gt;&gt;&gt; article = Article(name=u'New article', content=u'Some content')
+&gt;&gt;&gt; session.add(article)
+&gt;&gt;&gt; session.commit(article)
+&gt;&gt;&gt; version = article.versions[0]
+&gt;&gt;&gt; version.changeset
+{
+  'id': [None, 1],
+  'name': [None, u'New article'],
+  'content': [None, u'Some content']
+}
+&gt;&gt;&gt; article.name = u'Updated article'
+&gt;&gt;&gt; session.commit()
+&gt;&gt;&gt; version = article.versions[1]
+&gt;&gt;&gt; version.changeset
+{
+    'name': [u'New article', u'Updated article'],
+}
+&gt;&gt;&gt; session.delete(article)
+&gt;&gt;&gt; version = article.versions[1]
+&gt;&gt;&gt; version.changeset
+{
+    'id': [1, None]
+    'name': [u'Updated article', None],
+    'content': [u'Some content', None]
+}
+</code></pre>
+<p>SQLAlchemy-History also provides a utility function called changeset. With this function
+you can easily check the changeset of given object in current transaction.</p>
+<pre><code class="language-python">&gt;&gt;&gt; from sqlalchemy_history import changeset
+&gt;&gt;&gt; article = Article(name=u'Some article')
+&gt;&gt;&gt; changeset(article)
+{'name': [None, u'Some article']}
+</code></pre>
+<h2 id="version-relationships">Version relationships</h2>
+<p>Each version object reflects all parent object relationships. You can think version object relations as 'relations of parent object in given point in time'.</p>
+<p>Lets say you have two models: Article and Category. Each Article has one Category. In the following example we first add article and category objects into database.</p>
+<p>SQLA-History saves new ArticleVersion and CategoryVersion records in the background. After that we update the created article entity to use another category. SQLA-History creates new version objects accordingly.</p>
+<p>Lastly we check the category relations of different article versions.</p>
+<pre><code class="language-python">&gt;&gt;&gt; category = Category(name=u'Some category')
+&gt;&gt;&gt; article = Article(
+...     name=u'Some article',
+...     category=category
+... )
+&gt;&gt;&gt; session.add(article)
+&gt;&gt;&gt; session.commit()
+&gt;&gt;&gt; article.category = Category(name=u'Some other category')
+&gt;&gt;&gt; session.commit()
+&gt;&gt;&gt; article.versions[0].category.name  # u'Some category'
+&gt;&gt;&gt; article.versions[1].category.name  # u'Some other category'
+</code></pre>
+<p>The logic how SQLAlchemy-History builds these relationships is within the RelationshipBuilder class.</p>
+<h4 id="relationships-to-non-versioned-classes">Relationships to non-versioned classes</h4>
+<p>Let's take previous example of Articles and Categories. Now consider that only Article model is versioned:</p>
+<pre><code class="language-python">&gt;&gt;&gt; class Article(Base):
+...     __tablename__ = 'article'
+...     __versioned__ = {}
+...     id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+...     name = sa.Column(sa.Unicode(255), nullable=False)
+&gt;&gt;&gt; class Category(Base):
+...     __tablename__ = 'tag'
+...     id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+...     name = sa.Column(sa.Unicode(255))
+...     article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
+...     article = sa.orm.relationship(
+...        Article,
+...         backref=sa.orm.backref('categories')
+...     )
+</code></pre>
+<p>Here Article versions will still reflect the relationships of Article model but they will simply return Category objects instead of CategoryVersion objects:</p>
+<pre><code class="language-python">&gt;&gt;&gt; category = Category(name=u'Some category')
+&gt;&gt;&gt; article = Article(
+...     name=u'Some article',
+...     category=category
+... )
+&gt;&gt;&gt; session.add(article)
+&gt;&gt;&gt; session.commit()
+&gt;&gt;&gt; article.category = Category(name=u'Some other category')
+&gt;&gt;&gt; session.commit()
+&gt;&gt;&gt; version = article.versions[0]
+&gt;&gt;&gt; version.category.name
+'Some other category'
+&gt;&gt;&gt; isinstance(version.category, Category)
+True
+</code></pre>
+<h4 id="dynamic-relationships">Dynamic relationships</h4>
+<p>If the parent class has a dynamic relationship it will be reflected as a property which returns a query in the associated version class.</p>
+<pre><code class="language-python">&gt;&gt;&gt; class Article(Base):
+...     __tablename__ = 'article'
+...     __versioned__ = {}
+...     id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+...     name = sa.Column(sa.Unicode(255), nullable=False)
+&gt;&gt;&gt; class Tag(Base):
+...     __tablename__ = 'tag'
+...     __versioned__ = {}
+...     id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
+...     name = sa.Column(sa.Unicode(255))
+...     article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
+...     article = sa.orm.relationship(
+...         Article,
+...         backref=sa.orm.backref(
+...             'tags',
+...             lazy='dynamic'
+...         )
+...     )
+&gt;&gt;&gt; article = Article()
+&gt;&gt;&gt; article.name = u'Some article'
+&gt;&gt;&gt; article.content = u'Some content'
+&gt;&gt;&gt; session.add(article)
+&gt;&gt;&gt; session.commit()
+&gt;&gt;&gt; tag_query = article.versions[0].tags
+&gt;&gt;&gt; tag_query.all()  # return all tags for given version
+&gt;&gt;&gt; tag_query.count()  # return the tag count for given version
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../utilities/" class="btn btn-neutral float-left" title="Utilities"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../utilities/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

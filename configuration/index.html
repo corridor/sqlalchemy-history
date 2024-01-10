@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Corridor" /><link rel="canonical" href="https://corridor.github.io/sqlalchemy-history/configuration/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Configuration - SQLAlchemy-History</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Configuration";
+        var mkdocs_page_input_path = "configuration.md";
+        var mkdocs_page_url = "/sqlalchemy-history/configuration/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> SQLAlchemy-History
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../alembic/">Alembic migrations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../api/">API Documentation</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Configuration</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#global-and-class-level-configuration">Global and class level configuration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#versioning-strategies">Versioning strategies</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#validity">Validity</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#subquery">Subquery</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#column-exclusion-and-inclusion">Column exclusion and inclusion</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#basic-configuration-options">Basic configuration options</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#customizing-transaction-user-class">Customizing transaction user class</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#customizing-versioned-mappers">Customizing versioned mappers</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#customizing-versioned-sessions">Customizing versioned sessions</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../plugins/">Plugins</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../queries/">Queries</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../revert/">Reverting changes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../schema/">Schema</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../transactions/">Transactions</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../tutorials/">Tutorial</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../utilities/">Utilities</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../version_objects/">Version objects</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">SQLAlchemy-History</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+      <li>Configuration</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/corridor/sqlalchemy-history/edit/master/docs/configuration.md">Edit on sqlalchemy-history</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="configuration">Configuration</h1>
+<h2 id="global-and-class-level-configuration">Global and class level configuration</h2>
+<p>All configuration parameters can be set on global level (manager level) and on class level. Setting an option at manager level affects all classes within the scope of the manager's class instrumentation listener (by default all SQLAlchemy declarative models).</p>
+<p>In the following example we set 'transaction_column_name' configuration option to <code>my_tx_id</code> at the manager level.</p>
+<pre><code class="language-python">&gt;&gt;&gt; make_versioned(options={'transaction_column_name': 'my_tx_id'})
+</code></pre>
+<p>As the name suggests class level configuration only applies to given class. Class level configuration can be passed to <strong>versioned</strong> class attribute.</p>
+<pre><code class="language-python">&gt;&gt;&gt; class User(Base):
+...   __versioned__ = {
+...   'transaction_column_name': 'tx_id'
+...   }
+</code></pre>
+<h2 id="versioning-strategies">Versioning strategies</h2>
+<p>Similar to Hibernate Envers SQLAlchemy-History offers two distinct versioning strategies 'validity' and 'subquery'. The default strategy is 'validity'.</p>
+<h3 id="validity">Validity</h3>
+<p>The 'validity' strategy saves two columns in each history table, namely 'transaction_id' and 'end_transaction_id'. The names of these columns can be configured with configuration options <code>transaction_column_name</code> and <code>end_transaction_column_name</code>.</p>
+<p>As with 'subquery' strategy for each inserted, updated and deleted entity SQLA-History creates new version in the history table. However it also updates the end_transaction_id of the previous version to point at the current version. This creates a little bit of overhead during data manipulation.</p>
+<p>With 'validity' strategy version traversal is very fast. When accessing previous version SQLA-History tries to find the version record where the primary keys match and end_transaction_id is the same as the transaction_id of the given version record. When accessing the next version SQLA-History tries to find the version record where the primary keys match and transaction_id is the same as the end_transaction_id of the given version record.</p>
+<p><strong><em>Pros:</em></strong></p>
+<ul>
+<li>Version traversal is much faster since no correlated subqueries are needed</li>
+</ul>
+<p><strong><em>Cons:</em></strong></p>
+<ul>
+<li>Updates, inserts and deletes are little bit slower</li>
+</ul>
+<h3 id="subquery">Subquery</h3>
+<p>The 'subquery' strategy uses one column in each history table, namely 'transaction_id'. The name of this column can be configured with configuration option <code>transaction_column_name</code>.</p>
+<p>After each inserted, updated and deleted entity SQLA-History creates new version in the history table and sets the 'transaction_id' column to point at the current transaction.</p>
+<p>With 'subquery' strategy the version traversal is slow. When accessing previous and next versions of given version object needs correlated subqueries.</p>
+<p><strong><em>Pros:</em></strong></p>
+<ul>
+<li>Updates, inserts and deletes little bit faster than in 'validity' strategy</li>
+</ul>
+<p><strong><em>Cons:</em></strong></p>
+<ul>
+<li>Version traversel much slower</li>
+</ul>
+<h2 id="column-exclusion-and-inclusion">Column exclusion and inclusion</h2>
+<p>With <code>exclude</code> configuration option you can define which entity attributes you want to get versioned. By default SQLA-History versions all entity attributes.</p>
+<pre><code class="language-python">&gt;&gt;&gt; class User(Base):
+...     __versioned__ = {
+...         'exclude': ['picture']
+...     }
+...     id = sa.Column(sa.Integer, primary_key=True)
+...     name = sa.Column(sa.Unicode(255))
+...     picture = sa.Column(sa.LargeBinary)
+</code></pre>
+<h2 id="basic-configuration-options">Basic configuration options</h2>
+<p>Here is a full list of configuration options:</p>
+<ul>
+<li>
+<p>base_classes (default: None)
+  A tuple defining history class base classes.
+  If base_classes is not specified version class is built through declarative base and a generic repr is added.</p>
+</li>
+<li>
+<p>table_name (default: '%s_version')
+  The name of the history table.</p>
+</li>
+<li>
+<p>transaction_column_name (default: 'transaction_id')
+  The name of the transaction column (used by history tables).</p>
+</li>
+<li>
+<p>end_transaction_column_name (default: 'end_transaction_id')
+  The name of the end transaction column in history table when using the validity versioning strategy.</p>
+</li>
+<li>
+<p>operation_type_column_name (default: 'operation_type')
+  The name of the operation type column (used by history tables).</p>
+</li>
+<li>
+<p>strategy (default: 'validity')
+  The versioning strategy to use. Either 'validity' or 'subquery'</p>
+</li>
+</ul>
+<p>Example</p>
+<pre><code class="language-python">&gt;&gt;&gt; class Article(Base):
+...     __versioned__ = {
+...         'transaction_column_name': 'tx_id'
+...     }
+...     __tablename__ = 'user'
+...     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+...     name = sa.Column(sa.Unicode(255))
+...     content = sa.Column(sa.UnicodeText)
+</code></pre>
+<h2 id="customizing-transaction-user-class">Customizing transaction user class</h2>
+<p>By default SQLA-History tries to build a relationship between 'User' class and Transaction class. If you have differently named user class you can simply pass its name to make_versioned:</p>
+<pre><code class="language-python">&gt;&gt;&gt; make_versioned(user_cls='MyUserClass')
+</code></pre>
+<p>If you don't want transactions to contain any user references you can also disable this feature.</p>
+<pre><code class="language-python">&gt;&gt;&gt; make_versioned(user_cls=None)
+</code></pre>
+<h2 id="customizing-versioned-mappers">Customizing versioned mappers</h2>
+<p>By default SQLAlchemy-History versions all mappers. You can override this behaviour by passing the desired mapper class/object to make_versioned function.</p>
+<pre><code class="language-python">&gt;&gt;&gt; make_versioned(mapper=my_mapper)
+</code></pre>
+<h2 id="customizing-versioned-sessions">Customizing versioned sessions</h2>
+<p>By default SQLAlchemy-History versions all sessions. You can override this behaviour by passing the desired session class/object to make_versioned function.</p>
+<pre><code class="language-python">&gt;&gt;&gt; make_versioned(session=my_session)
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../api/" class="btn btn-neutral float-left" title="API Documentation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../plugins/" class="btn btn-neutral float-right" title="Plugins">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../api/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../plugins/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

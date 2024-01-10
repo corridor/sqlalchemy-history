@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Corridor" /><link rel="canonical" href="https://corridor.github.io/sqlalchemy-history/schema/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Schema - SQLAlchemy-History</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Schema";
+        var mkdocs_page_input_path = "schema.md";
+        var mkdocs_page_url = "/sqlalchemy-history/schema/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> SQLAlchemy-History
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../alembic/">Alembic migrations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../api/">API Documentation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../configuration/">Configuration</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../plugins/">Plugins</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../queries/">Queries</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../revert/">Reverting changes</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Schema</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#version-tables">Version tables</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#transaction-tables">Transaction tables</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../transactions/">Transactions</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../tutorials/">Tutorial</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../utilities/">Utilities</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../version_objects/">Version objects</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">SQLAlchemy-History</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+      <li>Schema</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/corridor/sqlalchemy-history/edit/master/docs/schema.md">Edit on sqlalchemy-history</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="schema">Schema</h1>
+<h2 id="version-tables">Version tables</h2>
+<p>By default SQLAlchemy-History creates a version table for each
+versioned entity table. The version tables are suffixed with
+'version'. So for example if you have two versioned tables 'article'
+and 'category', SQLAlchemy-History would create two version tables
+'articleversion' and 'categoryversion'.</p>
+<p>By default the version tables contain these columns:</p>
+<ul>
+<li>id of the original entity (this can be more then one column in the
+  case of composite primary keys)</li>
+<li>transactionid - an integer that matches to the id number in the
+  transactionlog table.</li>
+<li>endtransactionid - an integer that matches the next version
+  record's transactionid. If this is the current version record then
+  this field is null.</li>
+<li>operationtype - a small integer defining the type of the operation</li>
+<li>versioned fields from the original entity</li>
+</ul>
+<p>If you are using <code>property-mod-tracker</code> SQLA-History also creates one
+boolean field for each versioned field. By default these boolean fields
+are suffixed with 'mod'.</p>
+<p>The primary key of each version table is the combination of parent
+table's primary key + the transactionid. This means there can be at
+most one version table entry for a given entity instance at given
+transaction.</p>
+<h2 id="transaction-tables">Transaction tables</h2>
+<p>By default SQLA-History creates one transaction table called
+**transaction. Many SQLA-History plugins also
+create additional tables for efficient transaction storage. If you wish
+to query efficiently transactions afterwards you should consider using
+some of these plugins.</p>
+<p>The transaction table only contains two fields by default: id and
+issuedat.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../revert/" class="btn btn-neutral float-left" title="Reverting changes"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../transactions/" class="btn btn-neutral float-right" title="Transactions">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../revert/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../transactions/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

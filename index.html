@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="None" /><meta name="author" content="Corridor" /><link rel="canonical" href="https://corridor.github.io/sqlalchemy-history/" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>SQLAlchemy-History</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Home";
+        var mkdocs_page_input_path = "README.md";
+        var mkdocs_page_url = "/sqlalchemy-history/";
+      </script>
+    
+    <script src="js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="." class="icon icon-home"> SQLAlchemy-History
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href=".">Home</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#features">Features</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#quickstart">QuickStart</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#resources">Resources</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#more-information">More information</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#comparison">Comparison</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="alembic/">Alembic migrations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="api/">API Documentation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="configuration/">Configuration</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="plugins/">Plugins</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="queries/">Queries</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="revert/">Reverting changes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="schema/">Schema</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="transactions/">Transactions</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="tutorials/">Tutorial</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="utilities/">Utilities</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="version_objects/">Version objects</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href=".">SQLAlchemy-History</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+      <li>Home</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/corridor/sqlalchemy-history/edit/master/docs/README.md">Edit on sqlalchemy-history</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p><a href="https://coveralls.io/github/corridor/sqlalchemy-history"><img alt="Coverage Status" src="https://coveralls.io/repos/github/corridor/sqlalchemy-history/badge.svg" /></a></p>
+<h1 id="sqlalchemy-history">SQLAlchemy-History</h1>
+<p>SQLAlchemy-history is a fork of sqlalchemy-continuum.
+An auditing extension for sqlalchemy which keeps a track of the history of your sqlalchemy models</p>
+<h2 id="features">Features</h2>
+<ul>
+<li>Supports sqlalchemy 1.4+ and python 3.7+</li>
+<li>Tracks history for inserts, deletes, and updates</li>
+<li>Does not store updates which don't change anything</li>
+<li>Supports alembic migrations</li>
+<li>Can revert objects data as well as all object relations at given transaction even if the object was deleted</li>
+<li>Transactions can be queried afterwards using SQLAlchemy query syntax</li>
+<li>Query for changed records at given transaction</li>
+<li>Temporal relationship reflection. Get the relationships of an object in that point in time.</li>
+</ul>
+<h2 id="quickstart">QuickStart</h2>
+<pre><code class="language-sh">pip install sqlalchemy-history
+</code></pre>
+<p>In order to make your models versioned you need two things:</p>
+<ol>
+<li>Call <code>make_versioned()</code> before your models are defined.</li>
+<li>Add <code>__versioned__</code> to all models you wish to add versioning to</li>
+</ol>
+<pre><code class="language-python">&gt;&gt;&gt; from sqlalchemy_history import make_versioned
+&gt;&gt;&gt; make_versioned(user_cls=None)
+&gt;&gt;&gt; class Article(Base):
+...    __versioned__ = {}
+...    __tablename__ = 'article'
+...    id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+...    name = sa.Column(sa.Unicode(255))
+...    content = sa.Column(sa.UnicodeText)
+&gt;&gt;&gt; article = Article(name='Some article', content='Some content')
+&gt;&gt;&gt; session.add(article)
+&gt;&gt;&gt; session.commit()
+'article has now one version stored in database'
+&gt;&gt;&gt; article.versions[0].name
+'Some article'
+&gt;&gt;&gt; article.name = 'Updated name'
+&gt;&gt;&gt; session.commit()
+&gt;&gt;&gt; article.versions[1].name
+'Updated name'
+&gt;&gt;&gt; article.versions[0].revert()
+'lets revert back to first version'
+&gt;&gt;&gt; article.name
+'Some article'
+</code></pre>
+<p>For completeness, below is a working example.</p>
+<pre><code class="language-python">from sqlalchemy_history import make_versioned
+from sqlalchemy import Column, Integer, Unicode, UnicodeText, create_engine
+try:
+   from sqlalchemy.orm import declarative_base
+except ImportError:  # sqla &lt; 2.x
+   from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import create_session, configure_mappers
+make_versioned(user_cls=None)
+Base = declarative_base()
+class Article(Base):
+    __versioned__ = {}
+    __tablename__ = 'article'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(Unicode(255))
+    content = Column(UnicodeText)
+configure_mappers()
+engine = create_engine('sqlite://')
+Base.metadata.create_all(engine)
+session = create_session(bind=engine, autocommit=False)
+article = Article(name='Some article', content='Some content')
+session.add(article)
+session.commit()
+print(article.versions[0].name) # 'Some article'
+article.name = 'Updated name'
+session.commit()
+print(article.versions[1].name) # 'Updated name'
+article.versions[0].revert()
+print(article.name) # 'Some article'
+</code></pre>
+<h2 id="resources">Resources</h2>
+<ul>
+<li><a href="https://corridor.github.io/sqlalchemy-history/">Documentation</a></li>
+<li><a href="http://github.com/corridor/sqlalchemy-history/issues">Issue Tracker</a></li>
+<li><a href="http://github.com/corridor/sqlalchemy-history/">Code</a></li>
+</ul>
+<h2 id="more-information">More information</h2>
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/Slowly_changing_dimension">http://en.wikipedia.org/wiki/Slowly_changing_dimension</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Change_data_capture">http://en.wikipedia.org/wiki/Change_data_capture</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Anchor_Modeling">http://en.wikipedia.org/wiki/Anchor_Modeling</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Shadow_table">http://en.wikipedia.org/wiki/Shadow_table</a></li>
+<li><a href="https://wiki.postgresql.org/wiki/Audit_trigger">https://wiki.postgresql.org/wiki/Audit_trigger</a></li>
+<li><a href="https://wiki.postgresql.org/wiki/Audit_trigger_91plus">https://wiki.postgresql.org/wiki/Audit_trigger_91plus</a></li>
+<li><a href="http://kosalads.blogspot.fi/2014/06/implement-audit-functionality-in.html">http://kosalads.blogspot.fi/2014/06/implement-audit-functionality-in.html</a></li>
+<li><a href="https://github.com/2ndQuadrant/pgaudit">https://github.com/2ndQuadrant/pgaudit</a></li>
+</ul>
+<h2 id="comparison">Comparison</h2>
+<p>Primary reasons to create another library:</p>
+<ul>
+<li>Be future looking and support sqlalchemy 1.4 and 2.x</li>
+<li>Support multiple databases (sqlite, mysql, postgres, mssql, oracle)</li>
+<li>Focus on the history tracking and be as efficient as possible when doing it</li>
+</ul>
+<p>We found multiple libraries which has an implementation of history tracking:</p>
+<ol>
+<li><a href="https://github.com/kvesteri/sqlalchemy-continuum">sqlalchemy-continuum</a><ul>
+<li>Does not support oracle, mssql</li>
+<li>Feature filled making it difficult to maintain all plugins/extensions</li>
+</ul>
+</li>
+<li><a href="https://github.com/bprinty/flask-continuum">flask-continuum</a><ul>
+<li>Thin wrapper on sqlalchemy-continuum specifically for flask</li>
+</ul>
+</li>
+<li><a href="https://github.com/kvesteri/postgresql-audit">postgresql-audit</a><ul>
+<li>Supports only postgres</li>
+</ul>
+</li>
+<li><a href="https://github.com/NerdWalletOSS/versionalchemy">versionalchemy</a><ul>
+<li>Not updated in a while</li>
+<li>No reverting capability, Relationship queries on history not available</li>
+</ul>
+</li>
+<li><a href="https://github.com/jazzband/django-simple-history">django-simple-history</a><ul>
+<li>Uses django ORM, does not support sqlalchemy</li>
+</ul>
+</li>
+<li><a href="http://docs.sqlalchemy.org/en/latest/orm/examples.html#versioning-objects">sqlalchemy example versioning-objects</a><ul>
+<li>Simple example to demonstrate implementation - but very minimal</li>
+</ul>
+</li>
+</ol>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="alembic/" class="btn btn-neutral float-right" title="Alembic migrations">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+      <span><a href="alembic/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '.';</script>
+    <script src="js/theme_extra.js" defer></script>
+    <script src="js/theme.js" defer></script>
+      <script src="search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.4.2
+Build Date UTC : 2024-01-10 15:53:54.313398+00:00
+-->
