@@ -1,4 +1,5 @@
 import os
+import time
 import sqlalchemy as sa
 from sqlalchemy_history import versioning_manager
 from tests import TestCase
@@ -42,6 +43,13 @@ class TestTransaction(TestCase):
             self.ArticleVersion: [article_v0],
             self.TagVersion: [self.article.tags[0].versions[0]],
         }
+
+    def test_transaction_issued_at(self):
+        time.sleep(1) 
+        self.article.name = "Some article 2"
+        self.session.add(self.article)
+        self.session.commit()
+        assert self.article.versions[0].transaction.issued_at != self.article.versions[1].transaction.issued_at
 
 
 # Check that the tests pass without TransactionChangesPlugin
