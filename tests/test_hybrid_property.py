@@ -15,7 +15,7 @@ class TestHybridProperty(TestCase):
             name = sa.Column(sa.Unicode(255), nullable=False)
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
-            publish = sa.Column(sa.DateTime, default=datetime.datetime.now(datetime.timezone.utc))
+            publish = sa.Column(sa.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
 
             @sa.ext.hybrid.hybrid_property
             def time_from_publish(self):
