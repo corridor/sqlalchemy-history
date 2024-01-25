@@ -107,7 +107,7 @@ print(article.name) # 'Some article'
 Primary reasons to create another library:
 
 - Be future looking and support sqlalchemy 1.4 and 2.x
-- Support multiple databases (sqlite, mysql, postgres, mssql, oracle)
+- Support multiple databases (sqlite, mysql, postgres, mssql, oracle, mariadb)
 - Focus on the history tracking and be as efficient as possible when doing it
 
 We found multiple libraries which has an implementation of history tracking:

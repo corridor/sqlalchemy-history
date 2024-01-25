@@ -28,6 +28,20 @@ jobs:
                     - ">=1.4,<2"
                     - ">=2"
         services:
+            mariadb:
+                image: mariadb
+                ports:
+                    # Mysql is already exposed to 3306 port, so using 3307 instead
+                    - 3307:3306
+                env:
+                    MARIADB_DATABASE: sqlalchemy_history_test
+                    MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 1
+                options: >-
+                    --health-cmd "healthcheck.sh --connect --innodb_initialized"
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 3
+
             mysql:
                 image: mysql
                 ports:
