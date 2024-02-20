@@ -12,7 +12,7 @@ on:
 
 jobs:
     test-sqlalchemy-history:
-        name: test-python${{ matrix.python-version }}-${{ matrix.DB }}-sqla${{ matrix.sqla }}
+        name: test-python${{ matrix.python-version }}-${{ matrix.DB }}
         strategy:
             matrix:
                 python-version:
@@ -24,9 +24,6 @@ jobs:
                     - "mysql"
                     - "oracle"
                     - "postgres"
-                sqla:
-                    - ">=1.4,<2"
-                    - ">=2"
         services:
             mysql:
                 image: mysql
@@ -87,7 +84,6 @@ jobs:
                   python -m pip install --upgrade pip
                   pip install --upgrade poetry 
                   poetry install
-                  poetry add 'sqlalchemy${{ matrix.sqla }}'
             - name: install oracle dependencies
               if: ${{ matrix.DB == 'oracle' }}
               run:
@@ -103,7 +99,6 @@ jobs:
                   poetry run pytest -x --cov --cov-report=lcov
               env:
                   DB: ${{ matrix.DB }}
-                  SQLA_20_WARNING: 1
             - name: send coverage data to Coveralls
               env:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
