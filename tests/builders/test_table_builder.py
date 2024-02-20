@@ -117,14 +117,7 @@ class TestTableBuilderInOtherSchema(TestCase):
                     #       so we just try to create if fails we continue
                     raise
         finally:
-            try:
-                # NOTE: Sqlalchemy >= 2.0.0 requires user to explicitly do commit for a given transaction
-                # ref: https://docs.sqlalchemy.org/en/20/core/connections.html#commit-as-you-go
-                self.connection.commit()
-            except AttributeError:
-                # Sqlalchemy < 2.0.0 does not have commit available to connection as executes does commit
-                # automatically for a given ongoing transaction.
-                pass
+            self.connection.commit()
         TestCase.create_tables(self)
 
     def test_created_tables_retain_schema(self):

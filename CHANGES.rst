@@ -3,6 +3,12 @@ Changelog
 
 Here you can see the full list of changes between each release.
 
+Unreleased
+^^^^^^^^^^
+
+-   Remove support for SQLA<2
+
+
 2.1.0 (2023-11-07)
 ^^^^^^^^^^^^^^^^^^^
 

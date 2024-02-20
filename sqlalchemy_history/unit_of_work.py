@@ -22,14 +22,13 @@ class UnitOfWork(object):
         self.reset()
 
     def create_version_session(self, session):
-        """
-        In SQLA-2.0, when using an existing connection with savepoint, Set join_transaction_mode="rollback_only"
-        to replicate the rollback() behavior from SQLA-1.4
-        """
-        try:
-            return sa.orm.session.Session(bind=session.connection(), join_transaction_mode="rollback_only")
-        except TypeError:
-            return sa.orm.session.Session(bind=session.connection())
+        # NOTE: In SQLA-2.0, the default behavior for reusing a connection in another session has changed.
+        #       Specifically, the way an existing transaction in this connection is handled is changed.
+        #       Considering we never do commit(), nor close(), nor rollback() on this connection in
+        #       sqla-history, we set the transaction mode as `rollback_only` as that has least impact.
+        #       Ideally something like a "readonly" mode would be ideal for us.
+        #       Ref: https://docs.sqlalchemy.org/en/20/orm/session_api.html#sqlalchemy.orm.Session.params.join_transaction_mode
+        return sa.orm.session.Session(bind=session.connection(), join_transaction_mode="rollback_only")
 
     def reset(self, session=None):
         """Reset the internal state of this UnitOfWork object.
