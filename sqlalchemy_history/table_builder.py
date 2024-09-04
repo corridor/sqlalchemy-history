@@ -2,6 +2,8 @@
 """
 import sqlalchemy as sa
 
+from sqlalchemy.sql.sqltypes import Enum
+
 
 class ColumnReflector(object):
     def __init__(self, manager, parent_table, model=None):
@@ -31,6 +33,8 @@ class ColumnReflector(object):
             column_copy.autoincrement = False
         if column_copy.name == self.option("transaction_column_name"):
             column_copy.nullable = False
+        if isinstance(column_copy.type, Enum):
+            column_copy.type.name = 'history_' + column_copy.type.name
 
         if not column_copy.primary_key:
             column_copy.nullable = True
