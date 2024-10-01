@@ -90,7 +90,11 @@ class Operations(object):
                     del state_copy[rel_key]
 
         if state_copy:
-            self.add(Operation(target, Operation.UPDATE))
-
+            if target in self:
+                # If already in current transaction and some event hook did a update
+                # prior to commit hook, continue with operation type as it is
+                self.add(Operation(target, self[self.format_key(target)].type))
+            else:
+                self.add(Operation(target, Operation.UPDATE))
     def add_delete(self, target):
         self.add(Operation(target, Operation.DELETE))
