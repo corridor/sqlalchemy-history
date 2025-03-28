@@ -234,5 +234,12 @@ class Builder(object):
                 setattr(
                     versioned_target_class,
                     key,
-                    sa.ext.hybrid.hybrid_property(fget=prop.fget),
+                    sa.ext.hybrid.hybrid_property(
+                        fget=prop.fget,
+                        expr=prop.expr,
+                        fset=prop.fset,
+                        fdel=prop.fdel,
+                        custom_comparator=prop.custom_comparator,
+                        update_expr=prop.update_expr,
+                    ),
                 )
