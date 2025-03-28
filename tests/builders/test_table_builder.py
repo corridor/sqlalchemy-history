@@ -93,9 +93,7 @@ class TestTableBuilderInOtherSchema(TestCase):
             last_update = sa.Column(
                 sa.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
             )
-            enum_col = sa.Column(
-                sa.Enum('TYPE_A', 'TYPE_B', name='test_enum')
-            )
+            enum_col = sa.Column(sa.Enum("TYPE_A", "TYPE_B", name="test_enum"))
 
         self.Article = Article
 
@@ -139,12 +137,10 @@ class TestEnumNaming(TestCase):
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
 
-            enum_col = sa.Column(
-                sa.Enum('TYPE_A', 'TYPE_B', name='test_enum')
-            )
+            enum_col = sa.Column(sa.Enum("TYPE_A", "TYPE_B", name="test_enum"))
 
         self.Article = Article
 
     def test_name_enums(self):
         version_model = version_class(self.Article)
-        assert version_model.enum_col.type.name == 'history_test_enum'
+        assert version_model.enum_col.type.name == "history_test_enum"

@@ -16,7 +16,9 @@ def compile_big_integer(element, compiler, **kw):
 
 
 class TransactionBase(object):
-    issued_at = sa.Column(sa.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+    issued_at = sa.Column(
+        sa.DateTime(timezone=True), default=lambda: datetime.datetime.now(datetime.timezone.utc)
+    )
 
     @property
     def entity_names(self):
