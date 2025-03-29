@@ -45,13 +45,11 @@ class TestTransaction(TestCase):
         }
 
     def test_transaction_issued_at(self):
-        time.sleep(1)
+        time.sleep(1) 
         self.article.name = "Some article 2"
         self.session.add(self.article)
         self.session.commit()
-        assert (
-            self.article.versions[0].transaction.issued_at != self.article.versions[1].transaction.issued_at
-        )
+        assert self.article.versions[0].transaction.issued_at != self.article.versions[1].transaction.issued_at
 
 
 # Check that the tests pass without TransactionChangesPlugin
