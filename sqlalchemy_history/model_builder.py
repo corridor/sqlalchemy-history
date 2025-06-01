@@ -1,9 +1,10 @@
-"""Model Builder module build Versioned Models
-"""
+"""Model Builder module build Versioned Models"""
+
 from copy import copy
+
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import column_property
+from sqlalchemy.orm import MappedColumn, column_property
 from sqlalchemy_utils.functions import get_declarative_base, get_primary_keys
 from sqlalchemy_utils.models import generic_repr
 
@@ -82,11 +83,13 @@ def copy_mapper_args(model):
                 args[arg] = model.__mapper_args__[arg]
 
         if "polymorphic_on" in model.__mapper_args__:
-            column = model.__mapper_args__["polymorphic_on"]
-            if isinstance(column, str):
-                args["polymorphic_on"] = column
+            discriminator_column = model.__mapper_args__["polymorphic_on"]
+            if isinstance(discriminator_column, str):
+                args["polymorphic_on"] = discriminator_column
+            elif isinstance(discriminator_column, MappedColumn):
+                args["polymorphic_on"] = discriminator_column.column.key
             else:
-                args["polymorphic_on"] = column.key
+                args["polymorphic_on"] = discriminator_column.key
     return args
 
 
@@ -244,7 +247,10 @@ class ModelBuilder(object):
             name = "%sVersion" % (self.model.__name__,)
         version_cls = type(name, self.base_classes(), args)
         if option(self.model, "base_classes") is None:
-            primary_keys = list(get_primary_keys(self.model).keys()) + ["transaction_id", "operation_type"]
+            primary_keys = list(get_primary_keys(self.model).keys()) + [
+                "transaction_id",
+                "operation_type",
+            ]
             version_cls = generic_repr(*primary_keys)(version_cls)
         return version_cls
 
