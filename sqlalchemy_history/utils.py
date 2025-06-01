@@ -1,15 +1,11 @@
-from itertools import chain
-from inspect import isclass
 from collections import defaultdict
+from inspect import isclass
+from itertools import chain
 
 import sqlalchemy as sa
 from sqlalchemy.orm.attributes import get_history
 from sqlalchemy.orm.util import AliasedClass
-from sqlalchemy_utils.functions import (
-    get_primary_keys,
-    identity,
-    naturally_equivalent,
-)
+from sqlalchemy_utils.functions import get_primary_keys, identity, naturally_equivalent
 
 from sqlalchemy_history.exc import ClassNotVersioned, TableNotVersioned
 
@@ -40,11 +36,11 @@ def get_versioning_manager(item):
 
     try:
         return versioned_item.__versioning_manager__
-    except AttributeError:
+    except AttributeError as e:
         if isinstance(versioned_item, sa.Table):
-            raise TableNotVersioned('Table "%s"' % versioned_item.name)
+            raise TableNotVersioned('Table "%s"' % versioned_item.name) from e
         else:
-            raise ClassNotVersioned(versioned_item.__name__)
+            raise ClassNotVersioned(versioned_item.__name__) from e
 
 
 def option(obj_or_class, option_name):
@@ -85,9 +81,9 @@ def parent_class(version_cls):
     manager = get_versioning_manager(version_cls)
     try:
         return next((k for k, v in manager.version_class_map.items() if v == version_cls))
-    except StopIteration:
+    except StopIteration as e:
         # Should raise Key Error if we can't find the parent_object of a orphaned versioned_model
-        raise KeyError(version_cls)
+        raise KeyError(version_cls) from e
 
 
 def parent_table(version_table):
@@ -99,9 +95,9 @@ def parent_table(version_table):
     manager = get_versioning_manager(version_table)
     try:
         return next((k for k, v in manager.version_table_map.items() if v == version_table))
-    except StopIteration:
+    except StopIteration as e:
         # Raise Key error as we couldn't find parent_object of versioned_object
-        raise KeyError(version_table)
+        raise KeyError(version_table) from e
 
 
 def transaction_class(cls):

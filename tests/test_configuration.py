@@ -1,16 +1,16 @@
-from pytest import raises
 import sqlalchemy as sa
+from pytest import raises
 from sqlalchemy.orm import declarative_base
+
 from sqlalchemy_history import (
-    versioning_manager,
+    ClassNotVersioned,
     ImproperlyConfigured,
+    TableNotVersioned,
     TransactionFactory,
     version_class,
-    ClassNotVersioned,
-    TableNotVersioned,
+    versioning_manager,
 )
 from sqlalchemy_history.utils import version_table
-
 from tests import TestCase
 
 

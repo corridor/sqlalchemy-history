@@ -61,5 +61,6 @@ class VersionClassBase(object):
         manager.plugins.after_construct_changeset(self, data)
         return data
 
-    def revert(self, relations=[]):
+    def revert(self, relations=None):
+        relations = relations or {}
         return Reverter(self, relations=relations)()

@@ -1,6 +1,7 @@
 import datetime
-import sqlalchemy as sa
 from copy import copy
+
+import sqlalchemy as sa
 
 from tests import TestCase
 
@@ -20,7 +21,7 @@ class TestBug27(TestCase):
                 sa.DateTime,
                 nullable=False,
                 server_default=sa.func.current_timestamp(),
-                default=lambda: datetime.datetime.now(datetime.timezone.utc)
+                default=lambda: datetime.datetime.now(datetime.timezone.utc),
             ),
         )
 

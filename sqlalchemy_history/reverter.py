@@ -1,8 +1,9 @@
-"""Reverter Reverts.
-"""
+"""Reverter Reverts."""
+
 import sqlalchemy as sa
+
 from sqlalchemy_history.operation import Operation
-from sqlalchemy_history.utils import versioned_column_properties, parent_class
+from sqlalchemy_history.utils import parent_class, versioned_column_properties
 
 
 def first_level(paths):
@@ -22,7 +23,7 @@ class ReverterException(Exception):
 
 
 class Reverter(object):
-    def __init__(self, obj, visited_objects=None, relations=[]):
+    def __init__(self, obj, visited_objects=None, relations=None):
         self.visited_objects = visited_objects or []
         self.obj = obj
         self.version_parent = self.obj.version_parent
@@ -30,7 +31,7 @@ class Reverter(object):
         self.parent_mapper = sa.inspect(self.parent_class)
         self.session = sa.orm.object_session(self.obj)
 
-        self.relations = list(relations)
+        self.relations = list(relations) if relations else []
         for path in relations:
             subpath = path.split(".")[0]
             if subpath not in self.parent_mapper.relationships:

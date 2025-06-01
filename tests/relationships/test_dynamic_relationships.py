@@ -1,6 +1,8 @@
 from copy import copy
-from tests import TestCase
+
 import sqlalchemy as sa
+
+from tests import TestCase
 
 
 class TestDynamicOneToManyRelationships(TestCase):

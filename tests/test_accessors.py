@@ -1,5 +1,7 @@
 from copy import copy
+
 import sqlalchemy as sa
+
 from sqlalchemy_history.utils import tx_column_name
 from tests import TestCase, create_test_cases
 

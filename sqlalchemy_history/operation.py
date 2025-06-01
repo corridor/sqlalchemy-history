@@ -1,9 +1,7 @@
-"""Operations module contains Operation Class.
-"""
-
-from copy import copy
+"""Operations module contains Operation Class."""
 
 from collections import OrderedDict
+from copy import copy
 
 import sqlalchemy as sa
 from sqlalchemy_utils import identity

@@ -1,8 +1,8 @@
-"""Transaction model makes transactions for history tables
-"""
+"""Transaction model makes transactions for history tables"""
 
-from collections import OrderedDict
 import datetime
+from collections import OrderedDict
+
 import sqlalchemy as sa
 from sqlalchemy.ext.compiler import compiles
 
@@ -89,14 +89,14 @@ class TransactionFactory(ModelFactory):
                 if isinstance(user_cls, str):
                     try:
                         user_cls = registry[user_cls]
-                    except KeyError:
+                    except KeyError as e:
                         raise ImproperlyConfigured(
                             "Could not build relationship between Transaction"
                             " and %s. %s was not found in declarative class "
                             "registry. Either configure VersioningManager to "
                             "use different user class or disable this "
                             "relationship " % (user_cls, user_cls)
-                        )
+                        ) from e
 
                 user_id = sa.Column(
                     sa.inspect(user_cls).primary_key[0].type,
@@ -113,7 +113,8 @@ class TransactionFactory(ModelFactory):
                 )
                 return "<Transaction %s>" % ", ".join(
                     (
-                        "%s=%r" % (field, value) if not isinstance(value, int)
+                        "%s=%r" % (field, value)
+                        if not isinstance(value, int)
                         # We want the following line to ensure that longs get
                         # shown without the ugly L suffix on python 2.x
                         # versions

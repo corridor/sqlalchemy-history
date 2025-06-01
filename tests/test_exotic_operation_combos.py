@@ -1,4 +1,5 @@
 import os
+
 from pytest import mark
 
 from sqlalchemy_history.operation import Operation

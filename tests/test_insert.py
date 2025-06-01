@@ -1,6 +1,6 @@
 import sqlalchemy as sa
-from sqlalchemy_history import count_versions, versioning_manager
 
+from sqlalchemy_history import count_versions, versioning_manager
 from tests import TestCase
 
 

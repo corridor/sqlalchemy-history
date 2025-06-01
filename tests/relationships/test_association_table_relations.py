@@ -1,6 +1,7 @@
 import sqlalchemy as sa
 from sqlalchemy import PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
+
 from tests import TestCase, create_test_cases
 
 

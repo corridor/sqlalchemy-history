@@ -6,6 +6,7 @@ The Module contains following Class
  and the actual versioning to UnitOfWork class.
 
 """
+
 from functools import wraps
 
 import sqlalchemy as sa
@@ -57,7 +58,7 @@ class VersioningManager(object):
         unit_of_work_cls=UnitOfWork,
         transaction_cls=None,
         user_cls=None,
-        options={},
+        options=None,
         plugins=None,
         builder=None,
     ):
@@ -66,6 +67,8 @@ class VersioningManager(object):
             self.builder = Builder()
         else:
             self.builder = builder
+        if options is None:
+            options = {}
         self.builder.manager = self
         self.reset()
         if transaction_cls is not None:

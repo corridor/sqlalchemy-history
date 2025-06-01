@@ -1,5 +1,7 @@
-import sqlalchemy as sa
 from copy import copy
+
+import sqlalchemy as sa
+
 from tests import TestCase
 
 

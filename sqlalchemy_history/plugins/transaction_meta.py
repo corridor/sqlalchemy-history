@@ -48,11 +48,11 @@ keys and values to the meta property of Transaction class.
 """
 
 import sqlalchemy as sa
-from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm.collections import attribute_mapped_collection
 
-from sqlalchemy_history.plugins.base import Plugin
 from sqlalchemy_history.factory import ModelFactory
+from sqlalchemy_history.plugins.base import Plugin
 
 
 class TransactionMetaBase(object):

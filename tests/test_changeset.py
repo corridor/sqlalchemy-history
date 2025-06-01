@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+
 from sqlalchemy_history import get_versioning_manager
 from tests import TestCase
 

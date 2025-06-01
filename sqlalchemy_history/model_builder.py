@@ -93,7 +93,7 @@ def copy_mapper_args(model):
     return args
 
 
-class ModelBuilder(object):
+class ModelBuilder:
     """VersionedModelBuilder handles the building of Version models based on parent table attributes and
     versioning configuration."""
 

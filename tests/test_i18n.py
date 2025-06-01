@@ -1,11 +1,10 @@
 import pytest
-
 import sqlalchemy as sa
-from sqlalchemy_history import versioning_manager
 from sqlalchemy_i18n import Translatable, make_translatable, translation_base
 from sqlalchemy_utils import i18n
-from tests.__init__ import TestCase
 
+from sqlalchemy_history import versioning_manager
+from tests.__init__ import TestCase
 
 i18n.get_locale = lambda: "en"
 make_translatable()

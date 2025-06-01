@@ -1,10 +1,10 @@
-"""This is ExpressionReflector used for generating expression queries.
-"""
+"""This is ExpressionReflector used for generating expression queries."""
+
 import sqlalchemy as sa
 from sqlalchemy.sql.expression import bindparam
 
-from sqlalchemy_history.utils import version_table
 from sqlalchemy_history.exc import TableNotVersioned
+from sqlalchemy_history.utils import version_table
 
 
 class VersionExpressionReflector(sa.sql.visitors.ReplacingCloningVisitor):

@@ -1,10 +1,11 @@
 from copy import copy
-from pytest import raises
-import sqlalchemy as sa
-from sqlalchemy_history import versioning_manager
-from sqlalchemy_history.exc import TableNotVersioned, ClassNotVersioned
-from sqlalchemy_history.utils import get_versioning_manager
 
+import sqlalchemy as sa
+from pytest import raises
+
+from sqlalchemy_history import versioning_manager
+from sqlalchemy_history.exc import ClassNotVersioned, TableNotVersioned
+from sqlalchemy_history.utils import get_versioning_manager
 from tests import TestCase
 
 

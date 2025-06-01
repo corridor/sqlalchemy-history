@@ -1,7 +1,8 @@
 import datetime
-import sqlalchemy as sa
-from sqlalchemy_history.utils import version_class
 
+import sqlalchemy as sa
+
+from sqlalchemy_history.utils import version_class
 from tests import TestCase
 
 
@@ -24,4 +25,4 @@ class TestHybridProperty(TestCase):
         self.Article = Article
 
     def test_hybrid_property_mapping_for_versioned_class(self):
-        version_class(self.Article).time_from_publish
+        assert version_class(self.Article).time_from_publish

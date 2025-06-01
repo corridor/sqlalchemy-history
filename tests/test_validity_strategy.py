@@ -1,5 +1,6 @@
 import pytest
 import sqlalchemy as sa
+
 from sqlalchemy_history import version_class
 from tests import TestCase
 
@@ -30,7 +31,7 @@ class TestValidityStrategy(TestCase):
     def test_schema_contains_end_transaction_id(self):
         table = version_class(self.Article).__table__
         assert "end_transaction_id" in table.c
-        table.c.end_transaction_id
+        assert table.c.end_transaction_id is not None
         assert table.c.end_transaction_id.nullable
         assert not table.c.end_transaction_id.primary_key
 

@@ -2,7 +2,6 @@ from sqlalchemy_history import tx_column_name, version_class
 from sqlalchemy_history.utils import end_tx_attr
 from tests import TestCase, create_test_cases
 
-
 setting_variants = {
     "transaction_column_name": ["transaction_id", "tx_id"],
 }

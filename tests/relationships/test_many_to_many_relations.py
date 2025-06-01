@@ -3,9 +3,8 @@ import os
 
 import sqlalchemy as sa
 from pytest import mark
+
 from sqlalchemy_history import versioning_manager
-
-
 from tests import TestCase, create_test_cases
 
 

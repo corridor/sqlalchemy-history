@@ -1,13 +1,14 @@
 """Relationship Builder builds and manages relations between versioned model built by builder
- module for versioned package
+module for versioned package
 """
+
 import sqlalchemy as sa
 
 from sqlalchemy_history.exc import ClassNotVersioned
 from sqlalchemy_history.expression_reflector import VersionExpressionReflector
 from sqlalchemy_history.operation import Operation
 from sqlalchemy_history.table_builder import TableBuilder
-from sqlalchemy_history.utils import adapt_columns, version_class, option
+from sqlalchemy_history.utils import adapt_columns, option, version_class
 
 
 class RelationshipBuilder(object):

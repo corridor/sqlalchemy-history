@@ -1,10 +1,11 @@
 import datetime
+
 import pytest
 import sqlalchemy as sa
-from tests import TestCase
 
-from sqlalchemy_history.utils import version_table
 from sqlalchemy_history.exc import TableNotVersioned
+from sqlalchemy_history.utils import version_table
+from tests import TestCase
 
 
 class TestVersionTableDefault(TestCase):
@@ -23,7 +24,7 @@ class TestVersionTableDefault(TestCase):
                 sa.DateTime,
                 nullable=False,
                 server_default=sa.func.current_timestamp(),
-                default=lambda: datetime.datetime.now(datetime.timezone.utc)
+                default=lambda: datetime.datetime.now(datetime.timezone.utc),
             ),
         )
 

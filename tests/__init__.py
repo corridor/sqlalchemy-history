@@ -1,20 +1,27 @@
-from copy import copy
 import inspect
 import itertools as it
 import os
+from copy import copy
+
 import pytest
 import sqlalchemy as sa
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, column_property, close_all_sessions, declarative_base
+from sqlalchemy.orm import (
+    close_all_sessions,
+    column_property,
+    declarative_base,
+    sessionmaker,
+)
+
 from sqlalchemy_history import (
     ClassNotVersioned,
-    version_class,
     make_versioned,
-    versioning_manager,
     remove_versioning,
+    version_class,
+    versioning_manager,
 )
+from sqlalchemy_history.plugins import TransactionChangesPlugin, TransactionMetaPlugin
 from sqlalchemy_history.transaction import TransactionFactory
-from sqlalchemy_history.plugins import TransactionMetaPlugin, TransactionChangesPlugin
 
 
 class QueryPool(object):
@@ -148,7 +155,10 @@ class TestCase(object):
             __versioned__ = copy(self.options)
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255), nullable=False)
             content = sa.Column(sa.UnicodeText)
@@ -162,7 +172,10 @@ class TestCase(object):
             __versioned__ = copy(self.options)
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))

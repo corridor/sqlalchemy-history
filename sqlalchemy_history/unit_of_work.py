@@ -1,19 +1,19 @@
-"""UnitOfWork module tracks all unit of transaction needed to be done to track history models trnasactions
-"""
+"""UnitOfWork module tracks all unit of transaction needed to be done to track history models trnasactions"""
 
 from copy import copy
 
 import sqlalchemy as sa
 from sqlalchemy_utils import get_primary_keys, identity
+
 from sqlalchemy_history.operation import Operations
+from sqlalchemy_history.schema import update_end_tx_column
 from sqlalchemy_history.utils import (
     end_tx_column_name,
-    version_class,
     is_session_modified,
     tx_column_name,
+    version_class,
     versioned_column_properties,
 )
-from sqlalchemy_history.schema import update_end_tx_column
 
 
 class UnitOfWork(object):
@@ -180,7 +180,7 @@ class UnitOfWork(object):
         if not self.manager.options["versioning"]:
             return
 
-        for key, operation in copy(self.operations).items():
+        for _key, operation in copy(self.operations).items():
             if operation.processed:
                 continue
 
