@@ -1,5 +1,4 @@
-"""Operations module contains Operation Class.
-"""
+"""Operations module contains Operation Class."""
 
 from copy import copy
 
@@ -96,5 +95,6 @@ class Operations(object):
                 self.add(Operation(target, self[self.format_key(target)].type))
             else:
                 self.add(Operation(target, Operation.UPDATE))
+
     def add_delete(self, target):
         self.add(Operation(target, Operation.DELETE))

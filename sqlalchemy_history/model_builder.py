@@ -1,5 +1,5 @@
-"""Model Builder module build Versioned Models
-"""
+"""Model Builder module build Versioned Models"""
+
 from copy import copy
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr

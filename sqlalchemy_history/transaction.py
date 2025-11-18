@@ -1,5 +1,4 @@
-"""Transaction model makes transactions for history tables
-"""
+"""Transaction model makes transactions for history tables"""
 
 from collections import OrderedDict
 import datetime
@@ -113,7 +112,8 @@ class TransactionFactory(ModelFactory):
                 )
                 return "<Transaction %s>" % ", ".join(
                     (
-                        "%s=%r" % (field, value) if not isinstance(value, int)
+                        "%s=%r" % (field, value)
+                        if not isinstance(value, int)
                         # We want the following line to ensure that longs get
                         # shown without the ugly L suffix on python 2.x
                         # versions

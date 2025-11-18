@@ -6,6 +6,7 @@ The Module contains following Class
  and the actual versioning to UnitOfWork class.
 
 """
+
 from functools import wraps
 
 import sqlalchemy as sa

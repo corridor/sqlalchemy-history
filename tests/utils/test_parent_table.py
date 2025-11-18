@@ -1,4 +1,3 @@
-
 import datetime
 import pytest
 import sqlalchemy as sa
@@ -23,7 +22,7 @@ class TestParentTable(TestCase):
                 sa.DateTime,
                 nullable=False,
                 server_default=sa.func.current_timestamp(),
-                default=lambda: datetime.datetime.now(datetime.timezone.utc)
+                default=lambda: datetime.datetime.now(datetime.timezone.utc),
             ),
         )
 

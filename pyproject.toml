@@ -27,7 +27,6 @@ SQLAlchemy-Utils = ">=0.30.12"
 cached-property = "*"
 
 [tool.poetry.group.dev.dependencies]
-black = "*"
 ruff = "*"
 pre-commit = "2.21.0"
 
@@ -41,10 +40,9 @@ pymssql = ">=2.2.0"
 cx-Oracle = "8.3.0"
 pytest-cov = "*"
 
-[tool.black]
-# Set line-length lower than 120 as black will go 10% above if needed
+[tool.ruff]
 line-length = 110
-target-version = ['py39']
+target-version = 'py39'
 
 [tool.coverage.run]
 dynamic_context = "test_function"

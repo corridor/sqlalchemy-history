@@ -1,6 +1,7 @@
 """Relationship Builder builds and manages relations between versioned model built by builder
- module for versioned package
+module for versioned package
 """
+
 import sqlalchemy as sa
 
 from sqlalchemy_history.exc import ClassNotVersioned
