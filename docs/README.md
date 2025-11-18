@@ -7,7 +7,7 @@ An auditing extension for sqlalchemy which keeps a track of the history of your 
 
 ## Features
 
-- Supports sqlalchemy 2+ and python 3.7+
+- Supports sqlalchemy 2+ and python 3.9+
 - Tracks history for inserts, deletes, and updates
 - Does not store updates which don't change anything
 - Supports alembic migrations
