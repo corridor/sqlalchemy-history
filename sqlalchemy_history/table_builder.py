@@ -1,5 +1,5 @@
-"""Table Builder Builds versioned table.
-"""
+"""Table Builder Builds versioned table."""
+
 import sqlalchemy as sa
 
 from sqlalchemy.sql.sqltypes import Enum
@@ -34,7 +34,7 @@ class ColumnReflector(object):
         if column_copy.name == self.option("transaction_column_name"):
             column_copy.nullable = False
         if isinstance(column_copy.type, Enum):
-            column_copy.type.name = 'history_' + column_copy.type.name
+            column_copy.type.name = "history_" + column_copy.type.name
 
         if not column_copy.primary_key:
             column_copy.nullable = True

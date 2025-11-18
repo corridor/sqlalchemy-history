@@ -21,6 +21,7 @@ transaction_id          entity_name
 233678                  Article
 ================    =================
 """
+
 import sqlalchemy as sa
 
 from sqlalchemy_history.plugins.base import Plugin

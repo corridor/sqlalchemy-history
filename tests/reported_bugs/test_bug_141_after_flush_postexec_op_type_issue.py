@@ -21,10 +21,12 @@ class TestBug141(TestCase):
 
     def test_add_record(self):
         author = self.Author(name="Author 1")
-        @sa.event.listens_for(self.session, 'after_flush_postexec')
+
+        @sa.event.listens_for(self.session, "after_flush_postexec")
         def after_flush_postexec(session, flush_context):
             if author.name != "yoyoyoyoyo":
                 author.name = "yoyoyoyoyo"
+
         self.session.add(author)
         self.session.commit()
 

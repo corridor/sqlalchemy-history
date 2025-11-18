@@ -42,8 +42,9 @@ git checkout -b add-issue-num
 # Run tests locally
 DB=sqlite poetry run pytest
 
-# Lint
-poetry run black .
+# Lint & Format
+poetry run ruff format .
+poetry run ruff check --fix .
 ```
 - Add commit for your changes with message title and message description brifly explaining the approach
     - Keep commit message title 72 characters

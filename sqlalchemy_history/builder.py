@@ -1,5 +1,5 @@
 """Builder Module Detects and builds version class for models and version tables collected during instrument
- phase by the manager
+phase by the manager
 """
 
 from copy import copy
