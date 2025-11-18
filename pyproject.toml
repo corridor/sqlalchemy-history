@@ -20,7 +20,7 @@ classifiers=[
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.9"
 
 SQLAlchemy = ">=2"
 SQLAlchemy-Utils = ">=0.30.12"
@@ -44,7 +44,7 @@ pytest-cov = "*"
 [tool.black]
 # Set line-length lower than 120 as black will go 10% above if needed
 line-length = 110
-target-version = ['py37']
+target-version = ['py39']
 
 [tool.coverage.run]
 dynamic_context = "test_function"
