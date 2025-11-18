@@ -26,7 +26,7 @@ SQLAlchemy = ">=2"
 SQLAlchemy-Utils = ">=0.30.12"
 cached-property = "*"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 black = "*"
 ruff = "*"
 pre-commit = "2.21.0"
@@ -40,7 +40,6 @@ sqlalchemy_i18n = "*"
 pymssql = ">=2.2.0"
 cx-Oracle = "8.3.0"
 pytest-cov = "*"
-
 
 [tool.black]
 # Set line-length lower than 120 as black will go 10% above if needed
