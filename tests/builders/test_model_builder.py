@@ -1,4 +1,6 @@
 from tests import TestCase
+from sqlalchemy_history.model_builder import copy_mapper_args
+from sqlalchemy.orm import MappedColumn
 
 
 class TestVersionModelBuilder(TestCase):
@@ -49,3 +51,36 @@ class TestNoGenericReprModelBuilder(TestCase):
         self.session.add(article)
         self.session.commit()
         assert repr(article.versions[0]) == "Class_ArticleVersion(id=1)"
+
+
+class TestCopyMapperArgs(TestCase):
+    def test_copy_mapper_args_with_mapped_column_polymorphic_on(self):
+        # Test that copy_mapper_args handles MappedColumn for polymorphic_on
+        import sqlalchemy as sa
+
+        class MockModel:
+            __mapper_args__ = {"polymorphic_on": MappedColumn(sa.String(50), name="type")}
+
+        args = copy_mapper_args(MockModel)
+        assert args["polymorphic_on"] == "type"
+
+    def test_copy_mapper_args_with_str_polymorphic_on(self):
+        # Test that copy_mapper_args handles str for polymorphic_on
+
+        class MockModel:
+            __mapper_args__ = {"polymorphic_on": "type"}
+
+        args = copy_mapper_args(MockModel)
+        assert args["polymorphic_on"] == "type"
+
+    def test_copy_mapper_args_with_column_polymorphic_on(self):
+        # Test that copy_mapper_args handles Column for polymorphic_on
+        import sqlalchemy as sa
+
+        column = sa.Column(sa.String(50), name="type")
+
+        class MockModel:
+            __mapper_args__ = {"polymorphic_on": column}
+
+        args = copy_mapper_args(MockModel)
+        assert args["polymorphic_on"] == "type"
