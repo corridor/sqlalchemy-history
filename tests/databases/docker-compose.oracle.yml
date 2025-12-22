@@ -1,0 +1,23 @@
+version: "3.0"
+services:
+    cor_oracle:
+        image: gvenzl/oracle-xe:21
+        container_name: oracle
+        environment:
+            ORACLE_DATABASE: testdb
+            APP_USER: testuser
+            APP_USER_PASSWORD: testpassword
+            ORACLE_PASSWORD: "Password"
+            # You can use `SYSTEM or SYS` as user and `specify some password for in ORACLE_PASSWORD`
+            # value to login as root
+        ports:
+            - "1521:1521"
+        # If you want to persist data for DB for next run use this
+        # volumes:
+        #   - ${PWD}/data/oracle/:/opt/oracle/oradata
+        healthcheck:
+            test: healthcheck.sh
+            interval: 5s
+            retries: 5
+            start_period: 20s
+            timeout: 10s

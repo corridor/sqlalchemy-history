@@ -1,0 +1,19 @@
+services:
+    cor_mssql:
+        image: mcr.microsoft.com/mssql/server:2017-latest
+        container_name: mssql
+        environment:
+            MSSQL_SA_PASSWORD: testpassword
+            ACCEPT_EULA: N
+            # User is `sa`, you can create new users by bashing into it
+        ports:
+            - "1433:1433"
+        # If you want to persist data for DB for next run use this
+        # volumes:
+        #   - ${PWD}/data/mssql/:/var/opt/mssql/data
+        healthcheck:
+            test: /opt/mssql-tools/bin/sqlcmd -U $DB_USER -P $SA_PASSWORD -Q 'select 1' -b -o /dev/null
+            interval: 5s
+            retries: 5
+            start_period: 20s
+            timeout: 10s
