@@ -40,8 +40,8 @@ class VersionModelAccessorsTestCase(TestCase):
         self.session.commit()
         self.session.delete(article)
         self.session.commit()
-        versions = (
-            self.session.query(self.ArticleVersion).order_by(
+        versions = self.session.scalars(
+            sa.select(self.ArticleVersion).order_by(
                 getattr(self.ArticleVersion, self.options["transaction_column_name"])
             )
         ).all()
@@ -57,8 +57,8 @@ class VersionModelAccessorsTestCase(TestCase):
         self.session.commit()
         self.session.delete(article)
         self.session.commit()
-        version = (
-            self.session.query(self.ArticleVersion).order_by(
+        version = self.session.scalars(
+            sa.select(self.ArticleVersion).order_by(
                 getattr(self.ArticleVersion, self.options["transaction_column_name"])
             )
         ).all()[-1]
@@ -169,8 +169,8 @@ class VersionModelAccessorsTestCase(TestCase):
         self.session.delete(article)
         self.session.commit()
 
-        versions = (
-            self.session.query(self.ArticleVersion).order_by(
+        versions = self.session.scalars(
+            sa.select(self.ArticleVersion).order_by(
                 getattr(self.ArticleVersion, self.options["transaction_column_name"])
             )
         ).all()
