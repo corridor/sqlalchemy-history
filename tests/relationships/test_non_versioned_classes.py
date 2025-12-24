@@ -101,3 +101,22 @@ class TestManyToManyRelationshipToNonVersionedClass(TestCase):
         self.session.commit()
         assert len(article.versions[0].tags) == 1
         assert isinstance(article.versions[0].tags[0], self.Tag)
+
+    def test_no_cartesian_product_with_multiple_unrelated_tags(self):
+        # Create an article with one tag
+        article = self.Article(name="Some article")
+        tag1 = self.Tag(name="tag1")
+        article.tags.append(tag1)
+        self.session.add(article)
+        self.session.commit()
+
+        # Create another article with a different tag
+        article2 = self.Article(name="Another article")
+        tag2 = self.Tag(name="tag2")
+        article2.tags.append(tag2)
+        self.session.add(article2)
+        self.session.commit()
+
+        # Ensure the first article's version only has its own tag, not all tags
+        assert len(article.versions[0].tags) == 1
+        assert article.versions[0].tags[0] == tag1
