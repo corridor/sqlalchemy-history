@@ -1,6 +1,7 @@
 from copy import copy
 from tests import TestCase
 import sqlalchemy as sa
+import pytest
 
 
 class TestDynamicOneToManyRelationships(TestCase):
@@ -37,7 +38,8 @@ class TestDynamicOneToManyRelationships(TestCase):
         self.session.add(article)
         self.session.commit()
 
-        assert article.versions[0].tags
+        with pytest.deprecated_call(match='The lazy="dynamic" strategy is now legacy'):
+            assert article.versions[0].tags
 
 
 class TestDynamicManyToManyRelationships(TestCase):
@@ -85,4 +87,5 @@ class TestDynamicManyToManyRelationships(TestCase):
         article.content = "Some content"
         self.session.add(article)
         self.session.commit()
-        assert article.versions[0].tags
+        with pytest.deprecated_call(match='The lazy="dynamic" strategy is now legacy'):
+            assert article.versions[0].tags
