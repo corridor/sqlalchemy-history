@@ -126,11 +126,9 @@ class UpdateEndTransactionID(TestCase):
 
         article.labels = [label]
         self.session.commit()
-        rows = (
-            self.session.query(article_label_table_version)
-            .order_by(article_label_table_version.c.transaction_id)
-            .all()
-        )
+        rows = self.session.execute(
+            sa.select(article_label_table_version).order_by(article_label_table_version.c.transaction_id)
+        ).all()
         if self.versioning_strategy == "validity":
             assert rows[0].label_id == label.id
             assert rows[0].transaction_id == 1

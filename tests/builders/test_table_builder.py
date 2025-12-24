@@ -16,7 +16,7 @@ class TestTableBuilder(TestCase):
         self.session.add(article)
         self.session.commit()
         cls = version_class(self.Tag)
-        version = self.session.query(cls).first()
+        version = self.session.scalars(sa.select(cls)).first()
         assert version.name == "some tag"
         assert version.id == 1
         assert version.article_id == 1

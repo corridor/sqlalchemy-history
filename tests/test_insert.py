@@ -83,4 +83,7 @@ class TestInsertNonVersionedObject(TestCase):
         self.session.add(item)
         self.session.commit()
 
-        assert self.session.query(versioning_manager.transaction_cls).count() == 0
+        assert (
+            self.session.scalar(sa.select(sa.func.count()).select_from(versioning_manager.transaction_cls))
+            == 0
+        )

@@ -62,7 +62,7 @@ class TestActivityNotId(ActivityTestCase):
         self.session.commit()
         self.create_activity(not_id_model)
         self.session.commit()
-        activity = self.session.query(versioning_manager.activity_cls).first()
+        activity = self.session.scalars(sa.select(versioning_manager.activity_cls)).first()
         assert activity
         assert activity.transaction_id
         assert activity.object == not_id_model
@@ -82,7 +82,7 @@ class TestActivity(ActivityTestCase):
         self.session.flush()
         self.create_activity(article)
         self.session.commit()
-        activity = self.session.query(versioning_manager.activity_cls).first()
+        activity = self.session.scalars(sa.select(versioning_manager.activity_cls)).first()
         assert activity
         assert activity.transaction_id
         assert activity.object == article
@@ -99,11 +99,9 @@ class TestActivity(ActivityTestCase):
         )
         self.session.add(activity)
         self.session.commit()
-        versions = (
-            self.session.query(self.ArticleVersion)
-            .order_by(sa.desc(self.ArticleVersion.transaction_id))
-            .all()
-        )
+        versions = self.session.scalars(
+            sa.select(self.ArticleVersion).order_by(sa.desc(self.ArticleVersion.transaction_id))
+        ).all()
         assert activity
         assert activity.transaction_id
         assert activity.object is None
@@ -126,8 +124,8 @@ class TestActivity(ActivityTestCase):
         )
         self.session.add(activity)
         self.session.commit()
-        activities = self.session.query(Activity).filter(
-            sa.or_(Activity.object == article, Activity.target == article)
+        activities = self.session.scalars(
+            sa.select(Activity).filter(sa.or_(Activity.object == article, Activity.target == article))
         )
         assert activities.count() == 2
 
@@ -198,7 +196,9 @@ class TestTargetTxIdGeneration(ActivityTestCase):
         )
         self.session.add(activity)
         self.session.commit()
-        activity = self.session.query(versioning_manager.activity_cls).filter_by(id=activity.id).one()
+        activity = self.session.scalars(
+            sa.select(versioning_manager.activity_cls).filter_by(id=activity.id)
+        ).one()
         assert activity
         assert activity.transaction_id
         assert activity.object == tag

@@ -28,10 +28,13 @@ class TestTransaction(TestCase):
         self.session.commit()
         self.article.name = "Some article"
         self.session.commit()
-        assert self.session.query(versioning_manager.transaction_cls).count() == 1
+        assert (
+            self.session.scalar(sa.select(sa.func.count()).select_from(versioning_manager.transaction_cls))
+            == 1
+        )
 
     def test_repr(self):
-        transaction = self.session.query(versioning_manager.transaction_cls).first()
+        transaction = self.session.scalars(sa.select(versioning_manager.transaction_cls)).first()
         assert "<Transaction id=%d, issued_at=%r>" % (transaction.id, transaction.issued_at) == repr(
             transaction
         )

@@ -75,7 +75,7 @@ class JoinTableInheritanceTestCase(TestCase):
         self.session.add(article)
         self.session.commit()
 
-        version_obj = self.session.query(self.TextItemVersion).first()
+        version_obj = self.session.scalars(sa.select(self.TextItemVersion)).first()
         assert isinstance(version_obj, self.ArticleVersion)
 
     def test_consecutive_insert_and_delete(self):
