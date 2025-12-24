@@ -229,19 +229,21 @@ class UnitOfWork(object):
                     parent, version_obj, alias=sa.orm.aliased(class_.__table__)
                 )
                 subquery = subquery.scalar_subquery()
-                query = session.query(class_.__table__).filter(
-                    sa.and_(
-                        getattr(class_, tx_column_name(version_obj)) == subquery,
-                        *[
-                            getattr(version_obj, pk) == getattr(class_.__table__.c, pk)
-                            for pk in get_primary_keys(class_)
-                            if pk != tx_column_name(class_)
-                        ],
+
+                session.execute(
+                    sa.update(class_.__table__)
+                    .where(
+                        sa.and_(
+                            getattr(class_, tx_column_name(version_obj)) == subquery,
+                            *[
+                                getattr(version_obj, pk) == getattr(class_.__table__.c, pk)
+                                for pk in get_primary_keys(class_)
+                                if pk != tx_column_name(class_)
+                            ],
+                        )
                     )
-                )
-                query.update(
-                    {end_tx_column_name(version_obj): self.current_transaction.id},
-                    synchronize_session=False,
+                    .values(**{end_tx_column_name(version_obj): self.current_transaction.id})
+                    .execution_options(synchronize_session=False)
                 )
 
     def create_association_versions(self, session):
