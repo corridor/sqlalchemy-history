@@ -341,11 +341,19 @@ def count_versions(obj):
     if session is None:
         # If object is transient, we assume it has no version history.
         return 0
+
     manager = get_versioning_manager(obj)
     table_name = manager.option(obj, "table_name") % obj.__table__.name
-    criteria = [f"{pk} = {getattr(obj, pk)!r}" for pk in get_primary_keys(obj)]
-    query = sa.text("SELECT COUNT(1) FROM {} WHERE {}".format(table_name, " AND ".join(criteria)))
-    return session.execute(query).scalar()
+
+    pks = get_primary_keys(obj)
+    version_table = sa.table(table_name, *[sa.column(pk) for pk in pks])
+
+    stmt = (
+        sa.select(sa.func.count())
+        .select_from(version_table)
+        .where(sa.and_(*[getattr(version_table.c, pk) == getattr(obj, pk) for pk in pks]))
+    )
+    return session.execute(stmt).scalar_one()
 
 
 def changeset(obj):
