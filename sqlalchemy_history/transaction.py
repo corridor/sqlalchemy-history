@@ -63,7 +63,7 @@ class TransactionBase:
 class TransactionFactory(ModelFactory):
     model_name = "Transaction"
 
-    def __init__(self, remote_addr=True):
+    def __init__(self, *, remote_addr: bool = True):
         self.remote_addr = remote_addr
 
     def create_class(self, manager):
@@ -91,14 +91,14 @@ class TransactionFactory(ModelFactory):
                 if isinstance(user_cls, str):
                     try:
                         user_cls = registry[user_cls]
-                    except KeyError:
+                    except KeyError as err:
                         raise ImproperlyConfigured(
                             "Could not build relationship between Transaction"
                             f" and {user_cls}. {user_cls} was not found in declarative class "
                             "registry. Either configure VersioningManager to "
                             "use different user class or disable this "
                             "relationship ",
-                        )
+                        ) from err
 
                 user_id = sa.Column(
                     sa.inspect(user_cls).primary_key[0].type,
@@ -113,16 +113,8 @@ class TransactionFactory(ModelFactory):
                 field_values = OrderedDict(
                     (field, getattr(self, field)) for field in fields if hasattr(self, field)
                 )
-                return "<Transaction {}>".format(", ".join(
-                    (
-                        f"{field}={value!r}"
-                        if not isinstance(value, int)
-                        # We want the following line to ensure that longs get
-                        # shown without the ugly L suffix on python 2.x
-                        # versions
-                        else "%s=%d" % (field, value)
-                        for field, value in field_values.items()
-                    ),
-                ))
+                return "<Transaction {}>".format(
+                    ", ".join(f"{field}={value!r}" for field, value in field_values.items())
+                )
 
         return Transaction

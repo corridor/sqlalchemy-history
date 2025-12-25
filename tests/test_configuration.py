@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import pytest
 import sqlalchemy as sa
-from pytest import raises
 from sqlalchemy.orm import declarative_base
 
 from sqlalchemy_history import (
@@ -37,12 +37,12 @@ class TestVersionedModelWithoutVersioning(TestCase):
         # Normal Class is Versioned
         assert version_class(self.Article).__name__ == "ArticleVersion"
         # If disabled Versioning doesn't happen for specific class
-        with raises(ClassNotVersioned):
+        with pytest.raises(ClassNotVersioned):
             version_class(self.TextItem)
 
     def test_does_not_create_history_table(self):
         assert version_table(self.Article.__table__).name == "article_version"
-        with raises(TableNotVersioned):
+        with pytest.raises(TableNotVersioned):
             version_table(self.TextItem.__table__)
 
     def test_does_add_objects_to_unit_of_work(self):
@@ -71,7 +71,7 @@ class TestWithUnknownUserClass:
         versioning_manager.declarative_base = self.Model
 
         factory = TransactionFactory()
-        with raises(ImproperlyConfigured):
+        with pytest.raises(ImproperlyConfigured):
             factory(versioning_manager)
 
 
@@ -111,7 +111,7 @@ class TestWithCreateModelsAsFalse(TestCase):
         self.Category = Category
 
     def test_does_not_create_models(self):
-        with raises(ClassNotVersioned):
+        with pytest.raises(ClassNotVersioned):
             version_class(self.Article)
         assert version_table(self.Article.__table__).name == "article_version"
 

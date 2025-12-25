@@ -118,7 +118,7 @@ class UnitOfWork:
         """
         args = self.transaction_args(session)
 
-        Transaction = self.manager.transaction_cls
+        Transaction = self.manager.transaction_cls  # noqa: N806 -- Transaction is a class
         self.current_transaction = Transaction()
 
         for key, value in args.items():
@@ -187,7 +187,7 @@ class UnitOfWork:
                 continue
 
             if not self.current_transaction:
-                raise Exception("Current transaction not available.")
+                raise RuntimeError("Current transaction not available.")
             self.process_operation(operation)
 
         self.version_session.flush()

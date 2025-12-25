@@ -43,10 +43,10 @@ def get_versioning_manager(item):
 
     try:
         return versioned_item.__versioning_manager__
-    except AttributeError:
+    except AttributeError as err:
         if isinstance(versioned_item, sa.Table):
-            raise TableNotVersioned(f'Table "{versioned_item.name}"')
-        raise ClassNotVersioned(versioned_item.__name__)
+            raise TableNotVersioned(f'Table "{versioned_item.name}"') from err
+        raise ClassNotVersioned(versioned_item.__name__) from err
 
 
 def option(obj_or_class, option_name):
@@ -87,9 +87,9 @@ def parent_class(version_cls):
     manager = get_versioning_manager(version_cls)
     try:
         return next((k for k, v in manager.version_class_map.items() if v == version_cls))
-    except StopIteration:
+    except StopIteration as err:
         # Should raise Key Error if we can't find the parent_object of a orphaned versioned_model
-        raise KeyError(version_cls)
+        raise KeyError(version_cls) from err
 
 
 def parent_table(version_table):
@@ -101,9 +101,9 @@ def parent_table(version_table):
     manager = get_versioning_manager(version_table)
     try:
         return next((k for k, v in manager.version_table_map.items() if v == version_table))
-    except StopIteration:
+    except StopIteration as err:
         # Raise Key error as we couldn't find parent_object of versioned_object
-        raise KeyError(version_table)
+        raise KeyError(version_table) from err
 
 
 def transaction_class(cls):
@@ -407,8 +407,8 @@ def get_association_proxies(klass):
     # if they are ok with it as they provide a similar method to detect and
     # provide hypbrid properties.
     # ref: https://github.com/kvesteri/sqlalchemy-utils/issues/679
-    association_proxy_mapping = {}
-    for key, prop in sa.inspect(klass).all_orm_descriptors.items():
-        if isinstance(prop, sa.ext.associationproxy.AssociationProxy):
-            association_proxy_mapping[key] = prop
-    return association_proxy_mapping
+    return {
+        key: prop
+        for key, prop in sa.inspect(klass).all_orm_descriptors.items()
+        if isinstance(prop, sa.ext.associationproxy.AssociationProxy)
+    }

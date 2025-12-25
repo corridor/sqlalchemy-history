@@ -5,17 +5,17 @@ class VersioningError(Exception):
     pass
 
 
-class ClassNotVersioned(VersioningError):
+class ClassNotVersioned(VersioningError):  # noqa: N818
     pass
 
 
-class TableNotVersioned(VersioningError):
+class TableNotVersioned(VersioningError):  # noqa: N818
     pass
 
 
-class ImproperlyConfigured(VersioningError):
+class ImproperlyConfigured(VersioningError):  # noqa: N818
     pass
 
 
-class NoChangesAttribute(Exception):
+class NoChangesAttribute(Exception):  # noqa: N818
     pass

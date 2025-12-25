@@ -3,8 +3,8 @@ from __future__ import annotations
 import os
 import time
 
+import pytest
 import sqlalchemy as sa
-from pytest import fixture, mark
 
 from sqlalchemy_history import versioning_manager
 from sqlalchemy_history.plugins import TransactionMetaPlugin
@@ -12,7 +12,7 @@ from tests import TestCase
 
 
 class TestTransaction(TestCase):
-    @fixture(autouse=True)
+    @pytest.fixture(autouse=True)
     def setup_method_for_transaction(self, setup_session):
         self.article = self.Article()
         self.article.name = "Some article"
@@ -36,9 +36,7 @@ class TestTransaction(TestCase):
 
     def test_repr(self):
         transaction = self.session.query(versioning_manager.transaction_cls).first()
-        assert "<Transaction id=%d, issued_at=%r>" % (transaction.id, transaction.issued_at) == repr(
-            transaction,
-        )
+        assert f"<Transaction id={transaction.id}, issued_at={transaction.issued_at!r}>" == repr(transaction)
 
     def test_changed_entities(self):
         article_v0 = self.article.versions[0]
@@ -81,7 +79,7 @@ class TestAssigningUserClass(TestCase):
         assert isinstance(attr.property.columns[0].type, sa.Unicode)
 
 
-@mark.skipif(
+@pytest.mark.skipif(
     os.environ.get("DB") in ["sqlite", "oracle"],
     reason="sqlite doesn't have a concept of schema for oracle refer below mentioned fixme!",
 )

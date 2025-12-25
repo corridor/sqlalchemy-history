@@ -34,7 +34,7 @@ def test_versioning(versioning_strategy, property_mod_tracking):
     transaction_cls = TransactionFactory()
     user_cls = None
 
-    Model = declarative_base()
+    Model = declarative_base()  # noqa: N806 -- Model is a class
 
     options = {
         "create_models": True,
@@ -77,7 +77,7 @@ def test_versioning(versioning_strategy, property_mod_tracking):
 
     Model.metadata.create_all(connection)
 
-    Session = sessionmaker(bind=connection)
+    Session = sessionmaker(bind=connection)  # noqa: N806 -- Session is a class
     session = Session(autoflush=False)
     session.execute("CREATE EXTENSION IF NOT EXISTS hstore")
 

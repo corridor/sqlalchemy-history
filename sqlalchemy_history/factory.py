@@ -12,7 +12,7 @@ class ModelFactory:
         """Create model class but only if it doesn't already exist
         in declarative model registry.
         """
-        Base = manager.declarative_base
+        Base = manager.declarative_base  # noqa: N806 -- Base is a class
         registry = Base.registry._class_registry
 
         if self.model_name not in registry:

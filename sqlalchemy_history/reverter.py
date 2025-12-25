@@ -21,7 +21,7 @@ def subpaths(paths, name):
             yield ".".join(parts[1:])
 
 
-class ReverterException(Exception):
+class ReverterException(Exception):  # noqa: N818
     pass
 
 
@@ -40,10 +40,11 @@ class Reverter:
         for path in relations:
             subpath = path.split(".")[0]
             if subpath not in self.parent_mapper.relationships:
-                raise ReverterException(
-                    f"Could not initialize Reverter. Class '{parent_class(self.obj.__class__).__name__}' does not have "
-                    f"relationship '{subpath}'.",
+                msg = (
+                    f"Could not initialize Reverter. Class '{parent_class(self.obj.__class__).__name__}' "
+                    f"does not have relationship '{subpath}'."
                 )
+                raise ReverterException(msg)
 
     def revert_properties(self):
         for prop in versioned_column_properties(self.parent_class):

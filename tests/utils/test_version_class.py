@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pytest import raises
+import pytest
 
 from sqlalchemy_history import ClassNotVersioned, version_class
 from sqlalchemy_history.manager import VersioningManager
@@ -14,7 +14,7 @@ class TestVersionClass(TestCase):
         assert ArticleVersion.__name__ == "ArticleVersion"
 
     def test_throws_error_for_non_versioned_class(self):
-        with raises(ClassNotVersioned):
+        with pytest.raises(ClassNotVersioned):
             version_class("invalid")
 
     def test_module_name_in_class_name(self):

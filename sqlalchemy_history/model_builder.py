@@ -61,10 +61,10 @@ def version_base(manager, parent_cls, base_class_factory=None):
     if base_class_factory is None:
         base_class_factory = get_base_class
 
-    VersionBase = find_closest_versioned_parent(manager, parent_cls)
+    VersionBase = find_closest_versioned_parent(manager, parent_cls)  # noqa: N806 -- VersionBase is a class
 
     if not VersionBase:
-        VersionBase = type(
+        VersionBase = type(  # noqa: N806 -- VersionBase is a class
             "VersionBase",
             ((*base_class_factory(manager, parent_cls), VersionClassBase)),
             {"__abstract__": True},
@@ -175,25 +175,23 @@ class ModelBuilder:
 
         if not sa.inspect(self.model).single:
             parent = find_closest_versioned_parent(self.manager, self.model)
-            if parent:
-                # The version classes do not contain foreign keys, hence we
-                # need to map inheritance condition manually for classes that
-                # use joined table inheritance
-                if parent.__table__.name != table.name:
-                    mapper = sa.inspect(self.model)
+            # The version classes do not contain foreign keys, hence we
+            # need to map inheritance condition manually for classes that
+            # use joined table inheritance
+            if parent and parent.__table__.name != table.name:
+                mapper = sa.inspect(self.model)
 
-                    inherit_condition = adapt_columns(mapper.inherit_condition)
-                    tx_column_name = self.manager.options["transaction_column_name"]
-                    args["inherit_condition"] = sa.and_(
-                        inherit_condition,
-                        getattr(parent.__table__.c, tx_column_name)
-                        == getattr(cls.__table__.c, tx_column_name),
-                    )
-                    args["inherit_foreign_keys"] = [
-                        version_table.c[column.key]
-                        for column in sa.inspect(self.model).columns
-                        if column.primary_key
-                    ]
+                inherit_condition = adapt_columns(mapper.inherit_condition)
+                tx_column_name = self.manager.options["transaction_column_name"]
+                args["inherit_condition"] = sa.and_(
+                    inherit_condition,
+                    getattr(parent.__table__.c, tx_column_name) == getattr(cls.__table__.c, tx_column_name),
+                )
+                args["inherit_foreign_keys"] = [
+                    version_table.c[column.key]
+                    for column in sa.inspect(self.model).columns
+                    if column.primary_key
+                ]
 
         args.update(copy_mapper_args(self.model))
 

@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import os
 
+import pytest
 import sqlalchemy as sa
-from pytest import mark
 from sqlalchemy.orm import declarative_base
 
 from tests import TestCase
 
 
-@mark.skipif(
+@pytest.mark.skipif(
     os.environ.get("DB") == "sqlite",
     reason="sqlite doesn't have a concept of schema",
 )

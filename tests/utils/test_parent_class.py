@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pytest import raises
+import pytest
 
 from sqlalchemy_history import parent_class, version_class
 from tests import TestCase
@@ -12,5 +12,5 @@ class TestParentClass(TestCase):
         assert parent_class(ArticleVersion) == self.Article
 
     def test_throws_error_for_non_version_class(self):
-        with raises(KeyError):
+        with pytest.raises(KeyError):
             parent_class(self.Article)

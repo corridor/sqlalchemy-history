@@ -48,7 +48,7 @@ class TestHybridProperty(TestCase):
         self.Article = Article
 
     def test_hybrid_property_mapping_for_versioned_class(self):
-        version_class(self.Article).time_from_publish
+        version_class(self.Article).time_from_publish  # noqa: B018
 
     def test_version_class_hybrid_property_in_sql_expression(self):
         sa.select(version_class(self.Article).author_name)

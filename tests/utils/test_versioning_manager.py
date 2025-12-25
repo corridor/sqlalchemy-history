@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from copy import copy
 
+import pytest
 import sqlalchemy as sa
-from pytest import raises
 
 from sqlalchemy_history import versioning_manager
 from sqlalchemy_history.exc import ClassNotVersioned, TableNotVersioned
@@ -78,13 +78,13 @@ class TestVersioningManager(TestCase):
         assert get_versioning_manager(sa.orm.aliased(self.ArticleVersion)) == versioning_manager
 
     def test_unknown_class(self):
-        with raises(ClassNotVersioned):
+        with pytest.raises(ClassNotVersioned):
             get_versioning_manager(self.Tag)
 
     def test_unknown_table(self):
-        with raises(TableNotVersioned):
+        with pytest.raises(TableNotVersioned):
             get_versioning_manager(self.Tag.__table__)
 
     def test_versioning_manager_uow(self):
-        with raises(KeyError):
+        with pytest.raises(KeyError):
             versioning_manager.get_uow(self.session.connection())

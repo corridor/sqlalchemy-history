@@ -42,7 +42,7 @@ def get_dns_from_driver(driver):  # pragma: no cover
         return "mssql+pymssql://sa:MSsql2022@localhost:1433"
     if driver == "oracle":
         return "oracle+cx_oracle://SYSTEM:Oracle2022@localhost:1521"
-    raise Exception(f"Unknown driver given: {driver!r}")
+    raise ValueError(f"Unknown driver given: {driver!r}")
 
 
 class TestCase:
@@ -209,6 +209,6 @@ def create_test_cases(base_class, setting_variants=setting_variants):
 
     class_suffix = base_class.__name__[0 : -len("TestCase")]
     for index, combination in enumerate(combinations):
-        class_name = "Test%s%i" % (class_suffix, index)
+        class_name = f"Test{class_suffix}{index}"
         # Assign a new test case class for current module.
         setattr(module, class_name, type(class_name, (base_class,), combination))

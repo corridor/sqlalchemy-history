@@ -39,7 +39,7 @@ class TestValidityStrategy(TestCase):
     def test_schema_contains_end_transaction_id(self):
         table = version_class(self.Article).__table__
         assert "end_transaction_id" in table.c
-        table.c.end_transaction_id
+        table.c.end_transaction_id  # noqa: B018
         assert table.c.end_transaction_id.nullable
         assert not table.c.end_transaction_id.primary_key
 

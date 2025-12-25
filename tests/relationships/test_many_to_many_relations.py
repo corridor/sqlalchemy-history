@@ -3,8 +3,8 @@ from __future__ import annotations
 import datetime
 import os
 
+import pytest
 import sqlalchemy as sa
-from pytest import mark
 
 from sqlalchemy_history import versioning_manager
 from tests import TestCase, create_test_cases
@@ -358,7 +358,7 @@ class TestManyToManySelfReferential(TestCase):
         assert article.versions[2] in reference1.versions[2].cited_by
 
 
-@mark.skipif(os.environ.get("DB") == "sqlite", reason="sqlite doesn't have a concept of schema")
+@pytest.mark.skipif(os.environ.get("DB") == "sqlite", reason="sqlite doesn't have a concept of schema")
 class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
     def create_models(self):
         class Article(self.Model):
@@ -424,7 +424,7 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
         TestManyToManySelfReferential.create_tables(self)
 
 
-@mark.skipif(os.environ.get("DB") == "sqlite", reason="sqlite doesn't have a concept of schema")
+@pytest.mark.skipif(os.environ.get("DB") == "sqlite", reason="sqlite doesn't have a concept of schema")
 class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTestCase):
     def create_models(self):
         class Article(self.Model):

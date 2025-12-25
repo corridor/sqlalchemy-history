@@ -124,10 +124,13 @@ class Builder:
         if not self.manager.options["versioning"]:
             return
 
-        if hasattr(cls, "__versioned__"):
-            if not cls.__versioned__.get("class") and cls not in self.manager.pending_classes:
-                self.manager.pending_classes.append(cls)
-                self.manager.metadata = cls.metadata
+        if (
+            hasattr(cls, "__versioned__")
+            and not cls.__versioned__.get("class")
+            and cls not in self.manager.pending_classes
+        ):
+            self.manager.pending_classes.append(cls)
+            self.manager.metadata = cls.metadata
 
     def build_transaction_class(self):
         if self.manager.pending_classes:

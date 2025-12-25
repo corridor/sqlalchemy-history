@@ -50,7 +50,7 @@ class ChangeSetTestCase(ChangeSetBaseTestCase):
             (id, %s, name, content, operation_type)
             VALUES
             (1, %d, 'something', 'some content', 1)
-            """
+            """  # noqa: UP031 -- for readability
                 % (self.transaction_column_name, tx_log.id),
             ),
         )

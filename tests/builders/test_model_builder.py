@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sqlalchemy as sa
 from sqlalchemy.orm import MappedColumn
 
 from sqlalchemy_history.model_builder import copy_mapper_args
@@ -59,7 +60,6 @@ class TestNoGenericReprModelBuilder(TestCase):
 class TestCopyMapperArgs(TestCase):
     def test_copy_mapper_args_with_mapped_column_polymorphic_on(self):
         # Test that copy_mapper_args handles MappedColumn for polymorphic_on
-        import sqlalchemy as sa
 
         class MockModel:
             __mapper_args__ = {"polymorphic_on": MappedColumn(sa.String(50), name="type")}
@@ -78,7 +78,6 @@ class TestCopyMapperArgs(TestCase):
 
     def test_copy_mapper_args_with_column_polymorphic_on(self):
         # Test that copy_mapper_args handles Column for polymorphic_on
-        import sqlalchemy as sa
 
         column = sa.Column(sa.String(50), name="type")
 

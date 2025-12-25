@@ -60,8 +60,11 @@ exclude = ["tests/*"]
 
 [tool.ruff.lint]
 ignore = [
-    "COM812", # Do not force trailing commas
-    "S101",   # Allow "assert" statements
+    "COM812",  # Do not force trailing commas
+    "N805",    # first argument of a method should be named 'self'
+    "PLR0913", # Allow long parameter lists
+    "S101",    # Allow "assert" statements
+    "TRY003",  # Allow raising exceptions with strings. It is recommended to create separate classes for this
 ]
 select = [
     "A",      # flake8-builtins
@@ -114,4 +117,4 @@ case-sensitive = true
 required-imports = ["from __future__ import annotations"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S608"]
+"tests/*" = ["S608", "N806", "PLR2004", "RUF012"]

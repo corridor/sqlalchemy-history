@@ -14,9 +14,9 @@ class Operation:
     UPDATE = 1
     DELETE = 2
 
-    def __init__(self, target, type):
+    def __init__(self, target, type_):
         self.target = target
-        self.type = type
+        self.type = type_
         self.processed = False
 
     def __eq__(self, other):
@@ -85,9 +85,8 @@ class Operations:
         relationships = sa.inspect(target.__class__).relationships
         # Remove all ONETOMANY and MANYTOMANY relationships
         for rel_key, relationship in relationships.items():
-            if relationship.direction.name in ["ONETOMANY", "MANYTOMANY"]:
-                if rel_key in state_copy:
-                    del state_copy[rel_key]
+            if relationship.direction.name in ["ONETOMANY", "MANYTOMANY"] and rel_key in state_copy:
+                del state_copy[rel_key]
 
         if state_copy:
             if target in self:

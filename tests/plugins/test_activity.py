@@ -33,9 +33,9 @@ class ActivityTestCase(TestCase):
         self.session.add(article)
         return article
 
-    def create_activity(self, object=None, target=None):
+    def create_activity(self, object_=None, target=None):
         activity = versioning_manager.activity_cls(
-            object=object,
+            object=object_,
             target=target,
             verb="create",
         )

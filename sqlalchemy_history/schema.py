@@ -47,7 +47,7 @@ def update_end_tx_column(
 
     """
     if conn is None:
-        from alembic import op
+        from alembic import op  # noqa: PLC0415
 
         conn = op.get_bind()
 
@@ -146,7 +146,7 @@ def update_property_mod_flags(
 
     """
     if conn is None:
-        from alembic import op
+        from alembic import op  # noqa: PLC0415
 
         conn = op.get_bind()
 
@@ -163,8 +163,9 @@ def update_property_mod_flags(
     for row in stmt:
         values = {
             column + mod_suffix: row._mapping[column + mod_suffix]
-                for column in tracked_columns
-                if row._mapping[column + mod_suffix]}
+            for column in tracked_columns
+            if row._mapping[column + mod_suffix]
+        }
         if values:
             criteria = [getattr(table.c, pk) == row._mapping[pk] for pk in primary_keys]
             query = table.update().where(sa.and_(*criteria)).values(values)

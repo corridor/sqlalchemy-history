@@ -20,6 +20,6 @@ class TestChangeSet(TestCase):
         article = self.Article(name="Some article")
         self.session.add(article)
         self.session.commit()
-        article.tags
+        article.tags  # noqa: B018
         article.name = "Updated article"
         assert changeset(article) == {"name": ["Updated article", "Some article"]}
