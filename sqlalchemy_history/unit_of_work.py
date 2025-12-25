@@ -14,6 +14,7 @@ from sqlalchemy_history.utils import (
     version_class,
     versioned_column_properties,
 )
+import sqlalchemy.orm
 
 
 class UnitOfWork(object):

@@ -7,6 +7,7 @@ from sqlalchemy.ext.compiler import compiles
 
 from sqlalchemy_history.exc import ImproperlyConfigured, NoChangesAttribute
 from sqlalchemy_history.factory import ModelFactory
+import sqlalchemy.orm
 
 
 @compiles(sa.types.BigInteger, "sqlite")

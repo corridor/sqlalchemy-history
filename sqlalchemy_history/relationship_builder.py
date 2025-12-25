@@ -9,6 +9,7 @@ from sqlalchemy_history.expression_reflector import VersionExpressionReflector
 from sqlalchemy_history.operation import Operation
 from sqlalchemy_history.table_builder import TableBuilder
 from sqlalchemy_history.utils import adapt_columns, version_class, option
+import sqlalchemy.orm
 
 
 class RelationshipBuilder(object):

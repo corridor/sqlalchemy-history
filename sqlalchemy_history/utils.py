@@ -12,6 +12,8 @@ from sqlalchemy_utils.functions import (
 )
 
 from sqlalchemy_history.exc import ClassNotVersioned, TableNotVersioned
+import sqlalchemy.orm
+import sqlalchemy.ext.associationproxy
 
 
 def get_versioning_manager(item):

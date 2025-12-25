@@ -29,7 +29,7 @@ from sqlalchemy_history.utils import (  # noqa: F401
     vacuum,
     version_class,
 )
-
+import sqlalchemy.orm
 
 __version__ = "2.1.4"
 

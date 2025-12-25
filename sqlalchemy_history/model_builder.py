@@ -10,6 +10,7 @@ from sqlalchemy_utils.models import generic_repr
 
 from sqlalchemy_history.utils import adapt_columns, option
 from sqlalchemy_history.version import VersionClassBase
+import sqlalchemy.orm
 
 
 def find_closest_versioned_parent(manager, model):

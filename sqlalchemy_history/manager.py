@@ -20,6 +20,7 @@ from sqlalchemy_history.plugins import PluginCollection
 from sqlalchemy_history.transaction import TransactionFactory
 from sqlalchemy_history.unit_of_work import UnitOfWork
 from sqlalchemy_history.utils import is_modified, is_versioned
+import sqlalchemy.orm
 
 
 def tracked_operation(func):

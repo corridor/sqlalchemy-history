@@ -54,6 +54,8 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy_history.plugins.base import Plugin
 from sqlalchemy_history.factory import ModelFactory
 
+import sqlalchemy.orm
+
 
 class TransactionMetaBase(object):
     transaction_id = sa.Column(sa.BigInteger, primary_key=True)

@@ -15,6 +15,7 @@ from sqlalchemy_history.plugins import (
     TransactionChangesPlugin,
 )
 from termcolor import colored
+import sqlalchemy.orm
 
 warnings.simplefilter("error", sa.exc.SAWarning)
 
