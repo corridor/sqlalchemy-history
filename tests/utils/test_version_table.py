@@ -1,10 +1,13 @@
+from __future__ import annotations
+
 import datetime
+
 import pytest
 import sqlalchemy as sa
-from tests import TestCase
 
-from sqlalchemy_history.utils import version_table
 from sqlalchemy_history.exc import TableNotVersioned
+from sqlalchemy_history.utils import version_table
+from tests import TestCase
 
 
 class TestVersionTableDefault(TestCase):
@@ -15,7 +18,11 @@ class TestVersionTableDefault(TestCase):
             "article_author",
             self.Model.metadata,
             sa.Column(
-                "article_id", sa.Integer, sa.ForeignKey("article.id"), primary_key=True, nullable=False
+                "article_id",
+                sa.Integer,
+                sa.ForeignKey("article.id"),
+                primary_key=True,
+                nullable=False,
             ),
             sa.Column("author_id", sa.Integer, sa.ForeignKey("author.id"), primary_key=True, nullable=False),
             sa.Column(

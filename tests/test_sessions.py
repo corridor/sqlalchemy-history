@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from sqlalchemy.orm.session import Session
-from sqlalchemy_history import versioning_manager, UnitOfWork
+
+from sqlalchemy_history import UnitOfWork, versioning_manager
 from tests import TestCase
 
 

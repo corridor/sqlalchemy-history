@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy_history import changeset
 from tests import TestCase
 

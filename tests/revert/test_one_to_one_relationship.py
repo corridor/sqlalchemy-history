@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 from copy import copy
-from tests import TestCase
+
 import sqlalchemy as sa
+
+from tests import TestCase
 
 
 class TestRevertOneToOneRelationship(TestCase):
@@ -10,7 +14,10 @@ class TestRevertOneToOneRelationship(TestCase):
             __versioned__ = copy(self.options)
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -19,7 +26,10 @@ class TestRevertOneToOneRelationship(TestCase):
             __versioned__ = copy(self.options)
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255), nullable=False)
             content = sa.Column(sa.UnicodeText)

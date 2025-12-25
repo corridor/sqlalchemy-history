@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sqlalchemy as sa
 from cached_property import cached_property
 
@@ -9,7 +11,7 @@ from sqlalchemy_history.utils import (
 )
 
 
-class VersionClassBase(object):
+class VersionClassBase:
     @cached_property
     def previous(self):
         """Returns the previous version relative to this version in the version

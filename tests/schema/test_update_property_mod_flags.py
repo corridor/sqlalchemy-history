@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from copy import copy
 
 import sqlalchemy as sa
+
 from sqlalchemy_history import version_class
 from sqlalchemy_history.plugins import PropertyModTrackerPlugin
 from sqlalchemy_history.schema import update_property_mod_flags
@@ -17,7 +20,10 @@ class TestSchemaTools(TestCase):
             __versioned__ = copy(self.options)
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255), nullable=False)
 
@@ -38,7 +44,7 @@ class TestSchemaTools(TestCase):
                 "name": "Article 1",
                 "name_mod": False,
                 "operation_type": 1,
-            }
+            },
         )
         self._insert(
             {
@@ -48,7 +54,7 @@ class TestSchemaTools(TestCase):
                 "name": "Article 1",
                 "name_mod": False,
                 "operation_type": 2,
-            }
+            },
         )
         self._insert(
             {
@@ -58,7 +64,7 @@ class TestSchemaTools(TestCase):
                 "name": "Article 2",
                 "name_mod": False,
                 "operation_type": 1,
-            }
+            },
         )
         self._insert(
             {
@@ -68,7 +74,7 @@ class TestSchemaTools(TestCase):
                 "name": "Article 1 updated",
                 "name_mod": False,
                 "operation_type": 2,
-            }
+            },
         )
         self._insert(
             {
@@ -78,12 +84,12 @@ class TestSchemaTools(TestCase):
                 "name": "Article 2",
                 "name_mod": False,
                 "operation_type": 2,
-            }
+            },
         )
 
         update_property_mod_flags(table, ["name"], conn=self.session)
         rows = self.session.execute(
-            sa.text("SELECT * FROM article_version ORDER BY transaction_id")
+            sa.text("SELECT * FROM article_version ORDER BY transaction_id"),
         ).fetchall()
         assert rows[0].transaction_id == 1
         assert rows[0].name_mod

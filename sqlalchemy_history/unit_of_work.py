@@ -1,8 +1,11 @@
 """UnitOfWork module tracks all unit of transaction needed to be done to track history models transactions"""
 
+from __future__ import annotations
+
 from copy import copy
 
 import sqlalchemy as sa
+import sqlalchemy.orm
 from sqlalchemy_utils import get_primary_keys, identity
 
 from sqlalchemy_history.operation import Operations
@@ -14,10 +17,9 @@ from sqlalchemy_history.utils import (
     version_class,
     versioned_column_properties,
 )
-import sqlalchemy.orm
 
 
-class UnitOfWork(object):
+class UnitOfWork:
     def __init__(self, manager):
         self.manager = manager
         self.reset()
@@ -146,8 +148,7 @@ class UnitOfWork(object):
             tx_column = self.manager.option(target, "transaction_column_name")
             setattr(version_obj, tx_column, self.current_transaction.id)
             return version_obj
-        else:
-            return self.version_objs[version_key]
+        return self.version_objs[version_key]
 
     def process_operation(self, operation):
         """Process given operation object. The operation processing has x stages:
@@ -209,7 +210,7 @@ class UnitOfWork(object):
                 sa.sql.expression.alias(
                     subquery.subquery() if hasattr(subquery, "subquery") else subquery,
                     name="subquery",
-                )
+                ),
             )
         return subquery
 
@@ -227,7 +228,9 @@ class UnitOfWork(object):
         for class_ in version_obj.__class__.__mro__:
             if class_ in self.manager.version_class_map.values():
                 subquery = self.version_validity_subquery(
-                    parent, version_obj, alias=sa.orm.aliased(class_.__table__)
+                    parent,
+                    version_obj,
+                    alias=sa.orm.aliased(class_.__table__),
                 )
                 subquery = subquery.scalar_subquery()
                 query = session.query(class_.__table__).filter(
@@ -238,7 +241,7 @@ class UnitOfWork(object):
                             for pk in get_primary_keys(class_)
                             if pk != tx_column_name(class_)
                         ],
-                    )
+                    ),
                 )
                 query.update(
                     {end_tx_column_name(version_obj): self.current_transaction.id},
@@ -254,7 +257,7 @@ class UnitOfWork(object):
         statements = copy(self.pending_statements)
         for stmt in statements:
             stmt = stmt.values(
-                **{self.manager.options["transaction_column_name"]: self.current_transaction.id}
+                **{self.manager.options["transaction_column_name"]: self.current_transaction.id},
             )
             session.execute(stmt)
             if self.manager.options["strategy"] == "validity":

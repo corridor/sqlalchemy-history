@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import pytest
 import sqlalchemy as sa
+
 from sqlalchemy_history import version_class
 from tests import TestCase, create_test_cases
 
@@ -10,7 +13,10 @@ class JoinTableInheritanceTestCase(TestCase):
             __tablename__ = "text_item"
             __versioned__ = {"base_classes": (self.Model,)}
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
 
             name = sa.Column(sa.Unicode(255))
@@ -118,10 +124,10 @@ class JoinTableInheritanceTestCase(TestCase):
         assert article.versions.count() == 2
 
         assert self.session.execute(
-            sa.text("SELECT %s FROM text_item_version ORDER BY %s" % (end_tx_column, tx_column))
+            sa.text("SELECT %s FROM text_item_version ORDER BY %s" % (end_tx_column, tx_column)),
         ).fetchone()[0]
         assert self.session.execute(
-            sa.text("SELECT %s FROM article_version ORDER BY %s" % (end_tx_column, tx_column))
+            sa.text("SELECT %s FROM article_version ORDER BY %s" % (end_tx_column, tx_column)),
         ).fetchone()[0]
 
 

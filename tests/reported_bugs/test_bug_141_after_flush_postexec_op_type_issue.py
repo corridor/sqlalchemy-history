@@ -1,8 +1,11 @@
-import sqlalchemy as sa
+from __future__ import annotations
+
 from copy import copy
 
-from tests import TestCase
+import sqlalchemy as sa
+
 from sqlalchemy_history import version_class
+from tests import TestCase
 
 
 class TestBug141(TestCase):
@@ -13,7 +16,10 @@ class TestBug141(TestCase):
             __versioned__ = copy(self.options)
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255))
 

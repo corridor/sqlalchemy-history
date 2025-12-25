@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 import sqlalchemy as sa
 
@@ -11,7 +13,10 @@ class TestColumnPrefix(TestCase):
             __tablename__ = "text_item"
             __versioned__ = {"base_classes": (self.Model,)}
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
 
             name = sa.Column(sa.Unicode(255))

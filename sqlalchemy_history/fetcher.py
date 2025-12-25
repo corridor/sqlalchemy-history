@@ -1,10 +1,14 @@
 """Fetcher Module helps traverse across versions for a given versioned object."""
 
+from __future__ import annotations
+
 import operator
+
 import sqlalchemy as sa
-from sqlalchemy_utils import get_primary_keys, identity
-from sqlalchemy_history.utils import tx_column_name, end_tx_column_name
 import sqlalchemy.orm
+from sqlalchemy_utils import get_primary_keys, identity
+
+from sqlalchemy_history.utils import end_tx_column_name, tx_column_name
 
 
 def parent_identity(obj_or_class):
@@ -26,7 +30,7 @@ def parent_criteria(obj, class_=None):
     return eqmap(parent_identity, (class_, obj))
 
 
-class VersionObjectFetcher(object):
+class VersionObjectFetcher:
     def __init__(self, manager):
         self.manager = manager
 
@@ -85,7 +89,7 @@ class VersionObjectFetcher(object):
                         for pk in get_primary_keys(obj.__class__)
                         if pk != tx_column_name(obj)
                     ],
-                )
+                ),
             )
             .correlate(table)
         )
@@ -98,7 +102,7 @@ class VersionObjectFetcher(object):
         subquery = subquery.scalar_subquery()
 
         return session.query(obj.__class__).filter(
-            sa.and_(getattr(obj.__class__, tx_column_name(obj)) == subquery, *parent_criteria(obj))
+            sa.and_(getattr(obj.__class__, tx_column_name(obj)) == subquery, *parent_criteria(obj)),
         )
 
     def _index_query(self, obj):
@@ -152,7 +156,7 @@ class ValidityFetcher(VersionObjectFetcher):
             sa.and_(
                 getattr(obj.__class__, tx_column_name(obj)) == getattr(obj, end_tx_column_name(obj)),
                 *parent_criteria(obj),
-            )
+            ),
         )
 
     def previous_query(self, obj):
@@ -166,5 +170,5 @@ class ValidityFetcher(VersionObjectFetcher):
             sa.and_(
                 getattr(obj.__class__, end_tx_column_name(obj)) == getattr(obj, tx_column_name(obj)),
                 *parent_criteria(obj),
-            )
+            ),
         )

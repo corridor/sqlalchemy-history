@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy_history.plugins.activity import ActivityPlugin  # noqa: F401
 from sqlalchemy_history.plugins.base import Plugin, PluginCollection  # noqa: F401
 from sqlalchemy_history.plugins.null_delete import NullDeletePlugin  # noqa: F401

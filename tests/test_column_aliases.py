@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import sqlalchemy as sa
 
 from sqlalchemy_history import version_class
-
 from tests import TestCase, create_test_cases
 
 
@@ -57,7 +58,7 @@ class ColumnAliasesTestCase(ColumnAliasesBaseTestCase):
 
         versions = (
             self.session.query(TextItemVersion).order_by(
-                getattr(TextItemVersion, self.options["transaction_column_name"])
+                getattr(TextItemVersion, self.options["transaction_column_name"]),
             )
         ).all()
         assert versions[1].previous.name == "Some item"

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sqlalchemy as sa
 
 from tests import TestCase
@@ -10,7 +12,10 @@ class TestRevertDeepRelations(TestCase):
             __versioned__ = {}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -19,7 +24,10 @@ class TestRevertDeepRelations(TestCase):
             __versioned__ = {}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255))
             category_id = sa.Column(sa.Integer, sa.ForeignKey(Category.id))
@@ -30,7 +38,10 @@ class TestRevertDeepRelations(TestCase):
             __versioned__ = {}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))

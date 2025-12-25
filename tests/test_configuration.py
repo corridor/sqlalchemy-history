@@ -1,16 +1,18 @@
-from pytest import raises
+from __future__ import annotations
+
 import sqlalchemy as sa
+from pytest import raises
 from sqlalchemy.orm import declarative_base
+
 from sqlalchemy_history import (
-    versioning_manager,
+    ClassNotVersioned,
     ImproperlyConfigured,
+    TableNotVersioned,
     TransactionFactory,
     version_class,
-    ClassNotVersioned,
-    TableNotVersioned,
+    versioning_manager,
 )
 from sqlalchemy_history.utils import version_table
-
 from tests import TestCase
 
 
@@ -23,7 +25,10 @@ class TestVersionedModelWithoutVersioning(TestCase):
             __versioned__ = {"versioning": False}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
 
         self.TextItem = TextItem
@@ -45,7 +50,7 @@ class TestVersionedModelWithoutVersioning(TestCase):
         self.session.commit()
 
 
-class TestWithUnknownUserClass(object):
+class TestWithUnknownUserClass:
     def test_raises_improperly_configured_error(self):
         self.Model = declarative_base()
 
@@ -54,7 +59,10 @@ class TestWithUnknownUserClass(object):
             __versioned__ = {}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
 
         self.TextItem = TextItem
@@ -76,7 +84,10 @@ class TestWithCreateModelsAsFalse(TestCase):
             __versioned__ = {}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255), nullable=False)
             content = sa.Column(sa.UnicodeText)
@@ -87,7 +98,10 @@ class TestWithCreateModelsAsFalse(TestCase):
             __versioned__ = {}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
@@ -108,7 +122,10 @@ class TestWithoutAnyVersionedModels(TestCase):
             __tablename__ = "article"
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255), nullable=False)
             content = sa.Column(sa.UnicodeText)

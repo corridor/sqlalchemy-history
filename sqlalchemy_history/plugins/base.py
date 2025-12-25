@@ -1,4 +1,7 @@
-class Plugin(object):
+from __future__ import annotations
+
+
+class Plugin:
     def is_session_modified(self, session):
         return False
 
@@ -33,7 +36,7 @@ class Plugin(object):
         pass
 
 
-class PluginCollection(object):
+class PluginCollection:
     def __init__(self, plugins=None):
         if plugins is None:
             plugins = []

@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import pytest
 import sqlalchemy as sa
+
 from sqlalchemy_history import version_class
 from tests import TestCase
 
@@ -10,7 +13,10 @@ class TestValidityStrategy(TestCase):
             __tablename__ = "blog_post"
             __versioned__ = {"base_classes": (self.Model,), "strategy": "validity"}
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
 
             name = sa.Column(sa.Unicode(255))
@@ -19,7 +25,10 @@ class TestValidityStrategy(TestCase):
             __tablename__ = "article"
             __versioned__ = {"base_classes": (self.Model,), "strategy": "validity"}
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
 
             name = sa.Column(sa.Unicode(255))
@@ -59,7 +68,10 @@ class TestJoinTableInheritanceWithValidityVersioning(TestCase):
                 "strategy": "validity",
             }
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
 
             discriminator = sa.Column(sa.Unicode(100))

@@ -1,5 +1,6 @@
-from sqlalchemy_history import vacuum
+from __future__ import annotations
 
+from sqlalchemy_history import vacuum
 from tests import TestCase
 
 

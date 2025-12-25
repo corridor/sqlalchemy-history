@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sqlalchemy as sa
 
 
@@ -10,7 +12,7 @@ def get_end_tx_column_query(table, end_tx_column_name="end_transaction_id", tx_c
         sa.and_(
             getattr(v3.c, tx_column_name) > getattr(v1.c, tx_column_name),
             *[getattr(v3.c, pk) == getattr(v1.c, pk) for pk in primary_keys if pk != tx_column_name],
-        )
+        ),
     )
     tx_criterion = tx_criterion.scalar_subquery()
     return (
@@ -50,7 +52,9 @@ def update_end_tx_column(
         conn = op.get_bind()
 
     query = get_end_tx_column_query(
-        table, end_tx_column_name=end_tx_column_name, tx_column_name=tx_column_name
+        table,
+        end_tx_column_name=end_tx_column_name,
+        tx_column_name=tx_column_name,
     )
     stmt = conn.execute(query).fetchall()
     primary_keys = [c.name for c in table.c if c.primary_key]
@@ -162,7 +166,7 @@ def update_property_mod_flags(
                 (column + mod_suffix, row._mapping[column + mod_suffix])
                 for column in tracked_columns
                 if row._mapping[column + mod_suffix]
-            ]
+            ],
         )
         if values:
             criteria = [getattr(table.c, pk) == row._mapping[pk] for pk in primary_keys]

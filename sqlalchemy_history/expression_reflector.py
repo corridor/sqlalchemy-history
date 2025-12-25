@@ -1,10 +1,12 @@
 """This is ExpressionReflector used for generating expression queries."""
 
+from __future__ import annotations
+
 import sqlalchemy as sa
 from sqlalchemy.sql.expression import bindparam
 
-from sqlalchemy_history.utils import version_table
 from sqlalchemy_history.exc import TableNotVersioned
+from sqlalchemy_history.utils import version_table
 
 
 class VersionExpressionReflector(sa.sql.visitors.ReplacingCloningVisitor):
@@ -14,7 +16,7 @@ class VersionExpressionReflector(sa.sql.visitors.ReplacingCloningVisitor):
 
     def replace(self, column):
         if not isinstance(column, sa.Column):
-            return
+            return None
         try:
             table = version_table(column.table)
         except TableNotVersioned:

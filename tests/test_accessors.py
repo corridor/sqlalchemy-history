@@ -1,5 +1,9 @@
+from __future__ import annotations
+
 from copy import copy
+
 import sqlalchemy as sa
+
 from sqlalchemy_history.utils import tx_column_name
 from tests import TestCase, create_test_cases
 
@@ -42,7 +46,7 @@ class VersionModelAccessorsTestCase(TestCase):
         self.session.commit()
         versions = (
             self.session.query(self.ArticleVersion).order_by(
-                getattr(self.ArticleVersion, self.options["transaction_column_name"])
+                getattr(self.ArticleVersion, self.options["transaction_column_name"]),
             )
         ).all()
         assert versions[1].previous.name == "Some article"
@@ -59,7 +63,7 @@ class VersionModelAccessorsTestCase(TestCase):
         self.session.commit()
         version = (
             self.session.query(self.ArticleVersion).order_by(
-                getattr(self.ArticleVersion, self.options["transaction_column_name"])
+                getattr(self.ArticleVersion, self.options["transaction_column_name"]),
             )
         ).all()[-1]
         assert version.previous.previous
@@ -171,7 +175,7 @@ class VersionModelAccessorsTestCase(TestCase):
 
         versions = (
             self.session.query(self.ArticleVersion).order_by(
-                getattr(self.ArticleVersion, self.options["transaction_column_name"])
+                getattr(self.ArticleVersion, self.options["transaction_column_name"]),
             )
         ).all()
         assert versions[0].index == 0

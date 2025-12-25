@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sqlalchemy as sa
 
 from tests import TestCase
@@ -10,7 +12,10 @@ class TestRevertOneToOneSecondaryRelationship(TestCase):
             __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -31,12 +36,18 @@ class TestRevertOneToOneSecondaryRelationship(TestCase):
             __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255))
 
         Tag.article = sa.orm.relationship(
-            Article, secondary=article_tag, backref=sa.orm.backref("tag", uselist=False), uselist=False
+            Article,
+            secondary=article_tag,
+            backref=sa.orm.backref("tag", uselist=False),
+            uselist=False,
         )
 
         self.Article = Article

@@ -60,7 +60,8 @@ exclude = ["tests/*"]
 
 [tool.ruff.lint]
 ignore = [
-    "S101", # Allow "assert" statements
+    "COM812", # Do not force trailing commas
+    "S101",   # Allow "assert" statements
 ]
 select = [
     "A",      # flake8-builtins

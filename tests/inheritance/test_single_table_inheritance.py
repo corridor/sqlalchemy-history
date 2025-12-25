@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import pytest
 import sqlalchemy as sa
-from sqlalchemy_history import versioning_manager, version_class
+
+from sqlalchemy_history import version_class, versioning_manager
 from tests import TestCase, create_test_cases
 
 
@@ -10,7 +13,10 @@ class SingleTableInheritanceTestCase(TestCase):
             __tablename__ = "text_item"
             __versioned__ = {"base_classes": (self.Model,)}
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
 
             discriminator = sa.Column(sa.Unicode(100))

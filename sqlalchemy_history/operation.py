@@ -1,14 +1,15 @@
 """Operations module contains Operation Class."""
 
-from copy import copy
+from __future__ import annotations
 
 from collections import OrderedDict
+from copy import copy
 
 import sqlalchemy as sa
 from sqlalchemy_utils import identity
 
 
-class Operation(object):
+class Operation:
     INSERT = 0
     UPDATE = 1
     DELETE = 2
@@ -25,7 +26,7 @@ class Operation(object):
         return not (self == other)
 
 
-class Operations(object):
+class Operations:
     """A collection of operations"""
 
     def __init__(self):

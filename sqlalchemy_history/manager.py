@@ -7,9 +7,12 @@ The Module contains following Class
 
 """
 
+from __future__ import annotations
+
 from functools import wraps
 
 import sqlalchemy as sa
+import sqlalchemy.orm
 from sqlalchemy.orm import object_session
 from sqlalchemy_utils import get_column_key
 
@@ -20,14 +23,13 @@ from sqlalchemy_history.plugins import PluginCollection
 from sqlalchemy_history.transaction import TransactionFactory
 from sqlalchemy_history.unit_of_work import UnitOfWork
 from sqlalchemy_history.utils import is_modified, is_versioned
-import sqlalchemy.orm
 
 
 def tracked_operation(func):
     @wraps(func)
     def wrapper(self, mapper, connection, target):
         if not is_versioned(target):
-            return
+            return None
         session = object_session(target)
         conn = session.connection()
         uow = self.get_uow(conn)
@@ -36,7 +38,7 @@ def tracked_operation(func):
     return wrapper
 
 
-class VersioningManager(object):
+class VersioningManager:
     """VersioningManager delegates versioning configuration operations to builder
     classes and the actual versioning to UnitOfWork class. Manager contains
     configuration options that act as defaults for all versioned classes.
@@ -108,8 +110,7 @@ class VersioningManager(object):
     def fetcher(self, obj):
         if self.option(obj, "strategy") == "subquery":
             return SubqueryFetcher(self)
-        else:
-            return ValidityFetcher(self)
+        return ValidityFetcher(self)
 
     def get_uow(self, conn):
         try:
@@ -312,10 +313,9 @@ class VersioningManager(object):
 
         if conn in self.units_of_work:
             return self.units_of_work[conn]
-        else:
-            uow = self.uow_class(self)
-            self.units_of_work[conn] = uow
-            return uow
+        uow = self.uow_class(self)
+        self.units_of_work[conn] = uow
+        return uow
 
     def before_flush(self, session, flush_context, instances):
         """Before flush listener for SQLAlchemy sessions.

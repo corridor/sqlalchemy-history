@@ -7,7 +7,11 @@ Modules exported by this package:
 - `remove_versioning`: Remove the versioning from given mapper / session and manager.
 """
 
+from __future__ import annotations
+
 import sqlalchemy as sa
+import sqlalchemy.orm
+
 from sqlalchemy_history.exc import (  # noqa: F401
     ClassNotVersioned,
     ImproperlyConfigured,
@@ -29,7 +33,7 @@ from sqlalchemy_history.utils import (  # noqa: F401
     vacuum,
     version_class,
 )
-import sqlalchemy.orm
+
 
 __version__ = "2.1.4"
 

@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import sqlalchemy as sa
+
 from sqlalchemy_history import version_class
 from tests import TestCase
 
@@ -9,7 +12,10 @@ class TestCompositePrimaryKey(TestCase):
             __tablename__ = "user"
             __versioned__ = {}
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -17,7 +23,10 @@ class TestCompositePrimaryKey(TestCase):
             __tablename__ = "team"
             __versioned__ = {}
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255))
 
@@ -25,10 +34,16 @@ class TestCompositePrimaryKey(TestCase):
             __tablename__ = "team_member"
             __versioned__ = {}
             user_id = sa.Column(
-                sa.Integer, sa.ForeignKey(User.id, ondelete="CASCADE"), primary_key=True, nullable=False
+                sa.Integer,
+                sa.ForeignKey(User.id, ondelete="CASCADE"),
+                primary_key=True,
+                nullable=False,
             )
             team_id = sa.Column(
-                sa.Integer, sa.ForeignKey(Team.id, ondelete="CASCADE"), primary_key=True, nullable=False
+                sa.Integer,
+                sa.ForeignKey(Team.id, ondelete="CASCADE"),
+                primary_key=True,
+                nullable=False,
             )
             role = sa.Column(sa.Unicode(255))
 

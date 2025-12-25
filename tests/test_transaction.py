@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 import os
 import time
+
 import sqlalchemy as sa
+from pytest import fixture, mark
+
 from sqlalchemy_history import versioning_manager
-from tests import TestCase
-from pytest import mark, fixture
 from sqlalchemy_history.plugins import TransactionMetaPlugin
+from tests import TestCase
 
 
 class TestTransaction(TestCase):
@@ -33,7 +37,7 @@ class TestTransaction(TestCase):
     def test_repr(self):
         transaction = self.session.query(versioning_manager.transaction_cls).first()
         assert "<Transaction id=%d, issued_at=%r>" % (transaction.id, transaction.issued_at) == repr(
-            transaction
+            transaction,
         )
 
     def test_changed_entities(self):

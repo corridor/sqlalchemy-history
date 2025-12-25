@@ -1,6 +1,8 @@
-from sqlalchemy_history.plugins.base import Plugin
+from __future__ import annotations
+
 from sqlalchemy_history.operation import Operation
-from sqlalchemy_history.utils import versioned_column_properties, is_internal_column
+from sqlalchemy_history.plugins.base import Plugin
+from sqlalchemy_history.utils import is_internal_column, versioned_column_properties
 
 
 class NullDeletePlugin(Plugin):

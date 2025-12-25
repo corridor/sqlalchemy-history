@@ -2,17 +2,19 @@
 module for versioned package
 """
 
+from __future__ import annotations
+
 import sqlalchemy as sa
+import sqlalchemy.orm
 
 from sqlalchemy_history.exc import ClassNotVersioned
 from sqlalchemy_history.expression_reflector import VersionExpressionReflector
 from sqlalchemy_history.operation import Operation
 from sqlalchemy_history.table_builder import TableBuilder
-from sqlalchemy_history.utils import adapt_columns, version_class, option
-import sqlalchemy.orm
+from sqlalchemy_history.utils import adapt_columns, option, version_class
 
 
-class RelationshipBuilder(object):
+class RelationshipBuilder:
     def __init__(self, versioning_manager, model, property_):
         self.manager = versioning_manager
         self.property = property_
@@ -37,11 +39,11 @@ class RelationshipBuilder(object):
                         getattr(remote_alias, pk.name) == getattr(self.remote_cls, pk.name)
                         for pk in primary_keys
                     ],
-                )
+                ),
             )
             .group_by(*primary_keys)
             .having(sa.func.max(getattr(remote_alias, tx_column)) == getattr(self.remote_cls, tx_column))
-            .correlate(self.local_cls, self.remote_cls)
+            .correlate(self.local_cls, self.remote_cls),
         )
 
     def many_to_one_subquery(self, obj):
@@ -51,7 +53,7 @@ class RelationshipBuilder(object):
             sa.and_(
                 getattr(self.remote_cls, tx_column) <= getattr(obj, tx_column),
                 reflector(self.property.primaryjoin),
-            )
+            ),
         )
         subquery = subquery.scalar_subquery()
         return getattr(self.remote_cls, tx_column) == subquery
@@ -78,9 +80,9 @@ class RelationshipBuilder(object):
         if self.versioned:
             if direction.name == "ONETOMANY":
                 return self.one_to_many_criteria(obj)
-            elif direction.name == "MANYTOMANY":
+            if direction.name == "MANYTOMANY":
                 return self.many_to_many_criteria(obj)
-            elif direction.name == "MANYTOONE":
+            if direction.name == "MANYTOONE":
                 return self.many_to_one_criteria(obj)
         else:
             reflector = VersionExpressionReflector(obj, self.property)
@@ -277,14 +279,14 @@ class RelationshipBuilder(object):
                         association_col == self.association_version_table.c[association_col.name]
                         for association_col in association_cols
                     ],
-                )
+                ),
             )
             .group_by(*association_cols)
             .having(
                 sa.func.max(association_table_alias.c[tx_column])
-                == self.association_version_table.c[tx_column]
+                == self.association_version_table.c[tx_column],
             )
-            .correlate(self.association_version_table)
+            .correlate(self.association_version_table),
         )
         return sa.exists(
             sa.select(1)
@@ -294,9 +296,9 @@ class RelationshipBuilder(object):
                     association_exists,
                     self.association_version_table.c.operation_type != Operation.DELETE,
                     adapt_columns(self.property.secondaryjoin),
-                )
+                ),
             )
-            .correlate(self.local_cls, self.remote_cls)
+            .correlate(self.local_cls, self.remote_cls),
         )
 
     def build_association_version_tables(self):

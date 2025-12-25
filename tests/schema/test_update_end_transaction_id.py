@@ -1,10 +1,13 @@
-import datetime
-import sqlalchemy as sa
-from sqlalchemy_history import version_class
-from sqlalchemy_history.utils import version_table
-from sqlalchemy_history.schema import update_end_tx_column
-from sqlalchemy_history.operation import Operation
+from __future__ import annotations
 
+import datetime
+
+import sqlalchemy as sa
+
+from sqlalchemy_history import version_class
+from sqlalchemy_history.operation import Operation
+from sqlalchemy_history.schema import update_end_tx_column
+from sqlalchemy_history.utils import version_table
 from tests import TestCase, create_test_cases
 
 
@@ -17,7 +20,11 @@ class UpdateEndTransactionID(TestCase):
             "article_label",
             self.Model.metadata,
             sa.Column(
-                "article_id", sa.Integer, sa.ForeignKey("article.id"), primary_key=True, nullable=False
+                "article_id",
+                sa.Integer,
+                sa.ForeignKey("article.id"),
+                primary_key=True,
+                nullable=False,
             ),
             sa.Column("label_id", sa.Integer, sa.ForeignKey("label.id"), primary_key=True, nullable=False),
             sa.Column(
@@ -34,7 +41,10 @@ class UpdateEndTransactionID(TestCase):
             __versioned__ = {}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(self.Article.id))
@@ -56,7 +66,7 @@ class UpdateEndTransactionID(TestCase):
                 "transaction_id": 1,
                 "name": "Article 1",
                 "operation_type": 1,
-            }
+            },
         )
         self._insert(
             {
@@ -64,7 +74,7 @@ class UpdateEndTransactionID(TestCase):
                 "transaction_id": 2,
                 "name": "Article 1 updated",
                 "operation_type": 2,
-            }
+            },
         )
         self._insert(
             {
@@ -72,7 +82,7 @@ class UpdateEndTransactionID(TestCase):
                 "transaction_id": 3,
                 "name": "Article 2",
                 "operation_type": 1,
-            }
+            },
         )
         self._insert(
             {
@@ -80,7 +90,7 @@ class UpdateEndTransactionID(TestCase):
                 "transaction_id": 4,
                 "name": "Article 1 updated (again)",
                 "operation_type": 2,
-            }
+            },
         )
         self._insert(
             {
@@ -88,12 +98,12 @@ class UpdateEndTransactionID(TestCase):
                 "transaction_id": 5,
                 "name": "Article 2 updated",
                 "operation_type": 2,
-            }
+            },
         )
         if self.versioning_strategy == "validity":
             update_end_tx_column(table, conn=self.session)
             rows = self.session.execute(
-                sa.text("SELECT * FROM article_version ORDER BY transaction_id")
+                sa.text("SELECT * FROM article_version ORDER BY transaction_id"),
             ).fetchall()
             assert rows[0].transaction_id == 1
             assert rows[0].end_transaction_id == 2
@@ -107,7 +117,7 @@ class UpdateEndTransactionID(TestCase):
             assert rows[4].end_transaction_id is None
         elif self.versioning_strategy == "subquery":
             rows = self.session.execute(
-                sa.text("SELECT * FROM article_version ORDER BY transaction_id")
+                sa.text("SELECT * FROM article_version ORDER BY transaction_id"),
             ).fetchall()
             assert not hasattr(rows[0], "end_transaction_id")
 

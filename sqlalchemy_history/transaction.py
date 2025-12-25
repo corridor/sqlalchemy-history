@@ -1,13 +1,16 @@
 """Transaction model makes transactions for history tables"""
 
-from collections import OrderedDict
+from __future__ import annotations
+
 import datetime
+from collections import OrderedDict
+
 import sqlalchemy as sa
+import sqlalchemy.orm
 from sqlalchemy.ext.compiler import compiles
 
 from sqlalchemy_history.exc import ImproperlyConfigured, NoChangesAttribute
 from sqlalchemy_history.factory import ModelFactory
-import sqlalchemy.orm
 
 
 @compiles(sa.types.BigInteger, "sqlite")
@@ -15,7 +18,7 @@ def compile_big_integer(element, compiler, **kw):
     return "INTEGER"
 
 
-class TransactionBase(object):
+class TransactionBase:
     issued_at = sa.Column(sa.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
 
     @property
@@ -27,8 +30,7 @@ class TransactionBase(object):
         """
         if hasattr(self, "changes"):
             return [changes.entity_name for changes in self.changes]
-        else:
-            raise NoChangesAttribute()
+        raise NoChangesAttribute()
 
     @property
     def changed_entities(self):
@@ -95,7 +97,7 @@ class TransactionFactory(ModelFactory):
                             " and %s. %s was not found in declarative class "
                             "registry. Either configure VersioningManager to "
                             "use different user class or disable this "
-                            "relationship " % (user_cls, user_cls)
+                            "relationship " % (user_cls, user_cls),
                         )
 
                 user_id = sa.Column(
@@ -120,7 +122,7 @@ class TransactionFactory(ModelFactory):
                         # versions
                         else "%s=%d" % (field, value)
                         for field, value in field_values.items()
-                    )
+                    ),
                 )
 
         return Transaction

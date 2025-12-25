@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import datetime
-import sqlalchemy as sa
 from copy import copy
+
+import sqlalchemy as sa
 
 from tests import TestCase
 
@@ -12,7 +15,11 @@ class TestBug27(TestCase):
             "article_author",
             self.Model.metadata,
             sa.Column(
-                "article_id", sa.Integer, sa.ForeignKey("article.id"), primary_key=True, nullable=False
+                "article_id",
+                sa.Integer,
+                sa.ForeignKey("article.id"),
+                primary_key=True,
+                nullable=False,
             ),
             sa.Column("author_id", sa.Integer, sa.ForeignKey("author.id"), primary_key=True, nullable=False),
             sa.Column(
@@ -29,7 +36,10 @@ class TestBug27(TestCase):
             __versioned__ = copy(self.options)
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255), nullable=False)
             content = sa.Column(sa.UnicodeText)
@@ -39,7 +49,10 @@ class TestBug27(TestCase):
             __versioned__ = copy(self.options)
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))

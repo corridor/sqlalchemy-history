@@ -1,8 +1,11 @@
 """Model Builder module build Versioned Models"""
 
+from __future__ import annotations
+
 from copy import copy
 
 import sqlalchemy as sa
+import sqlalchemy.orm
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import MappedColumn, column_property
 from sqlalchemy_utils.functions import get_declarative_base, get_primary_keys
@@ -10,7 +13,6 @@ from sqlalchemy_utils.models import generic_repr
 
 from sqlalchemy_history.utils import adapt_columns, option
 from sqlalchemy_history.version import VersionClassBase
-import sqlalchemy.orm
 
 
 def find_closest_versioned_parent(manager, model):
@@ -94,7 +96,7 @@ def copy_mapper_args(model):
     return args
 
 
-class ModelBuilder(object):
+class ModelBuilder:
     """VersionedModelBuilder handles the building of Version models based on parent table attributes and
     versioning configuration."""
 
@@ -211,7 +213,8 @@ class ModelBuilder(object):
 
             for column in columns:
                 args[column] = column_property(
-                    table.c[column], *[m.__table__.c[column] for m in parent_models]
+                    table.c[column],
+                    *[m.__table__.c[column] for m in parent_models],
                 )
         return args
 

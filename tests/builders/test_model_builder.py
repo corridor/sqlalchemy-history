@@ -1,6 +1,9 @@
-from tests import TestCase
-from sqlalchemy_history.model_builder import copy_mapper_args
+from __future__ import annotations
+
 from sqlalchemy.orm import MappedColumn
+
+from sqlalchemy_history.model_builder import copy_mapper_args
+from tests import TestCase
 
 
 class TestVersionModelBuilder(TestCase):

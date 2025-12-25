@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class VersioningError(Exception):
     pass
 

@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import pytest
 import sqlalchemy as sa
+
 from sqlalchemy_history import versioning_manager
 from sqlalchemy_history.plugins import ActivityPlugin
-from tests import TestCase, QueryPool
+from tests import QueryPool, TestCase
 
 
 class ActivityTestCase(TestCase):
@@ -16,7 +19,10 @@ class ActivityTestCase(TestCase):
             __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255), nullable=False)
 
@@ -39,7 +45,8 @@ class ActivityTestCase(TestCase):
 
 # ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
 @pytest.mark.skipif(
-    str(sa.__version__).startswith("2."), reason="sqla-utils generic relations has issue with sqla 2.x"
+    str(sa.__version__).startswith("2."),
+    reason="sqla-utils generic relations has issue with sqla 2.x",
 )
 class TestActivityNotId(ActivityTestCase):
     def create_models(self):
@@ -50,7 +57,10 @@ class TestActivityNotId(ActivityTestCase):
             __versioned__ = {"base_classes": (self.Model,)}
 
             pk = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255), nullable=False)
 
@@ -71,7 +81,8 @@ class TestActivityNotId(ActivityTestCase):
 
 # ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
 @pytest.mark.skipif(
-    str(sa.__version__).startswith("2."), reason="sqla-utils generic relations has issue with sqla 2.x"
+    str(sa.__version__).startswith("2."),
+    reason="sqla-utils generic relations has issue with sqla 2.x",
 )
 class TestActivity(ActivityTestCase):
     def test_creates_activity_class(self):
@@ -127,14 +138,15 @@ class TestActivity(ActivityTestCase):
         self.session.add(activity)
         self.session.commit()
         activities = self.session.query(Activity).filter(
-            sa.or_(Activity.object == article, Activity.target == article)
+            sa.or_(Activity.object == article, Activity.target == article),
         )
         assert activities.count() == 2
 
 
 # ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
 @pytest.mark.skipif(
-    str(sa.__version__).startswith("2."), reason="sqla-utils generic relations has issue with sqla 2.x"
+    str(sa.__version__).startswith("2."),
+    reason="sqla-utils generic relations has issue with sqla 2.x",
 )
 class TestObjectTxIdGeneration(ActivityTestCase):
     def test_does_not_query_db_if_version_obj_in_session(self):
@@ -160,7 +172,8 @@ class TestObjectTxIdGeneration(ActivityTestCase):
 
 # ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
 @pytest.mark.skipif(
-    str(sa.__version__).startswith("2."), reason="sqla-utils generic relations has issue with sqla 2.x"
+    str(sa.__version__).startswith("2."),
+    reason="sqla-utils generic relations has issue with sqla 2.x",
 )
 class TestTargetTxIdGeneration(ActivityTestCase):
     def test_does_not_query_db_if_version_obj_in_session(self):

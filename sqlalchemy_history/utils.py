@@ -1,8 +1,12 @@
-from itertools import chain
-from inspect import isclass
+from __future__ import annotations
+
 from collections import defaultdict
+from inspect import isclass
+from itertools import chain
 
 import sqlalchemy as sa
+import sqlalchemy.ext.associationproxy
+import sqlalchemy.orm
 from sqlalchemy.orm.attributes import get_history
 from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy_utils.functions import (
@@ -12,8 +16,6 @@ from sqlalchemy_utils.functions import (
 )
 
 from sqlalchemy_history.exc import ClassNotVersioned, TableNotVersioned
-import sqlalchemy.orm
-import sqlalchemy.ext.associationproxy
 
 
 def get_versioning_manager(item):
@@ -32,21 +34,19 @@ def get_versioning_manager(item):
     versioned_item = None
     if isclass(item):
         versioned_item = item
+    elif isinstance(item, AliasedClass):
+        versioned_item = sa.inspect(item).mapper.class_
+    elif isinstance(item, sa.Table):
+        versioned_item = item
     else:
-        if isinstance(item, AliasedClass):
-            versioned_item = sa.inspect(item).mapper.class_
-        elif isinstance(item, sa.Table):
-            versioned_item = item
-        else:
-            versioned_item = item.__class__
+        versioned_item = item.__class__
 
     try:
         return versioned_item.__versioning_manager__
     except AttributeError:
         if isinstance(versioned_item, sa.Table):
             raise TableNotVersioned('Table "%s"' % versioned_item.name)
-        else:
-            raise ClassNotVersioned(versioned_item.__name__)
+        raise ClassNotVersioned(versioned_item.__name__)
 
 
 def option(obj_or_class, option_name):
@@ -173,7 +173,8 @@ def is_versioned(obj_or_class):
     """
     try:
         return hasattr(obj_or_class, "__versioned__") and get_versioning_manager(obj_or_class).option(
-            obj_or_class, "versioning"
+            obj_or_class,
+            "versioning",
         )
     except ClassNotVersioned:
         return False
@@ -231,7 +232,7 @@ def vacuum(session, model, yield_per=1000):
     versions = defaultdict(list)
 
     query = (session.query(version_cls).order_by(option(version_cls, "transaction_column_name"))).yield_per(
-        yield_per
+        yield_per,
     )
 
     primary_key_col = sa.inspection.inspect(model).primary_key[0].name

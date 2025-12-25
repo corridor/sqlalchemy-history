@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import sqlalchemy as sa
+
 from sqlalchemy_history import get_versioning_manager
 from tests import TestCase
 
@@ -48,8 +51,8 @@ class ChangeSetTestCase(ChangeSetBaseTestCase):
             VALUES
             (1, %d, 'something', 'some content', 1)
             """
-                % (self.transaction_column_name, tx_log.id)
-            )
+                % (self.transaction_column_name, tx_log.id),
+            ),
         )
 
         assert self.session.query(self.ArticleVersion).first().changeset == {
@@ -74,7 +77,10 @@ class TestChangeSetWhenParentContainsAdditionalColumns(ChangeSetTestCase):
             __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255), nullable=False)
             content = sa.Column(sa.UnicodeText)
@@ -85,7 +91,10 @@ class TestChangeSetWhenParentContainsAdditionalColumns(ChangeSetTestCase):
             __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))

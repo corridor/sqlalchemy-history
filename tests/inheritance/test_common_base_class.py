@@ -1,24 +1,33 @@
+from __future__ import annotations
+
 import sqlalchemy as sa
+
 from sqlalchemy_history import version_class
 from tests import TestCase
 
 
 class TestCommonBaseClass(TestCase):
     def create_models(self):
-        class Versioned(object):
+        class Versioned:
             __versioned__ = {"base_classes": (self.Model,)}
 
         class TextItem(self.Model, Versioned):
             __tablename__ = "text_item"
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
 
         class Article(self.Model, Versioned):
             __tablename__ = "article"
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
 
         self.TextItem = TextItem

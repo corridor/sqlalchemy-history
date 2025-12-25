@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from sqlalchemy_history.plugins import PluginCollection
 
 
-class TestPluginCollection(object):
+class TestPluginCollection:
     def test_init(self):
         assert PluginCollection([1, 2, 3]).plugins == [1, 2, 3]
 
@@ -31,7 +33,7 @@ class TestPluginCollection(object):
         assert list(coll) == [1, 2, 3]
 
     def test_getattr(self):
-        class MyPlugin(object):
+        class MyPlugin:
             def some_action(self):
                 return 4
 

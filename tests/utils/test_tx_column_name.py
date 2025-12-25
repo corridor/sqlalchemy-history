@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy_history import tx_column_name, version_class
 from sqlalchemy_history.utils import end_tx_attr
 from tests import TestCase, create_test_cases

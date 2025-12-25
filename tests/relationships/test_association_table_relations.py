@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import sqlalchemy as sa
 from sqlalchemy import PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
+
 from tests import TestCase, create_test_cases
 
 
@@ -21,7 +24,9 @@ class AssociationTableRelationshipsTestCase(TestCase):
         self.PublishedArticle = PublishedArticle
 
         published_articles_table = sa.Table(
-            PublishedArticle.__tablename__, PublishedArticle.metadata, extend_existing=True
+            PublishedArticle.__tablename__,
+            PublishedArticle.metadata,
+            extend_existing=True,
         )
 
         class Author(self.Model):
@@ -29,7 +34,10 @@ class AssociationTableRelationshipsTestCase(TestCase):
             __versioned__ = {"base_classes": (self.Model,)}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             name = sa.Column(sa.Unicode(255))
             articles = relationship("Article", secondary=published_articles_table)

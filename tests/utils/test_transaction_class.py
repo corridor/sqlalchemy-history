@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pytest import raises
 
 from sqlalchemy_history import ClassNotVersioned, transaction_class, versioning_manager

@@ -14,12 +14,16 @@ columns `name_mod` and `content_mod` for the version model. When user commits
 transactions the plugin automatically updates these boolean columns.
 """
 
+from __future__ import annotations
+
 from copy import copy
+
 import sqlalchemy as sa
+import sqlalchemy.orm
 from sqlalchemy_utils.functions import has_changes
+
 from sqlalchemy_history.plugins.base import Plugin
 from sqlalchemy_history.utils import versioned_column_properties
-import sqlalchemy.orm
 
 
 class PropertyModTrackerPlugin(Plugin):

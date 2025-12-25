@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy_history import count_versions
 from tests import TestCase
 

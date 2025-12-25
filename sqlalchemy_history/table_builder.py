@@ -1,11 +1,12 @@
 """Table Builder Builds versioned table."""
 
-import sqlalchemy as sa
+from __future__ import annotations
 
+import sqlalchemy as sa
 from sqlalchemy.sql.sqltypes import Enum
 
 
-class ColumnReflector(object):
+class ColumnReflector:
     def __init__(self, manager, parent_table, model=None):
         self.parent_table = parent_table
         self.model = model
@@ -98,7 +99,7 @@ class ColumnReflector(object):
             yield self.operation_type_column
 
 
-class TableBuilder(object):
+class TableBuilder:
     """TableBuilder handles the building of version tables based on parent table's structure and versioning
     configuration options."""
 

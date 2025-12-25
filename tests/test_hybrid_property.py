@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import datetime
+
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship
-from sqlalchemy_history.utils import version_class
 
+from sqlalchemy_history.utils import version_class
 from tests import TestCase
 
 

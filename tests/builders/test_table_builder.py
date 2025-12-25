@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 import os
 from copy import copy
 from datetime import datetime
+
 import sqlalchemy as sa
+from pytest import mark
+
 from sqlalchemy_history import version_class
 from tests import TestCase
-from pytest import mark
 
 
 class TestTableBuilder(TestCase):
@@ -62,10 +66,16 @@ class TestTableBuilderWithOnUpdate(TestCase):
             __versioned__ = options
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             last_update = sa.Column(
-                sa.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+                sa.DateTime,
+                default=datetime.utcnow,
+                onupdate=datetime.utcnow,
+                nullable=False,
             )
 
         self.Article = Article
@@ -88,10 +98,16 @@ class TestTableBuilderInOtherSchema(TestCase):
             __table_args__ = {"schema": "other"}
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
             last_update = sa.Column(
-                sa.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+                sa.DateTime,
+                default=datetime.utcnow,
+                onupdate=datetime.utcnow,
+                nullable=False,
             )
             enum_col = sa.Column(sa.Enum("TYPE_A", "TYPE_B", name="test_enum"))
 
@@ -134,7 +150,10 @@ class TestEnumNaming(TestCase):
             __versioned__ = copy(self.options)
 
             id = sa.Column(
-                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+                sa.Integer,
+                sa.Sequence(f"{__tablename__}_seq", start=1),
+                autoincrement=True,
+                primary_key=True,
             )
 
             enum_col = sa.Column(sa.Enum("TYPE_A", "TYPE_B", name="test_enum"))

@@ -47,17 +47,18 @@ keys and values to the meta property of Transaction class.
     )
 """
 
+from __future__ import annotations
+
 import sqlalchemy as sa
-from sqlalchemy.orm.collections import attribute_mapped_collection
-from sqlalchemy.ext.associationproxy import association_proxy
-
-from sqlalchemy_history.plugins.base import Plugin
-from sqlalchemy_history.factory import ModelFactory
-
 import sqlalchemy.orm
+from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm.collections import attribute_mapped_collection
+
+from sqlalchemy_history.factory import ModelFactory
+from sqlalchemy_history.plugins.base import Plugin
 
 
-class TransactionMetaBase(object):
+class TransactionMetaBase:
     transaction_id = sa.Column(sa.BigInteger, primary_key=True)
     key = sa.Column(sa.Unicode(255), primary_key=True)
     value = sa.Column(sa.UnicodeText)

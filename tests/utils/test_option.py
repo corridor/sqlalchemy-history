@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import pytest
 import sqlalchemy as sa
+
 from sqlalchemy_history.utils import option
 from tests import TestCase
 

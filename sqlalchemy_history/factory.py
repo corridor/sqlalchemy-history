@@ -2,8 +2,10 @@
 Factory package manages and makes sure if a model class already exists indeclarative model registry or not
 """
 
+from __future__ import annotations
 
-class ModelFactory(object):
+
+class ModelFactory:
     model_name = None
 
     def __call__(self, manager):
