@@ -3,26 +3,35 @@
 from __future__ import annotations
 
 import datetime
+import typing as t
 from collections import OrderedDict
 
 import sqlalchemy as sa
-import sqlalchemy.orm
 from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.orm import object_session, relationship
 
+from sqlalchemy_history._typing import SupportsVersioning
 from sqlalchemy_history.exc import ImproperlyConfigured, NoChangesAttribute
 from sqlalchemy_history.factory import ModelFactory
 
 
+if t.TYPE_CHECKING:
+    from sqlalchemy.orm import DeclarativeBase
+    from sqlalchemy.sql.compiler import SQLCompiler
+
+    from sqlalchemy_history.manager import VersioningManager
+
+
 @compiles(sa.types.BigInteger, "sqlite")
-def compile_big_integer(element, compiler, **kw):
+def compile_big_integer(element: sa.types.BigInteger, compiler: SQLCompiler, **kw) -> str:
     return "INTEGER"
 
 
-class TransactionBase:
+class TransactionBase(SupportsVersioning):
     issued_at = sa.Column(sa.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
 
     @property
-    def entity_names(self):
+    def entity_names(self) -> list[str]:
         """Return a list of entity names that changed during this transaction.
 
         Raises a NoChangesAttribute exception if the 'changes' column does
@@ -33,7 +42,7 @@ class TransactionBase:
         raise NoChangesAttribute
 
     @property
-    def changed_entities(self):
+    def changed_entities(self) -> dict[type[DeclarativeBase], t.Sequence[t.Any]]:
         """Return all changed entities for this transaction log entry.
 
         Entities are returned as a dict where keys are entity classes and
@@ -43,7 +52,7 @@ class TransactionBase:
         tuples = set(manager.version_class_map.items())
         entities = {}
 
-        session = sa.orm.object_session(self)
+        session = object_session(self)
 
         for class_, version_class in tuples:
             try:
@@ -63,10 +72,10 @@ class TransactionBase:
 class TransactionFactory(ModelFactory):
     model_name = "Transaction"
 
-    def __init__(self, *, remote_addr: bool = True):
+    def __init__(self, *, remote_addr: bool = True) -> None:
         self.remote_addr = remote_addr
 
-    def create_class(self, manager):
+    def create_class(self, manager: VersioningManager) -> type[TransactionBase]:
         """Create Transaction class."""
 
         class Transaction(manager.declarative_base, TransactionBase):
@@ -106,9 +115,9 @@ class TransactionFactory(ModelFactory):
                     index=True,
                 )
 
-                user = sa.orm.relationship(user_cls)
+                user = relationship(user_cls)
 
-            def __repr__(self):
+            def __repr__(self) -> str:
                 fields = ["id", "issued_at", "user"]
                 field_values = OrderedDict(
                     (field, getattr(self, field)) for field in fields if hasattr(self, field)

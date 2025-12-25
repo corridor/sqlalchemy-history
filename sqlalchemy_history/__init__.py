@@ -9,8 +9,11 @@ Modules exported by this package:
 
 from __future__ import annotations
 
+import typing as t
+
 import sqlalchemy as sa
-import sqlalchemy.orm
+from sqlalchemy import event
+from sqlalchemy.orm import Mapper, Session
 
 from sqlalchemy_history.exc import (  # noqa: F401
     ClassNotVersioned,
@@ -35,6 +38,10 @@ from sqlalchemy_history.utils import (  # noqa: F401
 )
 
 
+if t.TYPE_CHECKING:
+    from sqlalchemy_history._typing import VersioningOptions
+    from sqlalchemy_history.plugins.base import Plugin
+
 __version__ = "2.1.4"
 
 
@@ -42,13 +49,13 @@ versioning_manager = VersioningManager()
 
 
 def make_versioned(
-    mapper=sa.orm.Mapper,
-    session=sa.orm.session.Session,
-    manager=versioning_manager,
-    plugins=None,
-    options=None,
-    user_cls="User",
-):
+    mapper: Mapper = Mapper,
+    session: Session = Session,
+    manager: VersioningManager = versioning_manager,
+    plugins: list[type[Plugin]] | None = None,
+    options: VersioningOptions | None = None,
+    user_cls: str | None = "User",
+) -> None:
     """This is the public API function of SQLAlchemy-History for making certain mappers and sessions
      versioned.
     By default this applies to all mappers and all sessions.
@@ -86,18 +93,22 @@ def make_versioned(
     manager.track_operations(mapper)
     manager.track_session(session)
 
-    sa.event.listen(sa.engine.Engine, "before_cursor_execute", manager.track_sql_operations)
+    event.listen(sa.engine.Engine, "before_cursor_execute", manager.track_sql_operations)
 
-    sa.event.listen(sa.engine.Engine, "rollback", manager.clear_connection)
+    event.listen(sa.engine.Engine, "rollback", manager.clear_connection)
 
-    sa.event.listen(
+    event.listen(
         sa.engine.Engine,
         "set_connection_execution_options",
         manager.track_cloned_connections,
     )
 
 
-def remove_versioning(mapper=sa.orm.Mapper, session=sa.orm.session.Session, manager=versioning_manager):
+def remove_versioning(
+    mapper: Mapper = Mapper,
+    session: Session = Session,
+    manager: VersioningManager = versioning_manager,
+) -> None:
     """Remove the versioning from given mapper / session and manager.
 
     **Examples**
@@ -120,11 +131,11 @@ def remove_versioning(mapper=sa.orm.Mapper, session=sa.orm.session.Session, mana
     manager.remove_class_configuration_listeners(mapper)
     manager.remove_operations_tracking(mapper)
     manager.remove_session_tracking(session)
-    sa.event.remove(sa.engine.Engine, "before_cursor_execute", manager.track_sql_operations)
+    event.remove(sa.engine.Engine, "before_cursor_execute", manager.track_sql_operations)
 
-    sa.event.remove(sa.engine.Engine, "rollback", manager.clear_connection)
+    event.remove(sa.engine.Engine, "rollback", manager.clear_connection)
 
-    sa.event.remove(
+    event.remove(
         sa.engine.Engine,
         "set_connection_execution_options",
         manager.track_cloned_connections,

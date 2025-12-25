@@ -9,11 +9,12 @@ The Module contains following Class
 
 from __future__ import annotations
 
+import typing as t
 from functools import wraps
 
 import sqlalchemy as sa
 import sqlalchemy.orm
-from sqlalchemy.orm import object_session
+from sqlalchemy.orm import DeclarativeBase, object_session
 from sqlalchemy_utils import get_column_key
 
 from sqlalchemy_history.builder import Builder
@@ -25,9 +26,20 @@ from sqlalchemy_history.unit_of_work import UnitOfWork
 from sqlalchemy_history.utils import is_modified, is_versioned
 
 
+if t.TYPE_CHECKING:
+    from sqlalchemy.engine import Connection
+    from sqlalchemy.orm import Session
+    from sqlalchemy.orm.mapper import Mapper
+
+    from sqlalchemy_history._typing import SupportsVersioning, VersioningOptions
+    from sqlalchemy_history.plugins.base import Plugin
+
+_T = t.TypeVar("_T", bound=t.Any)
+
+
 def tracked_operation(func):
     @wraps(func)
-    def wrapper(self, mapper, connection, target):
+    def wrapper(self: VersioningManager, mapper: Mapper[_T], connection: Connection, target):
         if not is_versioned(target):
             return None
         session = object_session(target)
@@ -38,7 +50,10 @@ def tracked_operation(func):
     return wrapper
 
 
-class VersioningManager:
+_UOWType = t.TypeVar("_UOWType", type[UnitOfWork])
+
+
+class VersioningManager(t.Generic[_UOWType]):
     """VersioningManager delegates versioning configuration operations to builder
     classes and the actual versioning to UnitOfWork class. Manager contains
     configuration options that act as defaults for all versioned classes.
@@ -56,17 +71,27 @@ class VersioningManager:
 
     """
 
+    options: VersioningOptions
+    user_cls: str
+    units_of_work: dict[Connection, _UOWType]
+    uow_class: type[_UOWType]
+    declarative_base: DeclarativeBase
+    _plugins: PluginCollection
+
     def __init__(
         self,
-        unit_of_work_cls=UnitOfWork,
+        unit_of_work_cls: _UOWType = UnitOfWork,
         transaction_cls=None,
-        user_cls=None,
-        options=None,
-        plugins=None,
+        user_cls: str | None = None,
+        options: VersioningOptions | None = None,
+        plugins: list[type[Plugin]] | PluginCollection | None = None,
         builder=None,
     ):
         if options is None:
             options = {}
+        if plugins is None:
+            plugins = []
+
         self.uow_class = unit_of_work_cls
         if builder is None:
             self.builder = Builder()
@@ -95,26 +120,27 @@ class VersioningManager:
             "strategy": "validity",
             "use_module_name": False,
         }
-        if plugins is None:
-            self.plugins = []
-        else:
-            self.plugins = plugins
+
+        self.plugins = plugins
         self.options.update(options)
 
     @property
-    def plugins(self):
+    def plugins(self) -> PluginCollection:
         return self._plugins
 
     @plugins.setter
-    def plugins(self, plugin_collection):
+    def plugins(self, plugin_collection: list[type[Plugin]] | PluginCollection | None) -> None:
         self._plugins = PluginCollection(plugin_collection)
 
-    def fetcher(self, obj):
+    def fetcher(
+        self,
+        obj: type[DeclarativeBase] | SupportsVersioning,
+    ) -> SubqueryFetcher | ValidityFetcher:
         if self.option(obj, "strategy") == "subquery":
             return SubqueryFetcher(self)
         return ValidityFetcher(self)
 
-    def get_uow(self, conn):
+    def get_uow(self, conn: Connection) -> _UOWType:
         try:
             return self.units_of_work[conn]
         except KeyError:
@@ -127,7 +153,7 @@ class VersioningManager:
                 else:
                     raise
 
-    def reset(self):
+    def reset(self) -> None:
         """Resets this manager's internal state.
 
         This method should be used in test cases that create models on the fly.
@@ -171,7 +197,7 @@ class VersioningManager:
             self.transaction_cls = self.transaction_cls(self)
         return self.transaction_cls
 
-    def is_excluded_column(self, model, column):
+    def is_excluded_column(self, model, column) -> bool:
         try:
             key = get_column_key(model, column)
         except sa.orm.exc.UnmappedColumnError:
@@ -179,7 +205,7 @@ class VersioningManager:
 
         return self.is_excluded_property(model, key)
 
-    def is_excluded_property(self, model, key):
+    def is_excluded_property(self, model, key) -> bool:
         """Returns whether or not given property of given model is excluded from the associated history model.
 
         :param model: SQLAlchemy declarative model object.
@@ -190,7 +216,7 @@ class VersioningManager:
             return False
         return key in self.option(model, "exclude")
 
-    def option(self, model, name):
+    def option(self, model: type[DeclarativeBase] | SupportsVersioning, name: str) -> t.Any:  # noqa: ANN401
         """Returns the option value for given model.
 
         If the option is not found from given model falls back to default values of this manager object.
@@ -202,12 +228,13 @@ class VersioningManager:
         """
         if not hasattr(model, "__versioned__"):
             raise TypeError(f"Model {model!r} is not versioned.")
+        model = t.cast("SupportsVersioning", model)
         try:
             return model.__versioned__[name]
         except KeyError:
             return self.options[name]
 
-    def apply_class_configuration_listeners(self, mapper):
+    def apply_class_configuration_listeners(self, mapper: Mapper[_T]) -> None:
         """Applies class configuration listeners for given mapper.
 
         The listener work in two phases:
@@ -227,7 +254,7 @@ class VersioningManager:
         for event_name, listener in self.class_config_listeners.items():
             sa.event.listen(mapper, event_name, listener)
 
-    def remove_class_configuration_listeners(self, mapper):
+    def remove_class_configuration_listeners(self, mapper: Mapper[_T]) -> None:
         """Remove versioning class configuration listeners from specified mapper.
 
         :param mapper: mapper to remove class configuration listeners from
@@ -236,7 +263,7 @@ class VersioningManager:
         for event_name, listener in self.class_config_listeners.items():
             sa.event.remove(mapper, event_name, listener)
 
-    def track_operations(self, mapper):
+    def track_operations(self, mapper: Mapper[_T]) -> None:
         """Attach listeners for specified mapper that track SQL inserts, updates and deletes.
 
         :param mapper: mapper to track the SQL operations from
@@ -245,7 +272,7 @@ class VersioningManager:
         for event_name, listener in self.mapper_listeners.items():
             sa.event.listen(mapper, event_name, listener)
 
-    def remove_operations_tracking(self, mapper):
+    def remove_operations_tracking(self, mapper: Mapper[_T]) -> None:
         """Remove listeners from specified mapper that track SQL inserts, updates and deletes.
 
         :param mapper: mapper to remove the SQL operations tracking listeners from
@@ -254,7 +281,7 @@ class VersioningManager:
         for event_name, listener in self.mapper_listeners.items():
             sa.event.remove(mapper, event_name, listener)
 
-    def track_session(self, session):
+    def track_session(self, session: Session) -> None:
         """Attach listeners that track the operations (flushing, committing and
         rolling back) of given session.
 
@@ -266,7 +293,7 @@ class VersioningManager:
         for event_name, listener in self.session_listeners.items():
             sa.event.listen(session, event_name, listener)
 
-    def remove_session_tracking(self, session):
+    def remove_session_tracking(self, session: Session) -> None:
         """Remove listeners that track the operations (flushing, committing and rolling back) of given
          session.
         This method should be used in conjunction with `remove_operations_tracking`.
@@ -278,7 +305,7 @@ class VersioningManager:
             sa.event.remove(session, event_name, listener)
 
     @tracked_operation
-    def track_inserts(self, uow, target):
+    def track_inserts(self, uow: _UOWType, target) -> None:
         """Track object insert operations.
 
         Whenever object is inserted it is added to this UnitOfWork's internal operations dictionary.
@@ -302,7 +329,7 @@ class VersioningManager:
         """
         uow.operations.add_delete(target)
 
-    def unit_of_work(self, session):
+    def unit_of_work(self, session: Session):
         """Return the associated SQLAlchemy-History UnitOfWork object for given SQLAlchemy session object.
 
         If no UnitOfWork object exists for given object then this method tries to create one.
@@ -319,7 +346,7 @@ class VersioningManager:
         self.units_of_work[conn] = uow
         return uow
 
-    def before_flush(self, session, flush_context, instances):
+    def before_flush(self, session: Session, flush_context, instances):
         """Before flush listener for SQLAlchemy sessions.
         If this manager has versioning enabled this listener invokes the process before flush of associated
          UnitOfWork object.
@@ -335,7 +362,7 @@ class VersioningManager:
         uow = self.unit_of_work(session)
         uow.process_before_flush(session)
 
-    def after_flush(self, session, flush_context):
+    def after_flush(self, session: Session, flush_context):
         """After flush listener for SQLAlchemy sessions.
 
         If this manager has versioning enabled this listener gets the UnitOfWork associated with
@@ -350,7 +377,7 @@ class VersioningManager:
         uow = self.unit_of_work(session)
         uow.process_after_flush(session)
 
-    def clear(self, session):
+    def clear(self, session: Session):
         """Simple SQLAlchemy listener that is being invoked after successful transaction commit or when
          transaction rollback occurs.
         The purpose of this listener is to reset this UnitOfWork back to its initialization state.
@@ -375,7 +402,7 @@ class VersioningManager:
                 uow.reset(session)
                 del self.units_of_work[connection]
 
-    def clear_connection(self, conn):
+    def clear_connection(self, conn: Connection) -> None:
         if conn in self.units_of_work:
             uow = self.units_of_work[conn]
             uow.reset()
@@ -391,7 +418,7 @@ class VersioningManager:
                 uow.reset()
                 del self.units_of_work[connection]
 
-    def append_association_operation(self, conn, table_name, params, op):
+    def append_association_operation(self, conn: Connection, table_name: str, params, op):
         """Append history association operation to pending_statements list.
 
         :param conn:

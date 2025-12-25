@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing as t
 from collections import defaultdict
 from inspect import isclass
 from itertools import chain
@@ -9,16 +10,18 @@ import sqlalchemy.ext.associationproxy
 import sqlalchemy.orm
 from sqlalchemy.orm.attributes import get_history
 from sqlalchemy.orm.util import AliasedClass
-from sqlalchemy_utils.functions import (
-    get_primary_keys,
-    identity,
-    naturally_equivalent,
-)
+from sqlalchemy_utils.functions import get_primary_keys, identity, naturally_equivalent
 
 from sqlalchemy_history.exc import ClassNotVersioned, TableNotVersioned
 
 
-def get_versioning_manager(item):
+if t.TYPE_CHECKING:
+    from sqlalchemy.orm import DeclarativeBase
+
+    from sqlalchemy_history.manager import VersioningManager
+
+
+def get_versioning_manager(item: t.Any) -> VersioningManager:  # noqa: ANN401
     """
     Return the associated SQLAlchemy-History VersioningManager for given
     SQLAlchemy declarative model class or object or table.
@@ -76,7 +79,7 @@ def end_tx_attr(obj):
     return getattr(obj.__class__, end_tx_column_name(obj))
 
 
-def parent_class(version_cls):
+def parent_class(version_cls: type[DeclarativeBase]) -> type[DeclarativeBase]:
     """
     Return the parent class for given version model class.
 
@@ -139,7 +142,7 @@ def version_class(model):
     return manager.version_class_map.get(model, None)
 
 
-def version_table(table):
+def version_table(table: sa.Table) -> sa.Table:
     """
     Return associated version table for given SQLAlchemy Table object.
 

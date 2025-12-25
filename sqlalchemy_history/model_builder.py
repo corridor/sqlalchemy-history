@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import typing as t
 from copy import copy
 
 import sqlalchemy as sa
@@ -15,7 +16,15 @@ from sqlalchemy_history.utils import adapt_columns, option
 from sqlalchemy_history.version import VersionClassBase
 
 
-def find_closest_versioned_parent(manager, model):
+if t.TYPE_CHECKING:
+    from sqlalchemy.orm import DeclarativeBase
+
+    from sqlalchemy_history.manager import VersioningManager
+
+
+def find_closest_versioned_parent(
+    manager: VersioningManager, model: type[DeclarativeBase]
+) -> type[DeclarativeBase]:
     """Finds the closest versioned parent for current parent model.
 
     :param manager:
@@ -28,7 +37,7 @@ def find_closest_versioned_parent(manager, model):
     return None
 
 
-def versioned_parents(manager, model):
+def versioned_parents(manager: VersioningManager, model: type[DeclarativeBase]):
     """Finds all versioned ancestors for current parent model.
 
     :param manager:
@@ -40,7 +49,7 @@ def versioned_parents(manager, model):
             yield manager.version_class_map[class_]
 
 
-def get_base_class(manager, model):
+def get_base_class(manager: VersioningManager, model) -> t.Sequence[t.Any]:
     """Returns all base classes for history model.
 
     :param manager:
@@ -50,7 +59,12 @@ def get_base_class(manager, model):
     return option(model, "base_classes") or (get_declarative_base(model),)
 
 
-def version_base(manager, parent_cls, base_class_factory=None):
+def version_base(
+    manager: VersioningManager,
+    parent_cls: type[DeclarativeBase],
+    base_class_factory: t.Callable[[VersioningManager, type[DeclarativeBase]], t.Sequence[t.Any]]
+    | None = None,
+):
     """
 
     :param manager:
@@ -101,7 +115,7 @@ class ModelBuilder:
     """VersionedModelBuilder handles the building of Version models based on parent table attributes and
     versioning configuration."""
 
-    def __init__(self, versioning_manager, model):
+    def __init__(self, versioning_manager: VersioningManager, model: type[DeclarativeBase]) -> None:
         """
         Args:
             versioning_manager:
@@ -113,7 +127,7 @@ class ModelBuilder:
         self.manager = versioning_manager
         self.model = model
 
-    def build_parent_relationship(self):
+    def build_parent_relationship(self) -> None:
         """Builds a relationship between currently built version class and parent class (the model whose
         history the currently build version class represents)."""
         conditions = []
@@ -147,7 +161,7 @@ class ModelBuilder:
                 uselist=False,
             )
 
-    def build_transaction_relationship(self, tx_class):
+    def build_transaction_relationship(self, tx_class) -> None:
         """Builds a relationship between currently built version class and Transaction class.
 
         :param tx_class: Transaction class
@@ -165,7 +179,7 @@ class ModelBuilder:
                 foreign_keys=[transaction_column],
             )
 
-    def base_classes(self):
+    def base_classes(self) -> tuple:
         """Returns all base classes for history model."""
         return (version_base(self.manager, self.model),)
 
@@ -197,7 +211,7 @@ class ModelBuilder:
 
         return args
 
-    def get_inherited_denormalized_columns(self, table):
+    def get_inherited_denormalized_columns(self, table: sa.Table):
         parent_models = list(versioned_parents(self.manager, self.model))
         mapper = sa.inspect(self.model)
         args = {}
@@ -217,7 +231,7 @@ class ModelBuilder:
                 )
         return args
 
-    def build_model(self, table):
+    def build_model(self, table: sa.Table):
         """Build history model class.
 
         :param table:
@@ -254,7 +268,7 @@ class ModelBuilder:
             version_cls = generic_repr(*primary_keys)(version_cls)
         return version_cls
 
-    def __call__(self, table, tx_class):
+    def __call__(self, table: sa.Table, tx_class):
         """Build history model and relationships to parent model, transaction log model."""
         # versioned attributes need to be copied for each child class,
         # otherwise each child class would share the same __versioned__

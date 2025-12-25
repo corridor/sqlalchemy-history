@@ -160,6 +160,8 @@ target is the given article.
 
 from __future__ import annotations
 
+import typing as t
+
 import sqlalchemy as sa
 import sqlalchemy.orm
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -169,6 +171,12 @@ from sqlalchemy_utils import JSONType, generic_relationship
 from sqlalchemy_history.factory import ModelFactory
 from sqlalchemy_history.plugins.base import Plugin
 from sqlalchemy_history.utils import version_class, version_obj
+
+
+if t.TYPE_CHECKING:
+    from sqlalchemy.orm import Session
+
+    from sqlalchemy_history.manager import VersioningManager
 
 
 class ActivityBase:
@@ -277,11 +285,11 @@ class ActivityFactory(ModelFactory):
 class ActivityPlugin(Plugin):
     activity_cls = None
 
-    def after_build_models(self, manager):
+    def after_build_models(self, manager: VersioningManager) -> None:
         self.activity_cls = ActivityFactory()(manager)
         manager.activity_cls = self.activity_cls
 
-    def is_session_modified(self, session):
+    def is_session_modified(self, session: Session) -> bool:
         """Return that the session has been modified if the session contains an
         activity class.
 
@@ -290,12 +298,12 @@ class ActivityPlugin(Plugin):
         """
         return any(isinstance(obj, self.activity_cls) for obj in session)
 
-    def before_flush(self, uow, session):
+    def before_flush(self, uow, session: Session) -> None:
         for obj in session:
             if isinstance(obj, self.activity_cls):
                 obj.transaction = uow.current_transaction
                 obj.calculate_target_tx_id()
                 obj.calculate_object_tx_id()
 
-    def after_version_class_built(self, parent_cls, version_cls):
+    def after_version_class_built(self, parent_cls, version_cls) -> None:
         pass

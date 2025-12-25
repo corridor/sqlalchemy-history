@@ -1,9 +1,19 @@
 from __future__ import annotations
 
+import typing as t
+
 import sqlalchemy as sa
 
 
-def get_end_tx_column_query(table, end_tx_column_name="end_transaction_id", tx_column_name="transaction_id"):
+if t.TYPE_CHECKING:
+    from sqlalchemy.engine import Connection
+
+
+def get_end_tx_column_query(
+    table: sa.Table,
+    end_tx_column_name: str = "end_transaction_id",
+    tx_column_name: str = "transaction_id",
+) -> sa.Select[t.Any]:
     v1 = sa.alias(table, name="v")
     v2 = sa.alias(table, name="v2")
     v3 = sa.alias(table, name="v3")
@@ -26,11 +36,11 @@ def get_end_tx_column_query(table, end_tx_column_name="end_transaction_id", tx_c
 
 
 def update_end_tx_column(
-    table,
-    end_tx_column_name="end_transaction_id",
-    tx_column_name="transaction_id",
-    conn=None,
-):
+    table: sa.Table,
+    end_tx_column_name: str = "end_transaction_id",
+    tx_column_name: str = "transaction_id",
+    conn: Connection | None = None,
+) -> None:
     """Calculates end transaction columns and updates the version table with the calculated values.
 
     This function can be used for migrating between subquery versioning strategy and validity versioning
@@ -71,12 +81,12 @@ def update_end_tx_column(
 
 
 def get_property_mod_flags_query(
-    table,
-    tracked_columns,
-    mod_suffix="_mod",
-    end_tx_column_name="end_transaction_id",
-    tx_column_name="transaction_id",
-):
+    table: sa.Table,
+    tracked_columns: t.Sequence[str],
+    mod_suffix: str = "_mod",
+    end_tx_column_name: str = "end_transaction_id",
+    tx_column_name: str = "transaction_id",
+) -> sa.Select[t.Any]:
     """
 
     :param table:
@@ -121,13 +131,13 @@ def get_property_mod_flags_query(
 
 
 def update_property_mod_flags(
-    table,
-    tracked_columns,
-    mod_suffix="_mod",
-    end_tx_column_name="end_transaction_id",
-    tx_column_name="transaction_id",
-    conn=None,
-):
+    table: sa.Table,
+    tracked_columns: t.Sequence[str],
+    mod_suffix: str = "_mod",
+    end_tx_column_name: str = "end_transaction_id",
+    tx_column_name: str = "transaction_id",
+    conn: Connection = None,
+) -> None:
     """Update property modification flags for given table and given columns.
 
     This function can be used for migrating an existing schema to use property mod flags
