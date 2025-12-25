@@ -60,6 +60,8 @@ exclude = ["tests/*"]
 
 [tool.ruff.lint]
 ignore = [
+    "ANN002",  # Skip typing for *args as they are hard to type
+    "ANN003",  # Skip typing for **kwargs as they are hard to type
     "COM812",  # Do not force trailing commas
     "N805",    # first argument of a method should be named 'self'
     "PLR0913", # Allow long parameter lists
@@ -68,6 +70,7 @@ ignore = [
 ]
 select = [
     "A",      # flake8-builtins
+    "ANN",    # flake8-annotations
     "B",      # flake8-bugbear
     "C4",     # flake8-comprehensions
     "COM",    # flake8-commas
@@ -117,4 +120,4 @@ case-sensitive = true
 required-imports = ["from __future__ import annotations"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S608", "N806", "PLR2004", "RUF012"]
+"tests/*" = ["S608", "N806", "PLR2004", "RUF012", "ANN"]
