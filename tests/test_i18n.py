@@ -26,7 +26,7 @@ class TestVersioningWithI18nExtension(TestCase):
             __translatable__ = {"locales": ["fi", "en"]}
             locale = "en"
 
-            kwargs = dict(primary_key=True)
+            kwargs = {"primary_key": True}
             if self.driver != "sqlite":
                 kwargs["autoincrement"] = True
             # FIXME: Currently SQLA_I18n package internally makes column attribute `autoincrement=False`

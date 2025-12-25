@@ -9,7 +9,7 @@ from tests import TestCase, create_test_cases
 
 class AssociationTableRelationshipsTestCase(TestCase):
     def create_models(self):
-        super(AssociationTableRelationshipsTestCase, self).create_models()
+        super().create_models()
 
         class PublishedArticle(self.Model):
             __tablename__ = "published_article"

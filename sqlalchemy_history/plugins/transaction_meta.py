@@ -80,7 +80,7 @@ class TransactionMetaFactory(ModelFactory):
         TransactionMeta.transaction = sa.orm.relationship(
             manager.transaction_cls,
             backref=sa.orm.backref("meta_relation", collection_class=attribute_mapped_collection("key")),
-            primaryjoin=("%s.id == TransactionMeta.transaction_id" % manager.transaction_cls.__name__),
+            primaryjoin=(f"{manager.transaction_cls.__name__}.id == TransactionMeta.transaction_id"),
             foreign_keys=[TransactionMeta.transaction_id],
         )
 

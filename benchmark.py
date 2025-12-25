@@ -85,14 +85,14 @@ def test_versioning(versioning_strategy, property_mod_tracking):
 
     start = time()
 
-    for i in range(20):
-        for i in range(20):
+    for _i in range(20):
+        for _i in range(20):
             session.add(Article(name="Article", tags=[Tag(), Tag()]))
         session.commit()
 
     print("Testing with:")
-    print("   versioning_strategy=%r" % versioning_strategy)
-    print("   property_mod_tracking=%r" % property_mod_tracking)
+    print(f"   versioning_strategy={versioning_strategy!r}")
+    print(f"   property_mod_tracking={property_mod_tracking!r}")
     print(colored("%r seconds" % (time() - start), "red"))
 
     Model.metadata.drop_all(connection)

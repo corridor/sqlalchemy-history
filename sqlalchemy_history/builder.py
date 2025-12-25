@@ -219,7 +219,7 @@ class Builder:
         """
         for cls in version_classes:
             assoc_prox_maps = get_association_proxies(cls)
-            for key in assoc_prox_maps.keys():
+            for key in assoc_prox_maps:
                 versioned_target_class = version_class(cls)
                 setattr(
                     versioned_target_class,

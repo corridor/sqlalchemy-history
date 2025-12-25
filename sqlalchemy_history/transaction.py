@@ -30,7 +30,7 @@ class TransactionBase:
         """
         if hasattr(self, "changes"):
             return [changes.entity_name for changes in self.changes]
-        raise NoChangesAttribute()
+        raise NoChangesAttribute
 
     @property
     def changed_entities(self):
@@ -94,10 +94,10 @@ class TransactionFactory(ModelFactory):
                     except KeyError:
                         raise ImproperlyConfigured(
                             "Could not build relationship between Transaction"
-                            " and %s. %s was not found in declarative class "
+                            f" and {user_cls}. {user_cls} was not found in declarative class "
                             "registry. Either configure VersioningManager to "
                             "use different user class or disable this "
-                            "relationship " % (user_cls, user_cls),
+                            "relationship ",
                         )
 
                 user_id = sa.Column(
@@ -113,9 +113,9 @@ class TransactionFactory(ModelFactory):
                 field_values = OrderedDict(
                     (field, getattr(self, field)) for field in fields if hasattr(self, field)
                 )
-                return "<Transaction %s>" % ", ".join(
+                return "<Transaction {}>".format(", ".join(
                     (
-                        "%s=%r" % (field, value)
+                        f"{field}={value!r}"
                         if not isinstance(value, int)
                         # We want the following line to ensure that longs get
                         # shown without the ugly L suffix on python 2.x
@@ -123,6 +123,6 @@ class TransactionFactory(ModelFactory):
                         else "%s=%d" % (field, value)
                         for field, value in field_values.items()
                     ),
-                )
+                ))
 
         return Transaction

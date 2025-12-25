@@ -45,7 +45,7 @@ def get_versioning_manager(item):
         return versioned_item.__versioning_manager__
     except AttributeError:
         if isinstance(versioned_item, sa.Table):
-            raise TableNotVersioned('Table "%s"' % versioned_item.name)
+            raise TableNotVersioned(f'Table "{versioned_item.name}"')
         raise ClassNotVersioned(versioned_item.__name__)
 
 
@@ -125,6 +125,7 @@ def version_obj(session, parent_obj):
             :-1
         ] == identity(parent_obj):
             return version_obj
+    return None
 
 
 def version_class(model):
@@ -308,9 +309,8 @@ def is_modified(obj):
                 continue
             if attr.history.has_changes():
                 return True
-        if key in versioned_relationship_keys:
-            if attr.history.has_changes():
-                return True
+        if key in versioned_relationship_keys and attr.history.has_changes():
+            return True
     return False
 
 
@@ -343,8 +343,8 @@ def count_versions(obj):
         return 0
     manager = get_versioning_manager(obj)
     table_name = manager.option(obj, "table_name") % obj.__table__.name
-    criteria = ["%s = %r" % (pk, getattr(obj, pk)) for pk in get_primary_keys(obj)]
-    query = sa.text("SELECT COUNT(1) FROM %s WHERE %s" % (table_name, " AND ".join(criteria)))
+    criteria = [f"{pk} = {getattr(obj, pk)!r}" for pk in get_primary_keys(obj)]
+    query = sa.text("SELECT COUNT(1) FROM {} WHERE {}".format(table_name, " AND ".join(criteria)))
     return session.execute(query).scalar()
 
 
@@ -386,6 +386,7 @@ class VersioningClauseAdapter(sa.sql.visitors.ReplacingCloningVisitor):
         if isinstance(col, sa.Column):
             table = version_table(col.table)
             return table.c.get(col.key)
+        return None
 
 
 def adapt_columns(expr):

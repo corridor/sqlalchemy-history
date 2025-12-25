@@ -14,7 +14,7 @@ from sqlalchemy_history.utils import end_tx_column_name, tx_column_name
 def parent_identity(obj_or_class):
     return tuple(
         getattr(obj_or_class, column_key)
-        for column_key in get_primary_keys(obj_or_class).keys()
+        for column_key in get_primary_keys(obj_or_class)
         if column_key != tx_column_name(obj_or_class)
     )
 
@@ -68,10 +68,7 @@ class VersionObjectFetcher:
         if alias is None:
             alias = sa.orm.aliased(obj.__class__)
             table = alias.__table__
-            if hasattr(alias, "c"):
-                attrs = alias.c
-            else:
-                attrs = alias
+            attrs = alias.c if hasattr(alias, "c") else alias
         else:
             table = alias.original
             attrs = alias.c
@@ -119,13 +116,12 @@ class VersionObjectFetcher:
             .correlate(alias.__table__)
             .label("position")
         )
-        query = (
+        return (
             sa.select(subquery)
             .select_from(obj.__table__)
             .where(sa.and_(*eqmap(identity, (obj.__class__, obj))))
             .order_by(getattr(obj.__class__, tx_column_name(obj)))
         )
-        return query
 
 
 class SubqueryFetcher(VersionObjectFetcher):

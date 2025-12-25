@@ -120,7 +120,7 @@ class TestTableBuilderInOtherSchema(TestCase):
         except sa.exc.DatabaseError:
             try:
                 # Create a User for Oracle DataBase as it does not have concept of schema
-                # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa E501
+                # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa: E501
                 self.connection.execute(sa.text("CREATE USER other identified by other"))
                 # need to give privilege to create table to this new user
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users

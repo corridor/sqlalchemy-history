@@ -96,8 +96,8 @@ class JoinTableInheritanceTestCase(TestCase):
         article = self.Article()
         self.session.add(article)
         self.session.commit()
-        assert self.session.execute(sa.text("SELECT %s FROM article_version" % tx_column)).fetchone()[0]
-        assert self.session.execute(sa.text("SELECT %s FROM text_item_version" % tx_column)).fetchone()[0]
+        assert self.session.execute(sa.text(f"SELECT {tx_column} FROM article_version")).fetchone()[0]
+        assert self.session.execute(sa.text(f"SELECT {tx_column} FROM text_item_version")).fetchone()[0]
 
     def test_primary_keys(self):
         tx_column = self.options["transaction_column_name"]
@@ -124,10 +124,10 @@ class JoinTableInheritanceTestCase(TestCase):
         assert article.versions.count() == 2
 
         assert self.session.execute(
-            sa.text("SELECT %s FROM text_item_version ORDER BY %s" % (end_tx_column, tx_column)),
+            sa.text(f"SELECT {end_tx_column} FROM text_item_version ORDER BY {tx_column}"),
         ).fetchone()[0]
         assert self.session.execute(
-            sa.text("SELECT %s FROM article_version ORDER BY %s" % (end_tx_column, tx_column)),
+            sa.text(f"SELECT {end_tx_column} FROM article_version ORDER BY {tx_column}"),
         ).fetchone()[0]
 
 
@@ -139,11 +139,11 @@ class TestDeepJoinedTableInheritance(TestCase):
         class Node(self.Model):
             __versioned__ = {}
             __tablename__ = "node"
-            __mapper_args__ = dict(
-                polymorphic_on="type",
-                polymorphic_identity="node",
-                with_polymorphic="*",
-            )
+            __mapper_args__ = {
+                "polymorphic_on": "type",
+                "polymorphic_identity": "node",
+                "with_polymorphic": "*",
+            }
 
             id = sa.Column(sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), primary_key=True)
             type = sa.Column(sa.String(30), nullable=False)

@@ -64,7 +64,7 @@ class Operations:
 
         :param session: SQLAlchemy session object
         """
-        return set(key[0] for key, _ in self.items())
+        return {key[0] for key, _ in self.items()}
 
     def items(self):
         return self.objects.items()

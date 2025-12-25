@@ -138,7 +138,7 @@ class UnitOfWork:
         :param target: Parent object to create the version object for
         """
         version_cls = version_class(target.__class__)
-        version_id = identity(target) + (self.current_transaction.id,)
+        version_id = (*identity(target), self.current_transaction.id)
         version_key = (version_cls, version_id)
 
         if version_key not in self.version_objs:
@@ -182,7 +182,7 @@ class UnitOfWork:
         if not self.manager.options["versioning"]:
             return
 
-        for key, operation in copy(self.operations).items():
+        for _key, operation in copy(self.operations).items():  # noqa: PERF102 -- operations is not a dict
             if operation.processed:
                 continue
 

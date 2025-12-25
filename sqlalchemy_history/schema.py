@@ -161,13 +161,10 @@ def update_property_mod_flags(
 
     primary_keys = [c.name for c in table.c if c.primary_key]
     for row in stmt:
-        values = dict(
-            [
-                (column + mod_suffix, row._mapping[column + mod_suffix])
+        values = {
+            column + mod_suffix: row._mapping[column + mod_suffix]
                 for column in tracked_columns
-                if row._mapping[column + mod_suffix]
-            ],
-        )
+                if row._mapping[column + mod_suffix]}
         if values:
             criteria = [getattr(table.c, pk) == row._mapping[pk] for pk in primary_keys]
             query = table.update().where(sa.and_(*criteria)).values(values)

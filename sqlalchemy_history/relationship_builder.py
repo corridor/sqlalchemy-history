@@ -87,6 +87,7 @@ class RelationshipBuilder:
         else:
             reflector = VersionExpressionReflector(obj, self.property)
             return reflector(self.property.primaryjoin)
+        return None
 
     def many_to_many_criteria(self, obj):
         """Returns the many-to-many query.
@@ -309,7 +310,7 @@ class RelationshipBuilder:
 
 
         """
-        column = list(self.property.remote_side)[0]
+        column = next(iter(self.property.remote_side))
 
         builder = TableBuilder(self.manager, column.table)
         metadata = column.table.metadata

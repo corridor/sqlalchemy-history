@@ -26,7 +26,9 @@ class ReverterException(Exception):
 
 
 class Reverter:
-    def __init__(self, obj, visited_objects=None, relations=[]):
+    def __init__(self, obj, visited_objects=None, relations=None):
+        if relations is None:
+            relations = []
         self.visited_objects = visited_objects or []
         self.obj = obj
         self.version_parent = self.obj.version_parent
@@ -39,8 +41,8 @@ class Reverter:
             subpath = path.split(".")[0]
             if subpath not in self.parent_mapper.relationships:
                 raise ReverterException(
-                    "Could not initialize Reverter. Class '%s' does not have "
-                    "relationship '%s'." % (parent_class(self.obj.__class__).__name__, subpath),
+                    f"Could not initialize Reverter. Class '{parent_class(self.obj.__class__).__name__}' does not have "
+                    f"relationship '{subpath}'.",
                 )
 
     def revert_properties(self):

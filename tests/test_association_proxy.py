@@ -44,7 +44,7 @@ class TestAssociationProxy(TestCase):
     def test_association_proxy_mapping(self):
         assoc_mapping = get_association_proxies(self.Article)
         assert len(assoc_mapping) == 1
-        assert list(assoc_mapping.keys())[0] == "upanaam"
+        assert next(iter(assoc_mapping.keys())) == "upanaam"
         assert isinstance(assoc_mapping["upanaam"], sa.ext.associationproxy.AssociationProxy)
 
     def test_association_proxy_detection(self):

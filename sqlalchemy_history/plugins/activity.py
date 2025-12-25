@@ -231,6 +231,7 @@ class ActivityFactory(ModelFactory):
                         .filter(getattr(version_cls, primary_key) == getattr(obj, primary_key))
                         .scalar()
                     )
+                return None
 
             def calculate_object_tx_id(self):
                 self.object_tx_id = self._calculate_tx_id(self.object)
@@ -267,7 +268,7 @@ class ActivityFactory(ModelFactory):
             backref=sa.orm.backref(
                 "activities",
             ),
-            primaryjoin=("%s.id == Activity.transaction_id" % manager.transaction_cls.__name__),
+            primaryjoin=(f"{manager.transaction_cls.__name__}.id == Activity.transaction_id"),
             foreign_keys=[Activity.transaction_id],
         )
         return Activity

@@ -87,8 +87,7 @@ class ColumnReflector:
             yield reflected_column
 
     def __iter__(self):
-        for column in self.reflected_parent_columns:
-            yield column
+        yield from self.reflected_parent_columns
 
         # Only yield internal version columns if parent model is not using
         # single table inheritance
@@ -121,7 +120,7 @@ class TableBuilder:
 
     @property
     def columns(self):
-        return list(column for column in ColumnReflector(self.manager, self.parent_table, self.model))
+        return list(ColumnReflector(self.manager, self.parent_table, self.model))
 
     def __call__(self, extends=None):
         """Builds version table."""

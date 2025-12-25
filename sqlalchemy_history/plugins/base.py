@@ -46,14 +46,13 @@ class PluginCollection:
             self.plugins = plugins
 
     def __iter__(self):
-        for plugin in self.plugins:
-            yield plugin
+        yield from self.plugins
 
     def __len__(self):
         return len(self.plugins)
 
     def __repr__(self):
-        return "<%s [%s]>" % (
+        return "<{} [{}]>".format(
             self.__class__.__name__,
             ", ".join(map(repr, self.plugins)),
         )

@@ -48,13 +48,10 @@ class VersionClassBase:
         previous_version = self.previous
         data = {}
 
-        for key in sa.inspect(self.__class__).columns.keys():
+        for key in sa.inspect(self.__class__).columns.keys():  # noqa: SIM118 -- columns is not a dict
             if is_internal_column(self, key):
                 continue
-            if not previous_version:
-                old = None
-            else:
-                old = getattr(previous_version, key)
+            old = None if not previous_version else getattr(previous_version, key)
             new = getattr(self, key)
             if old != new:
                 data[key] = [old, new]
@@ -63,5 +60,7 @@ class VersionClassBase:
         manager.plugins.after_construct_changeset(self, data)
         return data
 
-    def revert(self, relations=[]):
+    def revert(self, relations=None):
+        if relations is None:
+            relations = []
         return Reverter(self, relations=relations)()

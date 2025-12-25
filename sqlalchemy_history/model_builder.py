@@ -25,6 +25,7 @@ def find_closest_versioned_parent(manager, model):
     for class_ in model.__bases__:
         if class_ in manager.version_class_map:
             return manager.version_class_map[class_]
+    return None
 
 
 def versioned_parents(manager, model):
@@ -65,7 +66,7 @@ def version_base(manager, parent_cls, base_class_factory=None):
     if not VersionBase:
         VersionBase = type(
             "VersionBase",
-            (base_class_factory(manager, parent_cls) + (VersionClassBase,)),
+            ((*base_class_factory(manager, parent_cls), VersionClassBase)),
             {"__abstract__": True},
         )
 
@@ -243,18 +244,15 @@ class ModelBuilder:
         args.update(self.get_inherited_denormalized_columns(table))
 
         if self.manager.options.get("use_module_name", True):
-            name = "%s%sVersion" % (
+            name = "{}{}Version".format(
                 self.model.__module__.title().replace(".", ""),
                 self.model.__name__,
             )
         else:
-            name = "%sVersion" % (self.model.__name__,)
+            name = f"{self.model.__name__}Version"
         version_cls = type(name, self.base_classes(), args)
         if option(self.model, "base_classes") is None:
-            primary_keys = list(get_primary_keys(self.model).keys()) + [
-                "transaction_id",
-                "operation_type",
-            ]
+            primary_keys = [*list(get_primary_keys(self.model).keys()), "transaction_id", "operation_type"]
             version_cls = generic_repr(*primary_keys)(version_cls)
         return version_cls
 
