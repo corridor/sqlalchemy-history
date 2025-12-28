@@ -52,7 +52,7 @@ class ChangeSetTestCase(ChangeSetBaseTestCase):
             )
         )
 
-        assert self.session.query(self.ArticleVersion).first().changeset == {
+        assert self.session.scalars(sa.select(self.ArticleVersion)).first().changeset == {
             "content": [None, "some content"],
             "id": [None, 1],
             "name": [None, "something"],

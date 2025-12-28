@@ -30,14 +30,14 @@ class TestBug141(TestCase):
         self.session.add(author)
         self.session.commit()
 
-        versioned_objs = self.session.query(version_class(self.Author)).all()
+        versioned_objs = self.session.scalars(sa.select(version_class(self.Author))).all()
         assert len(versioned_objs) == 1
         assert versioned_objs[0].operation_type == 0
         assert versioned_objs[0].name == "yoyoyoyoyo"
         author.name = "sdfeoinfe"
         self.session.add(author)
         self.session.commit()
-        versioned_objs = self.session.query(version_class(self.Author)).all()
+        versioned_objs = self.session.scalars(sa.select(version_class(self.Author))).all()
         assert len(versioned_objs) == 2
         assert versioned_objs[0].operation_type == 0
         assert versioned_objs[1].operation_type == 1

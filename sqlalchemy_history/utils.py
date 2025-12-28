@@ -228,9 +228,9 @@ def vacuum(session, model, yield_per=1000):
     version_cls = version_class(model)
     versions = defaultdict(list)
 
-    query = (session.query(version_cls).order_by(option(version_cls, "transaction_column_name"))).yield_per(
-        yield_per
-    )
+    query = session.scalars(
+        sa.select(version_cls).order_by(option(version_cls, "transaction_column_name"))
+    ).yield_per(yield_per)
 
     primary_key_col = sa.inspection.inspect(model).primary_key[0].name
 

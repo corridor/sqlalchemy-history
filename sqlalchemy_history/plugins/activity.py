@@ -145,12 +145,9 @@ target is the given article.
 
 ```python
 >>> import sqlalchemy as sa
->>> activities = session.query(Activity).filter(
-...     sa.or_(
-...         Activity.object == article,
-...         Activity.target == article
-...     )
-... )
+>>> activities = session.scalars(
+...     sa.select(Activity).filter(sa.or_(Activity.object == article, Activity.target == article))
+... ).all()
 ```
 
 #### Also Read
@@ -223,11 +220,13 @@ class ActivityFactory(ModelFactory):
                     model = obj.__class__
                     version_cls = version_class(model)
                     primary_key = inspect(model).primary_key[0].name
-                    return (
-                        session.query(sa.func.max(version_cls.transaction_id))
-                        .filter(getattr(version_cls, primary_key) == getattr(obj, primary_key))
-                        .scalar()
-                    )
+                    return session.execute(
+                        (
+                            sa.select(sa.func.max(version_cls.transaction_id)).where(
+                                getattr(version_cls, primary_key) == getattr(obj, primary_key)
+                            )
+                        )
+                    ).scalar_one_or_none()
 
             def calculate_object_tx_id(self):
                 self.object_tx_id = self._calculate_tx_id(self.object)

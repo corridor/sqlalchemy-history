@@ -80,8 +80,8 @@ class TestConreteTableInheritance(TestCase):
         self.session.add(article)
         self.session.commit()
         Transaction = versioning_manager.transaction_cls
-        transaction = (
-            self.session.query(Transaction).order_by(sa.sql.expression.desc(Transaction.issued_at))
+        transaction = self.session.scalars(
+            sa.select(Transaction).order_by(sa.sql.expression.desc(Transaction.issued_at))
         ).first()
         assert transaction.entity_names == ["Article"]
         assert transaction.changed_entities

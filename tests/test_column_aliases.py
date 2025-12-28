@@ -55,8 +55,8 @@ class ColumnAliasesTestCase(ColumnAliasesBaseTestCase):
         self.session.commit()
         TextItemVersion = version_class(self.TextItem)
 
-        versions = (
-            self.session.query(TextItemVersion).order_by(
+        versions = self.session.scalars(
+            sa.select(TextItemVersion).order_by(
                 getattr(TextItemVersion, self.options["transaction_column_name"])
             )
         ).all()

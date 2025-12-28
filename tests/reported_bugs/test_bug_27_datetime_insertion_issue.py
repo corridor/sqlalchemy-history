@@ -56,6 +56,6 @@ class TestBug27(TestCase):
         self.session.add(author)
         self.session.commit()
 
-        obj = self.session.query(self.article_author_table).all()
+        obj = self.session.execute(sa.select(self.article_author_table)).all()
         assert len(obj) == 1
         assert isinstance(obj[0][-1], datetime.datetime)  # last col is a datetime!

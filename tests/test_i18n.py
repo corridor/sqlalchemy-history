@@ -59,7 +59,7 @@ class TestVersioningWithI18nExtension(TestCase):
         self.session.commit()
 
         tx_log = versioning_manager.transaction_cls
-        tx = self.session.query(tx_log).order_by(sa.desc(tx_log.id)).first()
+        tx = self.session.scalars(sa.select(tx_log).order_by(sa.desc(tx_log.id))).first()
         assert "ArticleTranslation" in tx.entity_names
 
     def test_history_with_many_translations(self):
@@ -73,7 +73,7 @@ class TestVersioningWithI18nExtension(TestCase):
         self.session.commit()
 
         Transaction = versioning_manager.transaction_cls
-        transaction = self.session.query(Transaction).one()
+        transaction = self.session.scalars(sa.select(Transaction)).one()
 
         assert len(transaction.changes) == 2
         assert "ArticleTranslation" in {chng.entity_name for chng in transaction.changes}

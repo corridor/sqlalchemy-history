@@ -1,3 +1,4 @@
+import sqlalchemy as sa
 from sqlalchemy_history import version_class
 from sqlalchemy_history.plugins import TransactionChangesPlugin
 from tests import TestCase
@@ -64,4 +65,4 @@ class TestTransactionChangedEntities(TestCase):
         article.name = "Some article"
         self.session.commit()
 
-        assert self.session.query(TransactionChanges).count() == 1
+        assert self.session.scalar(sa.select(sa.func.count()).select_from(TransactionChanges)) == 1

@@ -9,10 +9,33 @@ from sqlalchemy_history.expression_reflector import VersionExpressionReflector
 from sqlalchemy_history.operation import Operation
 from sqlalchemy_history.table_builder import TableBuilder
 from sqlalchemy_history.utils import adapt_columns, version_class, option
+import warnings
+import typing as t
+from sqlalchemy.orm import Session
+from sqlalchemy.orm import RelationshipProperty
+from sqlalchemy.sql.selectable import ExecutableReturnsRows
+
+
+_T = t.TypeVar("_T")
+
+
+class _WriteOnlyCollectionAdapter(t.Generic[_T]):
+    """
+    Minimal adapter that exposes a write-only-collection-like `select()` API
+    backed by a preconstructed SQLAlchemy `Select` clause.
+    """
+
+    def __init__(self, statement: sa.Select[_T]):
+        self._statement = statement
+
+    def select(self) -> sa.Select[_T]:
+        return self._statement
 
 
 class RelationshipBuilder(object):
-    def __init__(self, versioning_manager, model, property_):
+    property: RelationshipProperty
+
+    def __init__(self, versioning_manager, model, property_: RelationshipProperty):
         self.manager = versioning_manager
         self.property = property_
         self.model = model
@@ -55,21 +78,39 @@ class RelationshipBuilder(object):
         subquery = subquery.scalar_subquery()
         return getattr(self.remote_cls, tx_column) == subquery
 
-    def query(self, obj):
-        session = sa.orm.object_session(obj)
-        return session.query(self.remote_cls).filter(self.criteria(obj))
+    def select(self, obj):
+        return sa.select(self.remote_cls).filter(self.criteria(obj))
 
-    def process_query(self, query):
+    def process_query(self, query: ExecutableReturnsRows, session: Session):
         """Process given SQLAlchemy Query object depending on the associated RelationshipProperty object.
 
-        :param query: SQLAlchemy Query object
+        This method handles both legacy Query objects (for backward compatibility with
+        lazy='dynamic' relationships) and modern SQLAlchemy 2.0 select statements, executing
+        them appropriately based on the relationship's properties.
 
+        :param query: SQLAlchemy select clause
+
+        Notes
+        -----
+        The lazy='dynamic' strategy is deemed legacy in SQLAlchemy and maintained here only
+        for backward compatibility. Users should migrate to lazy='write_only' for similar
+        functionality in SQLAlchemy 2.0+.
+        See: https://docs.sqlalchemy.org/en/20/changelog/migration_20.html#dynamic-relationship-loaders-superseded-by-write-only
         """
         if self.property.lazy == "dynamic":
-            return query
+            warnings.warn(
+                f'The lazy="dynamic" strategy is now legacy and is superseded by lazy="write_only" in SQLAlchemy 2.0. '
+                f"Please consider migrating to the write_only strategy for relationship {self.property.key!r}.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            # Build legacy Query object for backward compatibility
+            return session.query(self.remote_cls).from_statement(query)
+        elif self.property.lazy == "write_only":
+            return _WriteOnlyCollectionAdapter(query)
         if self.property.uselist is False:
-            return query.first()
-        return query.all()
+            return session.scalars(query.limit(1)).first()
+        return session.scalars(query).all()
 
     def criteria(self, obj):
         direction = self.property.direction
@@ -222,8 +263,8 @@ class RelationshipBuilder(object):
 
         @property
         def relationship(obj):
-            query = self.query(obj)
-            return self.process_query(query)
+            session = sa.orm.object_session(obj)
+            return self.process_query(self.select(obj), session)
 
         return relationship
 

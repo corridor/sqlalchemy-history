@@ -28,7 +28,7 @@ One of the major benefits of SQLAlchemy-History is its ability to revert changes
 >>> session.commit()
 >>> version.revert()
 >>> session.commit() # article lives again!
->>> session.query(Article).first()
+>>> session.scalars(sa.select(Article).limit(1)).first()
 ```
 
 ## Revert relationships
@@ -64,7 +64,7 @@ Now lets say some user first adds an article with couple of tags:
 Then lets say another user deletes one of the tags:
 
 ```python
->>> tag = session.query(Tag).filter_by(name=u'Interesting')
+>>> tag = session.scalar(sa.select(Tag).where(Tag.name == "Interesting"))
 >>> session.delete(tag)
 >>> session.commit()
 ```
@@ -72,7 +72,7 @@ Then lets say another user deletes one of the tags:
 Now the first user wants to set the article back to its original state. It can be achieved as follows (notice how we use the relations parameter):
 
 ```python
->>> article = session.query(Article).get(1)
+>>> article = session.get(Article, 1)
 >>> article.versions[0].revert(relations=['tags'])
 >>> session.commit()
 ```

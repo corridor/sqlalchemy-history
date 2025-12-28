@@ -57,7 +57,7 @@ class RevertTestCase(TestCase):
         self.session.commit()
         version.revert()
         self.session.commit()
-        assert self.session.query(self.Article).count() == 1
+        assert self.session.scalar(sa.select(sa.func.count()).select_from(self.Article)) == 1
         article = self.session.get(self.Article, old_article_id)
 
         assert version.next.next

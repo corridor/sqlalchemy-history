@@ -35,7 +35,8 @@ class VersionObjectFetcher(object):
         history. If current version is the first version this method returns
         None.
         """
-        return self.previous_query(obj).first()
+        session = sa.orm.object_session(obj)
+        return session.scalars(self.previous_query(obj).limit(1)).first()
 
     def index(self, obj):
         """
@@ -50,7 +51,8 @@ class VersionObjectFetcher(object):
         history. If current version is the last version this method returns
         None.
         """
-        return self.next_query(obj).first()
+        session = sa.orm.object_session(obj)
+        return session.scalars(self.next_query(obj).limit(1)).first()
 
     def _transaction_id_subquery(self, obj, next_or_prev="next", alias=None):
         if next_or_prev == "next":
@@ -91,12 +93,10 @@ class VersionObjectFetcher(object):
         return query.scalar_subquery()
 
     def _next_prev_query(self, obj, next_or_prev="next"):
-        session = sa.orm.object_session(obj)
-
         subquery = self._transaction_id_subquery(obj, next_or_prev=next_or_prev)
         subquery = subquery.scalar_subquery()
 
-        return session.query(obj.__class__).filter(
+        return sa.select(obj.__class__).filter(
             sa.and_(getattr(obj.__class__, tx_column_name(obj)) == subquery, *parent_criteria(obj))
         )
 
@@ -145,9 +145,7 @@ class ValidityFetcher(VersionObjectFetcher):
         Returns the query that fetches the next version relative to this
         version in the version history.
         """
-        session = sa.orm.object_session(obj)
-
-        return session.query(obj.__class__).filter(
+        return sa.select(obj.__class__).filter(
             sa.and_(
                 getattr(obj.__class__, tx_column_name(obj)) == getattr(obj, end_tx_column_name(obj)),
                 *parent_criteria(obj),
@@ -159,9 +157,7 @@ class ValidityFetcher(VersionObjectFetcher):
         Returns the query that fetches the previous version relative to this
         version in the version history.
         """
-        session = sa.orm.object_session(obj)
-
-        return session.query(obj.__class__).filter(
+        return sa.select(obj.__class__).filter(
             sa.and_(
                 getattr(obj.__class__, end_tx_column_name(obj)) == getattr(obj, tx_column_name(obj)),
                 *parent_criteria(obj),

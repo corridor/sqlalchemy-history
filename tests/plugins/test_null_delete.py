@@ -1,3 +1,4 @@
+import sqlalchemy as sa
 from sqlalchemy_history.plugins import NullDeletePlugin
 from tests import TestCase
 
@@ -15,7 +16,7 @@ class DeleteTestCase(TestCase):
 
     def test_stores_operation_type(self):
         self._delete()
-        versions = self.session.query(self.ArticleVersion).all()
+        versions = self.session.scalars(sa.select(self.ArticleVersion)).all()
         assert versions[1].operation_type == 2
 
 
@@ -24,7 +25,7 @@ class TestDeleteWithoutStoreDataAtDelete(DeleteTestCase):
 
     def test_creates_versions_on_delete(self):
         self._delete()
-        versions = self.session.query(self.ArticleVersion).all()
+        versions = self.session.scalars(sa.select(self.ArticleVersion)).all()
         assert len(versions) == 2
         assert versions[1].name is None
         assert versions[1].content is None

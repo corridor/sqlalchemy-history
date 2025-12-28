@@ -36,7 +36,7 @@ keys and values to the meta property of Transaction class.
 
     # find all transactions with 'article' tags
     query = (
-        session.query(Transaction)
+        sa.select(Transaction)
         .join(Transaction.meta_relation)
         .filter(
             db.and_(

@@ -9,7 +9,7 @@ Transaction can be queried just like any other sqlalchemy declarative model.
 ```python
 >>> from sqlalchemy_history import transaction_class
 >>> Transaction = transaction_class(Article)
->>> session.query(Transaction).all() # find all transactions
+>>> session.scalars(sa.select(Transaction)).all() # find all transactions
 ```
 
 ## UnitOfWork
