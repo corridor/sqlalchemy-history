@@ -9,9 +9,9 @@ version = "0"
 authors = ["Corridor Platforms <postmaster@corridorplatforms.com>"]
 license = "Apache-2.0, BSD-3-Clause"
 readme = "docs/README.md"
-packages = [{include = "sqlalchemy_history"}]
+packages = [{ include = "sqlalchemy_history" }]
 repository = "https://github.com/corridor/sqlalchemy-history"
-classifiers=[
+classifiers = [
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
@@ -24,7 +24,6 @@ python = "^3.9"
 
 SQLAlchemy = ">=2"
 SQLAlchemy-Utils = ">=0.30.12"
-cached-property = "*"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "*"
