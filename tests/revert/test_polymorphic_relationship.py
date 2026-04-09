@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+
 from tests import TestCase
 
 
@@ -11,9 +12,7 @@ class TestRevertPolymorphicRelationship(TestCase):
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
-            parts = sa.orm.relationship(
-                "Part", back_populates="car", cascade="all, delete-orphan", lazy="selectin"
-            )
+            parts = sa.orm.relationship("Part", back_populates="car", cascade="all, delete-orphan", lazy="selectin")
 
         class Part(self.Model):
             __tablename__ = "part"
@@ -25,11 +24,11 @@ class TestRevertPolymorphicRelationship(TestCase):
             car_id = sa.Column(sa.Integer, sa.ForeignKey(Car.id))
             car = sa.orm.relationship(Car, back_populates="parts")
 
-            type = sa.Column(sa.String(50))
+            part_type = sa.Column(sa.String(50))
 
             __mapper_args__ = {
                 "polymorphic_identity": "part",
-                "polymorphic_on": type,
+                "polymorphic_on": part_type,
             }
 
         class Tire(Part):
@@ -62,5 +61,4 @@ class TestRevertPolymorphicRelationship(TestCase):
 
         assert len(reverted_car.parts) == 0
 
-        with pytest.raises(IndexError):
-            print(reverted_car.parts[0])
+        self.session.flush()
