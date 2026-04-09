@@ -5,7 +5,7 @@ from copy import copy
 import sqlalchemy as sa
 from sqlalchemy_utils import get_primary_keys, identity
 
-from sqlalchemy_history.operation import Operations
+from sqlalchemy_history.operation import Operation, Operations
 from sqlalchemy_history.schema import update_end_tx_column
 from sqlalchemy_history.utils import (
     end_tx_column_name,
@@ -296,9 +296,13 @@ class UnitOfWork:
         :param version_obj: Version object to assign the attribute values to
 
         """
+        state = sa.inspect(parent_obj)
         for prop in versioned_column_properties(parent_obj):
-            try:
-                value = getattr(parent_obj, prop.key)
-            except sa.orm.exc.ObjectDeletedError:
+            if version_obj.operation_type == Operation.DELETE and prop.key in state.unloaded:
                 value = None
+            else:
+                try:
+                    value = getattr(parent_obj, prop.key)
+                except sa.orm.exc.ObjectDeletedError:
+                    value = None
             setattr(version_obj, prop.key, value)
