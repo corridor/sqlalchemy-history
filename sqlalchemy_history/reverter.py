@@ -70,9 +70,11 @@ class Reverter:
                 if value:
                     values.append(value)
 
-            for value in getattr(self.version_parent, prop.key, []):
+            collection = getattr(self.version_parent, prop.key, [])
+            for value in list(collection):
                 if value not in values:
                     self.session.delete(value)
+                    collection.remove(value)
         else:
             self.revert_child(getattr(self.obj, prop.key), prop)
 
