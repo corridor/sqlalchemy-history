@@ -59,6 +59,7 @@ class TestCase:
             "create_models": self.should_create_models,
             "base_classes": (self.Model,),
             "strategy": self.versioning_strategy,
+            "support_async": False,
             "transaction_column_name": self.transaction_column_name,
             "end_transaction_column_name": self.end_transaction_column_name,
         }

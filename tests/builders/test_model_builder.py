@@ -9,8 +9,32 @@ class TestVersionModelBuilder(TestCase):
     def test_builds_relationship(self):
         assert self.Article.versions
 
+    def test_versions_relationship_is_dynamic_by_default(self):
+        assert sa.inspect(self.Article).relationships.versions.lazy == "dynamic"
+
     def test_parent_has_access_to_versioning_manager(self):
         assert self.Article.__versioning_manager__
+
+
+class TestVersionModelBuilderAsync(TestCase):
+    @property
+    def options(self):
+        options = super().options
+        options["support_async"] = True
+        return options
+
+    def test_versions_relationship_is_write_only_with_async_support(self):
+        assert sa.inspect(self.Article).relationships.versions.lazy == "write_only"
+
+    def test_versions_can_be_loaded_with_select(self):
+        article = self.Article(name="testing")
+        self.session.add(article)
+        self.session.commit()
+
+        versions = self.session.scalars(article.versions.select()).all()
+
+        assert len(versions) == 1
+        assert versions[0].name == "testing"
 
 
 class TestGenericReprModelBuilder(TestCase):
@@ -20,6 +44,7 @@ class TestGenericReprModelBuilder(TestCase):
             "create_models": self.should_create_models,
             "base_classes": None,
             "strategy": self.versioning_strategy,
+            "support_async": False,
             "transaction_column_name": self.transaction_column_name,
             "end_transaction_column_name": self.end_transaction_column_name,
         }
@@ -43,6 +68,7 @@ class TestNoGenericReprModelBuilder(TestCase):
             "create_models": self.should_create_models,
             "base_classes": (self.Model, ReprMixin),
             "strategy": self.versioning_strategy,
+            "support_async": False,
             "transaction_column_name": self.transaction_column_name,
             "end_transaction_column_name": self.end_transaction_column_name,
         }

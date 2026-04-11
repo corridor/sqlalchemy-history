@@ -14,6 +14,7 @@ class TestOption(TestCase):
             "table_name",
             "exclude",
             "include",
+            "support_async",
             "create_models",
             "create_tables",
             "transaction_column_name",

@@ -84,6 +84,7 @@ class VersioningManager:
             "table_name": "%s_version",
             "exclude": [],
             "include": [],
+            "support_async": False,
             "create_models": True,
             "create_tables": True,
             "transaction_column_name": "transaction_id",
