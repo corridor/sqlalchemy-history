@@ -125,12 +125,14 @@ class ModelBuilder:
         # We need to check if versions relation was already set for parent
         # class.
         if not hasattr(self.model, "versions"):
+            # Keep legacy dynamic loading by default, but allow SQLAlchemy 2.x
+            # style write-only access for version collections when support_async=True
             self.model.versions = sa.orm.relationship(
                 self.version_class,
                 primaryjoin=sa.and_(*conditions),
                 foreign_keys=foreign_keys,
                 order_by=lambda: getattr(self.version_class, option(self.model, "transaction_column_name")),
-                lazy="dynamic",
+                lazy="write_only" if self.manager.options["support_async"] else "dynamic",
                 viewonly=True,
             )
             # We must explicitly declare this relationship, instead of

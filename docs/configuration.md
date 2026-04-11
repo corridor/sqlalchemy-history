@@ -89,6 +89,10 @@ Here is a full list of configuration options:
 - operation_type_column_name (default: 'operation_type')
   The name of the operation type column (used by history tables).
 
+- support_async (default: False)
+  When enabled, the parent `.versions` relationship uses SQLAlchemy's `write_only`
+  loader instead of the legacy `dynamic` loader.
+
 - strategy (default: 'validity')
   The versioning strategy to use. Either 'validity' or 'subquery'
 
@@ -97,6 +101,7 @@ Example
 ```python
 >>> class Article(Base):
 ...     __versioned__ = {
+...         'support_async': True,
 ...         'transaction_column_name': 'tx_id'
 ...     }
 ...     __tablename__ = 'user'
