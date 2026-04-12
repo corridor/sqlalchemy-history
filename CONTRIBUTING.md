@@ -14,19 +14,16 @@
 git clone https://github.com/corridor/sqlalchemy-history.git
 cd sqlalchemy-history
 ```
-- Install Poetry in your local system
+- Install uv in your local system
 ```
-# Refer https://python-poetry.org/docs/#installation 
-curl -sSL https://install.python-poetry.org | python3 -
+# Refer https://docs.astral.sh/uv/getting-started/installation
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 - Install requirements of project into virtual environment.
 ```
-poetry install   # Poetry creates a virtual environment in your local
-# NOTE: If poetry is not set in your $PATH variable you can use
-# '~/.local/share/pypoetry/venv/bin/poetry install' instead!
-
-# Activate this virtual environment in your local by calling
-poetry shell
+uv venv venv --python 3.13 --seed
+source venv/bin/activate
+uv sync --active --dev
 ```
 - Checkout branch with name relevant to issue issue you are working
 ```
@@ -40,11 +37,11 @@ git checkout -b add-issue-num
 - Before commiting, verify if the changes are working in your local system
 ```
 # Run tests locally
-DB=sqlite poetry run pytest
+DB=sqlite DB=sqlite uv run --active pytest
 
 # Lint & Format
-poetry run ruff format .
-poetry run ruff check --fix .
+uv run --active ruff format .
+uv run --active ruff check --fix .
 ```
 - Add commit for your changes with message title and message description brifly explaining the approach
     - Keep commit message title 72 characters
@@ -65,6 +62,6 @@ A long description of what you are trying to change in this commit.
 ```
 git push origin <branch-name>
 ```
-- Got to github, and raise a PR `corridor/sqlalchemy-history:master` and wait for a review.
+- Got to github, and raise a PR `corridor/sqlalchemy-history:main` and wait for a review.
 - Maintainer(s) of the project will review and approve the CI flow to validate changes across different environments.
 - If changes are valid and passes all the tests, maintainer(s) will accept the PR(s)
