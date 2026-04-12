@@ -24,11 +24,11 @@ transaction_id          entity_name
 
 import sqlalchemy as sa
 
-from sqlalchemy_history.plugins.base import Plugin
 from sqlalchemy_history.factory import ModelFactory
+from sqlalchemy_history.plugins.base import Plugin
 
 
-class TransactionChangesBase(object):
+class TransactionChangesBase:
     transaction_id = sa.Column(sa.BigInteger, primary_key=True)
     entity_name = sa.Column(sa.Unicode(255), primary_key=True)
 

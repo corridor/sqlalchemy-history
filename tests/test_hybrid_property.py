@@ -1,8 +1,9 @@
 import datetime
+
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship
-from sqlalchemy_history.utils import version_class
 
+from sqlalchemy_history.utils import version_class
 from tests import TestCase
 
 
@@ -30,9 +31,7 @@ class TestHybridProperty(TestCase):
 
             @author_name.expression
             def author_name(cls):
-                return (
-                    sa.select(ArticleAuthor.name).where(ArticleAuthor.id == cls.author_id).scalar_subquery()
-                )
+                return sa.select(ArticleAuthor.name).where(ArticleAuthor.id == cls.author_id).scalar_subquery()
 
         class ArticleAuthor(self.Model):
             __tablename__ = "article_author"

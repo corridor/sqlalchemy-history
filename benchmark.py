@@ -6,15 +6,17 @@ from time import time
 import sqlalchemy as sa
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, close_all_sessions
-from sqlalchemy_history import make_versioned, versioning_manager, remove_versioning
-from sqlalchemy_history.transaction import TransactionFactory
+from sqlalchemy.orm import close_all_sessions, sessionmaker
+from termcolor import colored
+
+from sqlalchemy_history import make_versioned, remove_versioning, versioning_manager
 from sqlalchemy_history.plugins import (
     PropertyModTrackerPlugin,
-    TransactionMetaPlugin,
     TransactionChangesPlugin,
+    TransactionMetaPlugin,
 )
-from termcolor import colored
+from sqlalchemy_history.transaction import TransactionFactory
+
 
 warnings.simplefilter("error", sa.exc.SAWarning)
 

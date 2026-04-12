@@ -3,9 +3,8 @@ import os
 
 import sqlalchemy as sa
 from pytest import mark
+
 from sqlalchemy_history import versioning_manager
-
-
 from tests import TestCase, create_test_cases
 
 
@@ -392,10 +391,7 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
                 self.connection.execute(sa.text("GRANT UNLIMITED TABLESPACE TO other"))
             except sa.exc.DatabaseError as dbe:
-                if (
-                    "ORA-01920: user name 'OTHER' conflicts with another user or role name"
-                    not in dbe.__str__()
-                ):
+                if "ORA-01920: user name 'OTHER' conflicts with another user or role name" not in dbe.__str__():
                     # NOTE: prior to oracle 23c we don't have concept of if not exists
                     #       so we just try to create if fails we continue
                     raise
@@ -459,10 +455,7 @@ class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTe
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
                 self.connection.execute(sa.text("GRANT UNLIMITED TABLESPACE TO other"))  # pragma: no cover
             except sa.exc.DatabaseError as dbe:  # pragma: no cover
-                if (
-                    "ORA-01920: user name 'OTHER' conflicts with another user or role name"
-                    not in dbe.__str__()
-                ):
+                if "ORA-01920: user name 'OTHER' conflicts with another user or role name" not in dbe.__str__():
                     # NOTE: prior to oracle 23c we don't have concept of if not exists
                     #       so we just try to create if fails we continue
                     raise

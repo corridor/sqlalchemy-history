@@ -3,17 +3,17 @@ phase by the manager
 """
 
 from copy import copy
-from inspect import getmro
 from functools import wraps
+from inspect import getmro
 
 import sqlalchemy as sa
 from sqlalchemy.orm.descriptor_props import ConcreteInheritedProperty
 from sqlalchemy_utils.functions import get_declarative_base, get_hybrid_properties
-from sqlalchemy_history.utils import get_association_proxies, version_class
 
 from sqlalchemy_history.model_builder import ModelBuilder
 from sqlalchemy_history.relationship_builder import RelationshipBuilder
 from sqlalchemy_history.table_builder import TableBuilder
+from sqlalchemy_history.utils import get_association_proxies, version_class
 
 
 def prevent_reentry(handler):
@@ -31,7 +31,7 @@ def prevent_reentry(handler):
     return check_reentry
 
 
-class Builder(object):
+class Builder:
     def build_tables(self):
         """
         Build tables for version models based on classes that were collected

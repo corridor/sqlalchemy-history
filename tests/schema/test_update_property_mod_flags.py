@@ -1,6 +1,7 @@
 from copy import copy
 
 import sqlalchemy as sa
+
 from sqlalchemy_history import version_class
 from sqlalchemy_history.plugins import PropertyModTrackerPlugin
 from sqlalchemy_history.schema import update_property_mod_flags
@@ -82,9 +83,7 @@ class TestSchemaTools(TestCase):
         )
 
         update_property_mod_flags(table, ["name"], conn=self.session)
-        rows = self.session.execute(
-            sa.text("SELECT * FROM article_version ORDER BY transaction_id")
-        ).fetchall()
+        rows = self.session.execute(sa.text("SELECT * FROM article_version ORDER BY transaction_id")).fetchall()
         assert rows[0].transaction_id == 1
         assert rows[0].name_mod
         assert rows[1].transaction_id == 2

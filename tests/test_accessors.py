@@ -1,5 +1,7 @@
 from copy import copy
+
 import sqlalchemy as sa
+
 from sqlalchemy_history.utils import tx_column_name
 from tests import TestCase, create_test_cases
 
@@ -27,10 +29,7 @@ class VersionModelAccessorsTestCase(TestCase):
         version = article.versions[1]
 
         assert version.previous.name == "Some article"
-        assert (
-            getattr(version.previous, tx_column_name(version))
-            == getattr(version, tx_column_name(version)) - 1
-        )
+        assert getattr(version.previous, tx_column_name(version)) == getattr(version, tx_column_name(version)) - 1
 
     def test_previous_for_deleted_parent(self):
         article = self.Article()

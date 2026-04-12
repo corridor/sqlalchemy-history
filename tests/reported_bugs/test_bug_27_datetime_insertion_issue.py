@@ -1,6 +1,7 @@
 import datetime
-import sqlalchemy as sa
 from copy import copy
+
+import sqlalchemy as sa
 
 from tests import TestCase
 
@@ -11,9 +12,7 @@ class TestBug27(TestCase):
         article_author_table = sa.Table(
             "article_author",
             self.Model.metadata,
-            sa.Column(
-                "article_id", sa.Integer, sa.ForeignKey("article.id"), primary_key=True, nullable=False
-            ),
+            sa.Column("article_id", sa.Integer, sa.ForeignKey("article.id"), primary_key=True, nullable=False),
             sa.Column("author_id", sa.Integer, sa.ForeignKey("author.id"), primary_key=True, nullable=False),
             sa.Column(
                 "created_date",

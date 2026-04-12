@@ -50,11 +50,6 @@ root = "."
 [tool.setuptools.packages.find]
 include = ["sqlalchemy_history", "sqlalchemy_history.*"]
 
-[tool.ruff]
-line-length = 120
-target-version = 'py39'
-output-format = "grouped"
-
 [tool.coverage.run]
 dynamic_context = "test_function"
 branch = true

@@ -160,12 +160,12 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.inspection import inspect
 from sqlalchemy_utils import JSONType, generic_relationship
 
-from sqlalchemy_history.plugins.base import Plugin
 from sqlalchemy_history.factory import ModelFactory
+from sqlalchemy_history.plugins.base import Plugin
 from sqlalchemy_history.utils import version_class, version_obj
 
 
-class ActivityBase(object):
+class ActivityBase:
     id = sa.Column(
         sa.BigInteger,
         sa.schema.Sequence("activity_id_seq", start=1, order=True),
@@ -221,10 +221,8 @@ class ActivityFactory(ModelFactory):
                     version_cls = version_class(model)
                     primary_key = inspect(model).primary_key[0].name
                     return session.execute(
-                        (
-                            sa.select(sa.func.max(version_cls.transaction_id)).where(
-                                getattr(version_cls, primary_key) == getattr(obj, primary_key)
-                            )
+                        sa.select(sa.func.max(version_cls.transaction_id)).where(
+                            getattr(version_cls, primary_key) == getattr(obj, primary_key)
                         )
                     ).scalar_one_or_none()
 

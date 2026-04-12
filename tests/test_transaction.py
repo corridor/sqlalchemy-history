@@ -1,10 +1,12 @@
 import os
 import time
+
 import sqlalchemy as sa
+from pytest import fixture, mark
+
 from sqlalchemy_history import versioning_manager
-from tests import TestCase
-from pytest import mark, fixture
 from sqlalchemy_history.plugins import TransactionMetaPlugin
+from tests import TestCase
 
 
 class TestTransaction(TestCase):
@@ -28,16 +30,11 @@ class TestTransaction(TestCase):
         self.session.commit()
         self.article.name = "Some article"
         self.session.commit()
-        assert (
-            self.session.scalar(sa.select(sa.func.count()).select_from(versioning_manager.transaction_cls))
-            == 1
-        )
+        assert self.session.scalar(sa.select(sa.func.count()).select_from(versioning_manager.transaction_cls)) == 1
 
     def test_repr(self):
         transaction = self.session.scalars(sa.select(versioning_manager.transaction_cls)).first()
-        assert "<Transaction id=%d, issued_at=%r>" % (transaction.id, transaction.issued_at) == repr(
-            transaction
-        )
+        assert "<Transaction id=%d, issued_at=%r>" % (transaction.id, transaction.issued_at) == repr(transaction)
 
     def test_changed_entities(self):
         article_v0 = self.article.versions[0]
@@ -52,9 +49,7 @@ class TestTransaction(TestCase):
         self.article.name = "Some article 2"
         self.session.add(self.article)
         self.session.commit()
-        assert (
-            self.article.versions[0].transaction.issued_at != self.article.versions[1].transaction.issued_at
-        )
+        assert self.article.versions[0].transaction.issued_at != self.article.versions[1].transaction.issued_at
 
 
 # Check that the tests pass without TransactionChangesPlugin
@@ -128,10 +123,7 @@ class TestAssigningUserClassInOtherSchema(TestCase):
                 # E
                 # E       ]
             except sa.exc.DatabaseError as dbe:
-                if (
-                    "ORA-01920: user name 'OTHER' conflicts with another user or role name"
-                    not in dbe.__str__()
-                ):
+                if "ORA-01920: user name 'OTHER' conflicts with another user or role name" not in dbe.__str__():
                     # NOTE: prior to oracle 23c we don't have concept of if not exists
                     #       so we just try to create if fails we continue
                     raise

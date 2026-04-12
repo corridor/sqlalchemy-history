@@ -1,6 +1,6 @@
 import sqlalchemy as sa
-from sqlalchemy_history import count_versions, versioning_manager
 
+from sqlalchemy_history import count_versions, versioning_manager
 from tests import TestCase
 
 
@@ -83,7 +83,4 @@ class TestInsertNonVersionedObject(TestCase):
         self.session.add(item)
         self.session.commit()
 
-        assert (
-            self.session.scalar(sa.select(sa.func.count()).select_from(versioning_manager.transaction_cls))
-            == 0
-        )
+        assert self.session.scalar(sa.select(sa.func.count()).select_from(versioning_manager.transaction_cls)) == 0

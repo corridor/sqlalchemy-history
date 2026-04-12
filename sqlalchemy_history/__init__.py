@@ -8,6 +8,7 @@ Modules exported by this package:
 """
 
 import sqlalchemy as sa
+
 from sqlalchemy_history.exc import (  # noqa: F401
     ClassNotVersioned,
     ImproperlyConfigured,

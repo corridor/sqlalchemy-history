@@ -2,18 +2,18 @@
 module for versioned package
 """
 
+import typing as t
+import warnings
+
 import sqlalchemy as sa
+from sqlalchemy.orm import RelationshipProperty, Session
+from sqlalchemy.sql.selectable import ExecutableReturnsRows
 
 from sqlalchemy_history.exc import ClassNotVersioned
 from sqlalchemy_history.expression_reflector import VersionExpressionReflector
 from sqlalchemy_history.operation import Operation
 from sqlalchemy_history.table_builder import TableBuilder
-from sqlalchemy_history.utils import adapt_columns, version_class, option
-import warnings
-import typing as t
-from sqlalchemy.orm import Session
-from sqlalchemy.orm import RelationshipProperty
-from sqlalchemy.sql.selectable import ExecutableReturnsRows
+from sqlalchemy_history.utils import adapt_columns, option, version_class
 
 
 _T = t.TypeVar("_T")
@@ -32,7 +32,7 @@ class _WriteOnlyCollectionAdapter(t.Generic[_T]):
         return self._statement
 
 
-class RelationshipBuilder(object):
+class RelationshipBuilder:
     property: RelationshipProperty
 
     def __init__(self, versioning_manager, model, property_: RelationshipProperty):
@@ -55,10 +55,7 @@ class RelationshipBuilder(object):
             .where(
                 sa.and_(
                     getattr(remote_alias, tx_column) <= getattr(obj, tx_column),
-                    *[
-                        getattr(remote_alias, pk.name) == getattr(self.remote_cls, pk.name)
-                        for pk in primary_keys
-                    ],
+                    *[getattr(remote_alias, pk.name) == getattr(self.remote_cls, pk.name) for pk in primary_keys],
                 )
             )
             .group_by(*primary_keys)
@@ -106,7 +103,7 @@ class RelationshipBuilder(object):
             )
             # Build legacy Query object for backward compatibility
             return session.query(self.remote_cls).from_statement(query)
-        elif self.property.lazy == "write_only":
+        if self.property.lazy == "write_only":
             return _WriteOnlyCollectionAdapter(query)
         if self.property.uselist is False:
             return session.scalars(query.limit(1)).first()
@@ -118,9 +115,9 @@ class RelationshipBuilder(object):
         if self.versioned:
             if direction.name == "ONETOMANY":
                 return self.one_to_many_criteria(obj)
-            elif direction.name == "MANYTOMANY":
+            if direction.name == "MANYTOMANY":
                 return self.many_to_many_criteria(obj)
-            elif direction.name == "MANYTOONE":
+            if direction.name == "MANYTOONE":
                 return self.many_to_one_criteria(obj)
         else:
             reflector = VersionExpressionReflector(obj, self.property)
@@ -325,10 +322,7 @@ class RelationshipBuilder(object):
                 )
             )
             .group_by(*association_cols)
-            .having(
-                sa.func.max(association_table_alias.c[tx_column])
-                == self.association_version_table.c[tx_column]
-            )
+            .having(sa.func.max(association_table_alias.c[tx_column]) == self.association_version_table.c[tx_column])
             .correlate(self.association_version_table)
         )
         return sa.exists(

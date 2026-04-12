@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+
 from sqlalchemy_history import version_class
 from sqlalchemy_history.plugins import PropertyModTrackerPlugin
 from tests import TestCase
@@ -55,9 +56,7 @@ class TestPropertyModificationsTracking(TestCase):
         self.session.delete(user)
         self.session.commit()
         UserVersion = version_class(self.User)
-        version = self.session.scalars(
-            sa.select(UserVersion).order_by(sa.desc(UserVersion.transaction_id))
-        ).first()
+        version = self.session.scalars(sa.select(UserVersion).order_by(sa.desc(UserVersion.transaction_id))).first()
         assert version.age_mod
         assert version.name_mod
 

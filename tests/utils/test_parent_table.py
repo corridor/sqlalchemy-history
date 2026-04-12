@@ -1,8 +1,9 @@
 import datetime
+
 import pytest
 import sqlalchemy as sa
-from sqlalchemy_history.utils import parent_table, version_table
 
+from sqlalchemy_history.utils import parent_table, version_table
 from tests import TestCase
 
 
@@ -13,9 +14,7 @@ class TestParentTable(TestCase):
         article_author_table = sa.Table(
             "article_author",
             self.Model.metadata,
-            sa.Column(
-                "article_id", sa.Integer, sa.ForeignKey("article.id"), primary_key=True, nullable=False
-            ),
+            sa.Column("article_id", sa.Integer, sa.ForeignKey("article.id"), primary_key=True, nullable=False),
             sa.Column("author_id", sa.Integer, sa.ForeignKey("author.id"), primary_key=True, nullable=False),
             sa.Column(
                 "created_date",

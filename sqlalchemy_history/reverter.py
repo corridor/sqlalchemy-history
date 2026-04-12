@@ -1,8 +1,9 @@
 """Reverter Reverts."""
 
 import sqlalchemy as sa
+
 from sqlalchemy_history.operation import Operation
-from sqlalchemy_history.utils import versioned_column_properties, parent_class
+from sqlalchemy_history.utils import parent_class, versioned_column_properties
 
 
 def first_level(paths):
@@ -21,7 +22,7 @@ class ReverterException(Exception):
     pass
 
 
-class Reverter(object):
+class Reverter:
     def __init__(self, obj, visited_objects=None, relations=[]):
         self.visited_objects = visited_objects or []
         self.obj = obj
@@ -60,19 +61,18 @@ class Reverter(object):
     def revert_relationship(self, prop):
         if prop.secondary is not None:
             self.revert_association(prop)
-        else:
-            if prop.uselist:
-                values = []
-                for child_obj in getattr(self.obj, prop.key):
-                    value = self.revert_child(child_obj, prop)
-                    if value:
-                        values.append(value)
+        elif prop.uselist:
+            values = []
+            for child_obj in getattr(self.obj, prop.key):
+                value = self.revert_child(child_obj, prop)
+                if value:
+                    values.append(value)
 
-                for value in getattr(self.version_parent, prop.key, []):
-                    if value not in values:
-                        self.session.delete(value)
-            else:
-                self.revert_child(getattr(self.obj, prop.key), prop)
+            for value in getattr(self.version_parent, prop.key, []):
+                if value not in values:
+                    self.session.delete(value)
+        else:
+            self.revert_child(getattr(self.obj, prop.key), prop)
 
     def revert_child(self, child, prop):
         return self.__class__(
@@ -98,7 +98,7 @@ class Reverter(object):
 
         if self.obj.operation_type == Operation.DELETE:
             self.session.delete(self.version_parent)
-            return
+            return None
 
         self.visited_objects.append(self.obj)
 

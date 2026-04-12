@@ -1,6 +1,6 @@
 import sqlalchemy as sa
-from sqlalchemy_history.utils import get_association_proxies, version_class
 
+from sqlalchemy_history.utils import get_association_proxies, version_class
 from tests import TestCase
 
 

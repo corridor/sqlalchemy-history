@@ -1,5 +1,7 @@
-import sqlalchemy as sa
 import functools
+
+import sqlalchemy as sa
+
 from sqlalchemy_history.reverter import Reverter
 from sqlalchemy_history.utils import (
     get_versioning_manager,
@@ -8,7 +10,7 @@ from sqlalchemy_history.utils import (
 )
 
 
-class VersionClassBase(object):
+class VersionClassBase:
     @functools.cached_property
     def previous(self):
         """Returns the previous version relative to this version in the version

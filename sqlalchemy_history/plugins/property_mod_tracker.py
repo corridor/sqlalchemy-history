@@ -15,8 +15,10 @@ transactions the plugin automatically updates these boolean columns.
 """
 
 from copy import copy
+
 import sqlalchemy as sa
 from sqlalchemy_utils.functions import has_changes
+
 from sqlalchemy_history.plugins.base import Plugin
 from sqlalchemy_history.utils import versioned_column_properties
 
@@ -40,10 +42,7 @@ class PropertyModTrackerPlugin(Plugin):
         # mod tracking columns for association tables.
         if table_builder.model:
             for column in table_builder.parent_table.c:
-                if (
-                    not table_builder.manager.is_excluded_column(table_builder.model, column)
-                    and not column.primary_key
-                ):
+                if not table_builder.manager.is_excluded_column(table_builder.model, column) and not column.primary_key:
                     columns.append(self.create_mod_column(column))
 
     def after_create_version_object(self, uow, parent_obj, version_obj):

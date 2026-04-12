@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+
 from sqlalchemy_history.plugins import NullDeletePlugin
 from tests import TestCase
 

@@ -1,7 +1,8 @@
 """Transaction model makes transactions for history tables"""
 
-from collections import OrderedDict
 import datetime
+from collections import OrderedDict
+
 import sqlalchemy as sa
 from sqlalchemy.ext.compiler import compiles
 
@@ -14,7 +15,7 @@ def compile_big_integer(element, compiler, **kw):
     return "INTEGER"
 
 
-class TransactionBase(object):
+class TransactionBase:
     issued_at = sa.Column(sa.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
 
     @property
@@ -26,8 +27,7 @@ class TransactionBase(object):
         """
         if hasattr(self, "changes"):
             return [changes.entity_name for changes in self.changes]
-        else:
-            raise NoChangesAttribute()
+        raise NoChangesAttribute()
 
     @property
     def changed_entities(self):
@@ -108,9 +108,7 @@ class TransactionFactory(ModelFactory):
 
             def __repr__(self):
                 fields = ["id", "issued_at", "user"]
-                field_values = OrderedDict(
-                    (field, getattr(self, field)) for field in fields if hasattr(self, field)
-                )
+                field_values = OrderedDict((field, getattr(self, field)) for field in fields if hasattr(self, field))
                 return "<Transaction %s>" % ", ".join(
                     (
                         "%s=%r" % (field, value)
