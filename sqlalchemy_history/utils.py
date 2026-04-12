@@ -338,9 +338,13 @@ def count_versions(obj):
         return 0
     manager = get_versioning_manager(obj)
     table_name = manager.option(obj, "table_name") % obj.__table__.name
-    criteria = [f"{pk} = {getattr(obj, pk)!r}" for pk in get_primary_keys(obj)]
-    query = sa.text("SELECT COUNT(1) FROM {} WHERE {}".format(table_name, " AND ".join(criteria)))
-    return session.execute(query).scalar()
+
+    metadata = sa.MetaData()
+    version_table = sa.Table(table_name, metadata, autoload_with=session.bind)
+
+    conditions = [version_table.c[pk] == getattr(obj, pk) for pk in get_primary_keys(obj)]
+    stmt = sa.select(sa.func.count()).select_from(version_table).filter(*conditions)
+    return session.scalar(stmt)
 
 
 def changeset(obj):

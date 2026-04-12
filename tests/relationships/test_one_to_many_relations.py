@@ -175,7 +175,7 @@ class TestOneToManySelfReferential(TestCase):
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
 
-            parent_article_id = sa.Column(sa.ForeignKey("Article.id"))
+            parent_article_id = sa.Column(sa.ForeignKey(id))  # noqa: A003
             parent_article = sa.orm.relationship("Article", remote_side=[id], backref="child_articles")  # noqa: A003
 
         self.Article = Article
