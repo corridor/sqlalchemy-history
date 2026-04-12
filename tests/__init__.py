@@ -36,7 +36,7 @@ def get_dns_from_driver(driver):  # pragma: no cover
     elif driver == "mssql":
         return "mssql+pymssql://sa:MSsql2022@localhost:1433"
     elif driver == "oracle":
-        return "oracle+cx_oracle://SYSTEM:Oracle2022@localhost:1521"
+        return "oracle+oracledb://SYSTEM:Oracle2022@localhost:1521"
     else:
         raise Exception("Unknown driver given: %r" % driver)
 
