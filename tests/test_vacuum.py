@@ -1,5 +1,4 @@
 from sqlalchemy_history import vacuum
-
 from tests import TestCase
 
 

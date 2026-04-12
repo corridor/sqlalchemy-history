@@ -49,9 +49,7 @@ def update_end_tx_column(
 
         conn = op.get_bind()
 
-    query = get_end_tx_column_query(
-        table, end_tx_column_name=end_tx_column_name, tx_column_name=tx_column_name
-    )
+    query = get_end_tx_column_query(table, end_tx_column_name=end_tx_column_name, tx_column_name=tx_column_name)
     stmt = conn.execute(query).fetchall()
     primary_keys = [c.name for c in table.c if c.primary_key]
     for row in stmt:
@@ -59,9 +57,7 @@ def update_end_tx_column(
             criteria = [getattr(table.c, pk) == row._mapping[pk] for pk in primary_keys]
 
             update_stmt = (
-                table.update()
-                .where(sa.and_(*criteria))
-                .values({end_tx_column_name: row._mapping[end_tx_column_name]})
+                table.update().where(sa.and_(*criteria)).values({end_tx_column_name: row._mapping[end_tx_column_name]})
             )
             conn.execute(update_stmt)
 

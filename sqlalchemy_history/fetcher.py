@@ -1,9 +1,11 @@
 """Fetcher Module helps traverse across versions for a given versioned object."""
 
 import operator
+
 import sqlalchemy as sa
 from sqlalchemy_utils import get_primary_keys, identity
-from sqlalchemy_history.utils import tx_column_name, end_tx_column_name
+
+from sqlalchemy_history.utils import end_tx_column_name, tx_column_name
 
 
 def parent_identity(obj_or_class):
@@ -25,7 +27,7 @@ def parent_criteria(obj, class_=None):
     return eqmap(parent_identity, (class_, obj))
 
 
-class VersionObjectFetcher(object):
+class VersionObjectFetcher:
     def __init__(self, manager):
         self.manager = manager
 

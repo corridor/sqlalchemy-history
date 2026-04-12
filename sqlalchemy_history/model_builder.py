@@ -93,7 +93,7 @@ def copy_mapper_args(model):
     return args
 
 
-class ModelBuilder(object):
+class ModelBuilder:
     """VersionedModelBuilder handles the building of Version models based on parent table attributes and
     versioning configuration."""
 
@@ -182,13 +182,10 @@ class ModelBuilder(object):
                     tx_column_name = self.manager.options["transaction_column_name"]
                     args["inherit_condition"] = sa.and_(
                         inherit_condition,
-                        getattr(parent.__table__.c, tx_column_name)
-                        == getattr(cls.__table__.c, tx_column_name),
+                        getattr(parent.__table__.c, tx_column_name) == getattr(cls.__table__.c, tx_column_name),
                     )
                     args["inherit_foreign_keys"] = [
-                        version_table.c[column.key]
-                        for column in sa.inspect(self.model).columns
-                        if column.primary_key
+                        version_table.c[column.key] for column in sa.inspect(self.model).columns if column.primary_key
                     ]
 
         args.update(copy_mapper_args(self.model))
@@ -209,9 +206,7 @@ class ModelBuilder(object):
                 columns.append(self.manager.option(self.model, "end_transaction_column_name"))
 
             for column in columns:
-                args[column] = column_property(
-                    table.c[column], *[m.__table__.c[column] for m in parent_models]
-                )
+                args[column] = column_property(table.c[column], *[m.__table__.c[column] for m in parent_models])
         return args
 
     def build_model(self, table):

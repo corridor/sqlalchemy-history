@@ -1,23 +1,25 @@
-from copy import copy
 import inspect
 import itertools as it
 import os
+from copy import copy
+
 import pytest
 import sqlalchemy as sa
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, column_property, close_all_sessions, declarative_base
+from sqlalchemy.orm import close_all_sessions, column_property, declarative_base, sessionmaker
+
 from sqlalchemy_history import (
     ClassNotVersioned,
-    version_class,
     make_versioned,
-    versioning_manager,
     remove_versioning,
+    version_class,
+    versioning_manager,
 )
+from sqlalchemy_history.plugins import TransactionChangesPlugin, TransactionMetaPlugin
 from sqlalchemy_history.transaction import TransactionFactory
-from sqlalchemy_history.plugins import TransactionMetaPlugin, TransactionChangesPlugin
 
 
-class QueryPool(object):
+class QueryPool:
     queries = []
 
 
@@ -29,19 +31,18 @@ def log_sql(conn, cursor, statement, parameters, context, executemany):
 def get_dns_from_driver(driver):  # pragma: no cover
     if driver == "postgres":
         return "postgresql://postgres:postgres@localhost/sqlalchemy_history_test"
-    elif driver == "mysql":
+    if driver == "mysql":
         return "mysql+pymysql://root@localhost/sqlalchemy_history_test"
-    elif driver == "sqlite":
+    if driver == "sqlite":
         return "sqlite:///:memory:"
-    elif driver == "mssql":
+    if driver == "mssql":
         return "mssql+pymssql://sa:MSsql2022@localhost:1433"
-    elif driver == "oracle":
+    if driver == "oracle":
         return "oracle+oracledb://SYSTEM:Oracle2022@localhost:1521/?service_name=XEPDB1"
-    else:
-        raise Exception("Unknown driver given: %r" % driver)
+    raise Exception("Unknown driver given: %r" % driver)
 
 
-class TestCase(object):
+class TestCase:
     versioning_strategy = "subquery"
     transaction_column_name = "transaction_id"
     end_transaction_column_name = "end_transaction_id"
@@ -72,7 +73,6 @@ class TestCase(object):
         make_versioned(options=self.options, plugins=self.plugins)
         versioning_manager.transaction_cls = self.transaction_cls
         versioning_manager.user_cls = self.user_cls
-        yield
 
     @pytest.fixture
     def setup_engine(self, setup_versioning):
@@ -91,7 +91,6 @@ class TestCase(object):
     def setup_models(self, setup_engine):
         self.create_models()
         sa.orm.configure_mappers()
-        yield
 
     @pytest.fixture
     def setup_connection(self, setup_models):
@@ -195,15 +194,13 @@ def create_test_cases(base_class, setting_variants=setting_variants):
         values as list of possible option values.
     """
     names = sorted(setting_variants)
-    combinations = [
-        dict(zip(names, prod)) for prod in it.product(*(setting_variants[name] for name in names))
-    ]
+    combinations = [dict(zip(names, prod)) for prod in it.product(*(setting_variants[name] for name in names))]
 
     # Get the module where this function was called in.
     frm = inspect.stack()[1]
     module = inspect.getmodule(frm[0])
 
-    class_suffix = base_class.__name__[0 : -len("TestCase")]  # noqa: E203
+    class_suffix = base_class.__name__[0 : -len("TestCase")]
     for index, combination in enumerate(combinations):
         class_name = "Test%s%i" % (class_suffix, index)
         # Assign a new test case class for current module.

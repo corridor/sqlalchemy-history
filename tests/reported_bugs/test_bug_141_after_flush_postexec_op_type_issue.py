@@ -1,8 +1,9 @@
-import sqlalchemy as sa
 from copy import copy
 
-from tests import TestCase
+import sqlalchemy as sa
+
 from sqlalchemy_history import version_class
+from tests import TestCase
 
 
 class TestBug141(TestCase):

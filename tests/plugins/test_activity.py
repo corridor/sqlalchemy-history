@@ -1,8 +1,9 @@
 import pytest
 import sqlalchemy as sa
+
 from sqlalchemy_history import versioning_manager
 from sqlalchemy_history.plugins import ActivityPlugin
-from tests import TestCase, QueryPool
+from tests import QueryPool, TestCase
 
 
 class ActivityTestCase(TestCase):
@@ -38,9 +39,7 @@ class ActivityTestCase(TestCase):
 
 
 # ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
-@pytest.mark.skipif(
-    str(sa.__version__).startswith("2."), reason="sqla-utils generic relations has issue with sqla 2.x"
-)
+@pytest.mark.skipif(str(sa.__version__).startswith("2."), reason="sqla-utils generic relations has issue with sqla 2.x")
 class TestActivityNotId(ActivityTestCase):
     def create_models(self):
         TestCase.create_models(self)
@@ -70,9 +69,7 @@ class TestActivityNotId(ActivityTestCase):
 
 
 # ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
-@pytest.mark.skipif(
-    str(sa.__version__).startswith("2."), reason="sqla-utils generic relations has issue with sqla 2.x"
-)
+@pytest.mark.skipif(str(sa.__version__).startswith("2."), reason="sqla-utils generic relations has issue with sqla 2.x")
 class TestActivity(ActivityTestCase):
     def test_creates_activity_class(self):
         assert versioning_manager.activity_cls.__name__ == "Activity"
@@ -131,9 +128,7 @@ class TestActivity(ActivityTestCase):
 
 
 # ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
-@pytest.mark.skipif(
-    str(sa.__version__).startswith("2."), reason="sqla-utils generic relations has issue with sqla 2.x"
-)
+@pytest.mark.skipif(str(sa.__version__).startswith("2."), reason="sqla-utils generic relations has issue with sqla 2.x")
 class TestObjectTxIdGeneration(ActivityTestCase):
     def test_does_not_query_db_if_version_obj_in_session(self):
         article = self.create_article()
@@ -157,9 +152,7 @@ class TestObjectTxIdGeneration(ActivityTestCase):
 
 
 # ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
-@pytest.mark.skipif(
-    str(sa.__version__).startswith("2."), reason="sqla-utils generic relations has issue with sqla 2.x"
-)
+@pytest.mark.skipif(str(sa.__version__).startswith("2."), reason="sqla-utils generic relations has issue with sqla 2.x")
 class TestTargetTxIdGeneration(ActivityTestCase):
     def test_does_not_query_db_if_version_obj_in_session(self):
         article = self.create_article()
@@ -196,9 +189,7 @@ class TestTargetTxIdGeneration(ActivityTestCase):
         )
         self.session.add(activity)
         self.session.commit()
-        activity = self.session.scalars(
-            sa.select(versioning_manager.activity_cls).filter_by(id=activity.id)
-        ).one()
+        activity = self.session.scalars(sa.select(versioning_manager.activity_cls).filter_by(id=activity.id)).one()
         assert activity
         assert activity.transaction_id
         assert activity.object == tag

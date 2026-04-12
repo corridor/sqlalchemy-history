@@ -1,6 +1,6 @@
-from itertools import chain
-from inspect import isclass
 from collections import defaultdict
+from inspect import isclass
+from itertools import chain
 
 import sqlalchemy as sa
 from sqlalchemy.orm.attributes import get_history
@@ -30,21 +30,19 @@ def get_versioning_manager(item):
     versioned_item = None
     if isclass(item):
         versioned_item = item
+    elif isinstance(item, AliasedClass):
+        versioned_item = sa.inspect(item).mapper.class_
+    elif isinstance(item, sa.Table):
+        versioned_item = item
     else:
-        if isinstance(item, AliasedClass):
-            versioned_item = sa.inspect(item).mapper.class_
-        elif isinstance(item, sa.Table):
-            versioned_item = item
-        else:
-            versioned_item = item.__class__
+        versioned_item = item.__class__
 
     try:
         return versioned_item.__versioning_manager__
     except AttributeError:
         if isinstance(versioned_item, sa.Table):
             raise TableNotVersioned('Table "%s"' % versioned_item.name)
-        else:
-            raise ClassNotVersioned(versioned_item.__name__)
+        raise ClassNotVersioned(versioned_item.__name__)
 
 
 def option(obj_or_class, option_name):
@@ -119,9 +117,9 @@ def version_obj(session, parent_obj):
     manager = get_versioning_manager(parent_obj)
     uow = manager.unit_of_work(session)
     for version_obj in uow.version_session:
-        if parent_class(version_obj.__class__) == parent_obj.__class__ and identity(version_obj)[
-            :-1
-        ] == identity(parent_obj):
+        if parent_class(version_obj.__class__) == parent_obj.__class__ and identity(version_obj)[:-1] == identity(
+            parent_obj
+        ):
             return version_obj
 
 
@@ -228,9 +226,9 @@ def vacuum(session, model, yield_per=1000):
     version_cls = version_class(model)
     versions = defaultdict(list)
 
-    query = session.scalars(
-        sa.select(version_cls).order_by(option(version_cls, "transaction_column_name"))
-    ).yield_per(yield_per)
+    query = session.scalars(sa.select(version_cls).order_by(option(version_cls, "transaction_column_name"))).yield_per(
+        yield_per
+    )
 
     primary_key_col = sa.inspection.inspect(model).primary_key[0].name
 

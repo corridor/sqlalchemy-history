@@ -16,7 +16,7 @@ from sqlalchemy_history.utils import (
 )
 
 
-class UnitOfWork(object):
+class UnitOfWork:
     def __init__(self, manager):
         self.manager = manager
         self.reset()
@@ -145,8 +145,7 @@ class UnitOfWork(object):
             tx_column = self.manager.option(target, "transaction_column_name")
             setattr(version_obj, tx_column, self.current_transaction.id)
             return version_obj
-        else:
-            return self.version_objs[version_key]
+        return self.version_objs[version_key]
 
     def process_operation(self, operation):
         """Process given operation object. The operation processing has x stages:
@@ -225,9 +224,7 @@ class UnitOfWork(object):
         session = sa.orm.object_session(version_obj)
         for class_ in version_obj.__class__.__mro__:
             if class_ in self.manager.version_class_map.values():
-                subquery = self.version_validity_subquery(
-                    parent, version_obj, alias=sa.orm.aliased(class_.__table__)
-                )
+                subquery = self.version_validity_subquery(parent, version_obj, alias=sa.orm.aliased(class_.__table__))
                 subquery = subquery.scalar_subquery()
 
                 session.execute(
@@ -254,9 +251,7 @@ class UnitOfWork(object):
         """
         statements = copy(self.pending_statements)
         for stmt in statements:
-            stmt = stmt.values(
-                **{self.manager.options["transaction_column_name"]: self.current_transaction.id}
-            )
+            stmt = stmt.values(**{self.manager.options["transaction_column_name"]: self.current_transaction.id})
             session.execute(stmt)
             if self.manager.options["strategy"] == "validity":
                 # FIXME: Currently we don't support setting versioning behaviour on bare table level

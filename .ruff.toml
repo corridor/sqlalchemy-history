@@ -1,0 +1,74 @@
+line-length = 120
+output-format = "grouped"
+target-version = "py39"
+
+[lint]
+ignore = [
+    "COM812", # Do not force trailing commas
+]
+select = [
+    "A",      # flake8-builtins
+    "ASYNC",  # flake8-async
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "COM",    # flake8-commas
+    "E",      # pycodestyle - errors
+    "EXE",    # flake8-executable
+    "F",      # pyflakes
+    "FBT",    # flake8-boolean-trap
+    "FLY",    # flynt
+    "G",      # flake8-logging-format
+    "I",      # isort
+    "ICN",    # flake8-import-conventions
+    "ISC",    # flake8-implicit-str-concat
+    "LOG",    # flake8-logging
+    "N",      # pep8-naming
+    "NPY",    # numpy-specific rules
+    "PD",     # pandas-vet
+    "PERF",   # perflint
+    "PIE",    # flake8-pie
+    "PGH",    # pygrep-hooks
+    "PLC",    # pylint-convention
+    "PLE",    # pylint-error
+    "PLR",    # pylint-refactor
+    "PT",     # flake8-pytest-style
+    "PTH",    # flake8-use-pathlib
+    "PYI024", # flake8-pyi
+    "Q",      # flake8-quotes
+    "RET",    # flake8-return
+    "RSE",    # flake8-raise
+    "RUF",    # ruff specific rules
+    "S",      # flake8-bandit
+    "SIM",    # flake8-simplify
+    "SLOT",   # flake8-slots
+    "T10",    # flake8-debugger
+    "TCH",    # flake8-type-checking
+    "TID",    # flake8-tidy-imports
+    "TRY",    # tryceratops
+    "UP",     # pyupgrade
+    "W",      # pycodestyle - warnings
+    "YTT",    # flake8-2020
+]
+
+[lint.flake8-pytest-style]
+parametrize-names-type = "csv"
+
+[lint.isort]
+known-first-party = ["sqlalchemy_history*"]
+combine-as-imports = true
+order-by-type = false
+lines-after-imports = 2
+case-sensitive = true
+
+[lint.flake8-import-conventions.extend-aliases]
+"typing" = "t"
+
+[lint.flake8-tidy-imports.banned-api]
+"__future__.annotations".msg = "__future__.annotations is discouraged. See PEP-649 and PEP-749"
+
+[lint.pyupgrade]
+# This is required for runtime typing evaluation for sqlalchemy in py3.9 and py3.10
+keep-runtime-typing = true
+
+[lint.per-file-ignores]
+"tests/*" = ["S101", "N806", "PLR2004", "RUF012"]

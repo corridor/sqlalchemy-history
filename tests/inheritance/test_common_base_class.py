@@ -1,11 +1,12 @@
 import sqlalchemy as sa
+
 from sqlalchemy_history import version_class
 from tests import TestCase
 
 
 class TestCommonBaseClass(TestCase):
     def create_models(self):
-        class Versioned(object):
+        class Versioned:
             __versioned__ = {"base_classes": (self.Model,)}
 
         class TextItem(self.Model, Versioned):

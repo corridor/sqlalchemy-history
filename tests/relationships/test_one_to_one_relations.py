@@ -1,6 +1,8 @@
 from copy import copy
-from tests import TestCase, create_test_cases
+
 import sqlalchemy as sa
+
+from tests import TestCase, create_test_cases
 
 
 class OneToOneRelationshipsTestCase(TestCase):

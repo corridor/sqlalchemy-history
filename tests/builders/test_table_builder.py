@@ -1,10 +1,12 @@
 import os
 from copy import copy
 from datetime import datetime
+
 import sqlalchemy as sa
+from pytest import mark
+
 from sqlalchemy_history import version_class
 from tests import TestCase
-from pytest import mark
 
 
 class TestTableBuilder(TestCase):
@@ -64,9 +66,7 @@ class TestTableBuilderWithOnUpdate(TestCase):
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
-            last_update = sa.Column(
-                sa.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
-            )
+            last_update = sa.Column(sa.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
         self.Article = Article
 
@@ -90,9 +90,7 @@ class TestTableBuilderInOtherSchema(TestCase):
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
-            last_update = sa.Column(
-                sa.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
-            )
+            last_update = sa.Column(sa.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
             enum_col = sa.Column(sa.Enum("TYPE_A", "TYPE_B", name="test_enum"))
 
         self.Article = Article
@@ -110,10 +108,7 @@ class TestTableBuilderInOtherSchema(TestCase):
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
                 self.connection.execute(sa.text("GRANT UNLIMITED TABLESPACE TO other"))
             except sa.exc.DatabaseError as dbe:  # pragma: no cover
-                if (
-                    "ORA-01920: user name 'OTHER' conflicts with another user or role name"
-                    not in dbe.__str__()
-                ):
+                if "ORA-01920: user name 'OTHER' conflicts with another user or role name" not in dbe.__str__():
                     # NOTE: prior to oracle 23c we don't have concept of if not exists
                     #       so we just try to create if fails we continue
                     raise

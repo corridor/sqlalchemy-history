@@ -1,6 +1,6 @@
 from pytest import raises
-from sqlalchemy_history import parent_class, version_class
 
+from sqlalchemy_history import parent_class, version_class
 from tests import TestCase
 
 
