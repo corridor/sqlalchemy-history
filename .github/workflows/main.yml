@@ -26,7 +26,8 @@ jobs:
                     - "postgres"
         services:
             mysql:
-                image: mysql
+                # Only start service for MySQL tests
+                image: ${{ matrix.DB == 'mysql' && 'mysql' || '' }}
                 ports:
                     - 3306:3306
                 env:
@@ -38,7 +39,8 @@ jobs:
                     --health-timeout 2s
                     --health-retries 3
             postgres:
-                image: postgres
+                # Only start service for PostgreSQL tests
+                image: ${{ matrix.DB == 'postgres' && 'postgres' || '' }}
                 ports:
                     - 5432:5432
                 env:
@@ -50,7 +52,8 @@ jobs:
                     --health-timeout 2s
                     --health-retries 3
             mssql:
-                image: mcr.microsoft.com/mssql/server:2017-latest # https://mcr.microsoft.com/en-us/product/mssql/server/about
+                # Only start service for MSSQL tests
+                image: ${{ matrix.DB == 'mssql' && 'mcr.microsoft.com/mssql/server:2017-latest' || '' }}
                 ports:
                     - 1433:1433
                 env:
@@ -62,7 +65,8 @@ jobs:
                     --health-timeout 2s
                     --health-retries 3
             oracle:
-                image: gvenzl/oracle-xe:21
+                # Only start service for Oracle tests
+                image: ${{ matrix.DB == 'oracle' && 'gvenzl/oracle-xe:21' || '' }}
                 ports:
                     - 1521:1521
                 env:
