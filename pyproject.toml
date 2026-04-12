@@ -1,16 +1,21 @@
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = [
+    "setuptools>=80", # Recommended by setuptools-scm
+    "setuptools-scm",
+]
+build-backend = "setuptools.build_meta"
 
-[tool.poetry]
+[project]
 name = "SQLAlchemy-History"
 description = "History tracking extension for SQLAlchemy."
-version = "0"
-authors = ["Corridor Platforms <postmaster@corridorplatforms.com>"]
-license = "Apache-2.0, BSD-3-Clause"
+dynamic = ['version']
+authors = [
+    { "name" = "Corridor Platforms", "email" = "postmaster@corridorplatforms.com" },
+]
+license = "Apache-2.0 AND BSD-3-Clause"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
 readme = "docs/README.md"
-packages = [{ include = "sqlalchemy_history" }]
-repository = "https://github.com/corridor/sqlalchemy-history"
 classifiers = [
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
@@ -18,34 +23,38 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+dependencies = ["SQLAlchemy>=2", "SQLAlchemy-Utils>=0.30.12"]
 
-[tool.poetry.dependencies]
-python = "^3.9"
+[project.urls]
+Homepage = "https://github.com/corridor/sqlalchemy-history"
+Repository = "https://github.com/corridor/sqlalchemy-history"
+Issues = "https://github.com/corridor/sqlalchemy-history/issues"
+Changelog = "https://github.com/corridor/sqlalchemy-history/releases"
 
-SQLAlchemy = ">=2"
-SQLAlchemy-Utils = ">=0.30.12"
+[dependency-groups]
+dev = ["ruff", "tox", "pre-commit"]
+test = [
+    "pytest",
+    "flexmock",
+    "psycopg2-binary",
+    "PyMySQL",
+    "sqlalchemy_i18n",
+    "pymssql",
+    "oracledb",
+    "pytest-cov",
+]
 
-[tool.poetry.group.dev.dependencies]
-ruff = "*"
-pre-commit = "2.21.0"
+[tool.setuptools_scm]
+root = "."
 
-# [tool.poetry.group.test.dependencies]
-pytest = ">=2.3.5"
-flexmock = ">=0.9.7"
-psycopg2-binary = ">=2.4.6"
-PyMySQL = ">=0.8.0"
-sqlalchemy_i18n = "*"
-pymssql = ">=2.2.0"
-cx-Oracle = "8.3.0"
-pytest-cov = "*"
+[tool.setuptools.packages.find]
+include = ["sqlalchemy_history", "sqlalchemy_history.*"]
 
 [tool.ruff]
-line-length = 110
+line-length = 120
 target-version = 'py39'
+output-format = "grouped"
 
 [tool.coverage.run]
 dynamic_context = "test_function"
 branch = true
-
-[tool.poetry-version-plugin]
-source = "init"
