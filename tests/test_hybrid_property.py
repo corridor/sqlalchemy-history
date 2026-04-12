@@ -1,6 +1,7 @@
 import datetime
 
 import sqlalchemy as sa
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
 from sqlalchemy_history.utils import version_class
@@ -21,16 +22,16 @@ class TestHybridProperty(TestCase):
 
             author_id = sa.Column(sa.Integer, sa.ForeignKey("article_author.id"), nullable=False)
 
-            @sa.ext.hybrid.hybrid_property
+            @hybrid_property
             def time_from_publish(self):
                 return datetime.datetime.today() - self.publish
 
-            @sa.ext.hybrid.hybrid_property
+            @hybrid_property
             def author_name(self):
                 return self.author.name
 
             @author_name.expression
-            def author_name(cls):
+            def author_name(cls):  # noqa: N805
                 return sa.select(ArticleAuthor.name).where(ArticleAuthor.id == cls.author_id).scalar_subquery()
 
         class ArticleAuthor(self.Model):
@@ -44,7 +45,7 @@ class TestHybridProperty(TestCase):
         self.Article = Article
 
     def test_hybrid_property_mapping_for_versioned_class(self):
-        version_class(self.Article).time_from_publish
+        version_class(self.Article).time_from_publish  # noqa: B018
 
     def test_version_class_hybrid_property_in_sql_expression(self):
         sa.select(version_class(self.Article).author_name)

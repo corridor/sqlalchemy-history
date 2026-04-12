@@ -120,10 +120,13 @@ class Builder:
         if not self.manager.options["versioning"]:
             return
 
-        if hasattr(cls, "__versioned__"):
-            if not cls.__versioned__.get("class") and cls not in self.manager.pending_classes:
-                self.manager.pending_classes.append(cls)
-                self.manager.metadata = cls.metadata
+        if (
+            hasattr(cls, "__versioned__")
+            and not cls.__versioned__.get("class")
+            and cls not in self.manager.pending_classes
+        ):
+            self.manager.pending_classes.append(cls)
+            self.manager.metadata = cls.metadata
 
     def build_transaction_class(self):
         if self.manager.pending_classes:
@@ -215,7 +218,7 @@ class Builder:
         """
         for cls in version_classes:
             assoc_prox_maps = get_association_proxies(cls)
-            for key in assoc_prox_maps.keys():
+            for key in assoc_prox_maps:
                 versioned_target_class = version_class(cls)
                 setattr(
                     versioned_target_class,

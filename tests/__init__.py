@@ -1,3 +1,4 @@
+import contextlib
 import inspect
 import itertools as it
 import os
@@ -39,7 +40,7 @@ def get_dns_from_driver(driver):  # pragma: no cover
         return "mssql+pymssql://sa:MSsql2022@localhost:1433"
     if driver == "oracle":
         return "oracle+oracledb://SYSTEM:Oracle2022@localhost:1521/?service_name=XEPDB1"
-    raise Exception("Unknown driver given: %r" % driver)
+    raise RuntimeError(f"Unknown driver given: {driver!r}")
 
 
 class TestCase:
@@ -101,15 +102,11 @@ class TestCase:
     @pytest.fixture
     def setup_tables(self, setup_connection):
         if hasattr(self, "Article"):
-            try:
+            with contextlib.suppress(ClassNotVersioned):
                 self.ArticleVersion = version_class(self.Article)
-            except ClassNotVersioned:
-                pass
         if hasattr(self, "Tag"):
-            try:
+            with contextlib.suppress(ClassNotVersioned):
                 self.TagVersion = version_class(self.Tag)
-            except ClassNotVersioned:
-                pass
         self.create_tables()
         yield
         self.drop_tables()
@@ -202,6 +199,6 @@ def create_test_cases(base_class, setting_variants=setting_variants):
 
     class_suffix = base_class.__name__[0 : -len("TestCase")]
     for index, combination in enumerate(combinations):
-        class_name = "Test%s%i" % (class_suffix, index)
+        class_name = f"Test{class_suffix}{index}"
         # Assign a new test case class for current module.
         setattr(module, class_name, type(class_name, (base_class,), combination))

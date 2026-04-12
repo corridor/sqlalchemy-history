@@ -1,4 +1,4 @@
-from pytest import raises
+import pytest
 
 from sqlalchemy_history import ClassNotVersioned, transaction_class, versioning_manager
 from tests import TestCase
@@ -9,5 +9,5 @@ class TestTransactionClass(TestCase):
         assert transaction_class(self.Article) == versioning_manager.transaction_cls
 
     def test_with_unknown_type(self):
-        with raises(ClassNotVersioned):
+        with pytest.raises(ClassNotVersioned):
             transaction_class(None)

@@ -27,7 +27,7 @@ class TransactionBase:
         """
         if hasattr(self, "changes"):
             return [changes.entity_name for changes in self.changes]
-        raise NoChangesAttribute()
+        raise NoChangesAttribute
 
     @property
     def changed_entities(self):
@@ -61,7 +61,7 @@ class TransactionBase:
 class TransactionFactory(ModelFactory):
     model_name = "Transaction"
 
-    def __init__(self, remote_addr=True):
+    def __init__(self, *, remote_addr=True):
         self.remote_addr = remote_addr
 
     def create_class(self, manager):
@@ -92,11 +92,11 @@ class TransactionFactory(ModelFactory):
                     except KeyError:
                         raise ImproperlyConfigured(
                             "Could not build relationship between Transaction"
-                            " and %s. %s was not found in declarative class "
+                            f" and {user_cls}. {user_cls} was not found in declarative class "
                             "registry. Either configure VersioningManager to "
                             "use different user class or disable this "
-                            "relationship " % (user_cls, user_cls)
-                        )
+                            "relationship "
+                        ) from None
 
                 user_id = sa.Column(
                     sa.inspect(user_cls).primary_key[0].type,
@@ -109,15 +109,17 @@ class TransactionFactory(ModelFactory):
             def __repr__(self):
                 fields = ["id", "issued_at", "user"]
                 field_values = OrderedDict((field, getattr(self, field)) for field in fields if hasattr(self, field))
-                return "<Transaction %s>" % ", ".join(
-                    (
-                        "%s=%r" % (field, value)
-                        if not isinstance(value, int)
-                        # We want the following line to ensure that longs get
-                        # shown without the ugly L suffix on python 2.x
-                        # versions
-                        else "%s=%d" % (field, value)
-                        for field, value in field_values.items()
+                return "<Transaction {}>".format(
+                    ", ".join(
+                        (
+                            f"{field}={value!r}"
+                            if not isinstance(value, int)
+                            # We want the following line to ensure that longs get
+                            # shown without the ugly L suffix on python 2.x
+                            # versions
+                            else f"{field}={value}"
+                            for field, value in field_values.items()
+                        )
                     )
                 )
 

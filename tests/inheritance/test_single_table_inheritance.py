@@ -1,5 +1,6 @@
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.orm import declared_attr
 
 from sqlalchemy_history import version_class, versioning_manager
 from tests import TestCase, create_test_cases
@@ -26,8 +27,8 @@ class SingleTableInheritanceTestCase(TestCase):
             __mapper_args__ = {"polymorphic_identity": "article"}
             name = sa.Column(sa.Unicode(255))
 
-            @sa.ext.declarative.declared_attr
-            def status(cls):
+            @declared_attr
+            def status(cls):  # noqa: N805
                 return sa.Column("_status", sa.Unicode(255))
 
         class BlogPost(TextItem):

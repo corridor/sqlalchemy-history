@@ -44,12 +44,11 @@ class ChangeSetTestCase(ChangeSetBaseTestCase):
 
         self.session.execute(
             sa.text(
-                """INSERT INTO article_version
-            (id, %s, name, content, operation_type)
+                f"""INSERT INTO article_version
+            (id, {self.transaction_column_name}, name, content, operation_type)
             VALUES
-            (1, %d, 'something', 'some content', 1)
+            (1, {tx_log.id}, 'something', 'some content', 1)
             """
-                % (self.transaction_column_name, tx_log.id)
             )
         )
 

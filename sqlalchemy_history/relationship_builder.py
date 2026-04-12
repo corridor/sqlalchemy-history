@@ -127,6 +127,7 @@ class RelationshipBuilder:
             if direction.name == "MANYTOMANY" and self.property.secondaryjoin is not None:
                 criteria = sa.and_(criteria, reflector(self.property.secondaryjoin))
             return criteria
+        return None
 
     def many_to_many_criteria(self, obj):
         """Returns the many-to-many query.
@@ -253,7 +254,7 @@ class RelationshipBuilder:
             self.remote_cls.operation_type != Operation.DELETE,
         )
 
-    @property
+    @property  # noqa: A003
     def reflected_relationship(self):
         """Builds a reflected one-to-many, one-to-one and many-to-one relationship between two version
         classes."""
@@ -346,7 +347,7 @@ class RelationshipBuilder:
 
 
         """
-        column = list(self.property.remote_side)[0]
+        column = next(iter(self.property.remote_side))
 
         builder = TableBuilder(self.manager, column.table)
         metadata = column.table.metadata

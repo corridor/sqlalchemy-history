@@ -115,7 +115,7 @@ class UnitOfWork:
         """
         args = self.transaction_args(session)
 
-        Transaction = self.manager.transaction_cls
+        Transaction = self.manager.transaction_cls  # noqa: N806 -- Transaction is a class
         self.current_transaction = Transaction()
 
         for key, value in args.items():
@@ -135,7 +135,7 @@ class UnitOfWork:
         :param target: Parent object to create the version object for
         """
         version_cls = version_class(target.__class__)
-        version_id = identity(target) + (self.current_transaction.id,)
+        version_id = (*identity(target), self.current_transaction.id)
         version_key = (version_cls, version_id)
 
         if version_key not in self.version_objs:
@@ -179,12 +179,12 @@ class UnitOfWork:
         if not self.manager.options["versioning"]:
             return
 
-        for key, operation in copy(self.operations).items():
+        for _, operation in copy(self.operations).items():  # noqa: PERF102 -- Operations cannot work with .keys and .values
             if operation.processed:
                 continue
 
             if not self.current_transaction:
-                raise Exception("Current transaction not available.")
+                raise RuntimeError("Current transaction not available.")
             self.process_operation(operation)
 
         self.version_session.flush()
