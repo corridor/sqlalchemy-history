@@ -96,7 +96,7 @@ jobs:
 
       - name: Run tests
         run: |
-          uv run --no-sync pytest -x --cov --cov-report=lcov
+          uv run --no-sync pytest --maxfail=100 --cov --cov-report=lcov
         env:
           DB: ${{ matrix.DB }}
 
