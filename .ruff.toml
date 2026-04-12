@@ -4,7 +4,10 @@ target-version = "py39"
 
 [lint]
 ignore = [
-    "COM812", # Do not force trailing commas
+    "COM812",  # Do not force trailing commas
+    "TRY003",  # Allow long messages inside exception class
+    "N818",    # Allow exception classes without "Error" suffix
+    "PLR0913", # Allow long argument lists
 ]
 select = [
     "A",      # flake8-builtins
@@ -71,4 +74,4 @@ case-sensitive = true
 keep-runtime-typing = true
 
 [lint.per-file-ignores]
-"tests/*" = ["S101", "N806", "PLR2004", "RUF012"]
+"tests/*" = ["S101", "S608", "N806", "PLR2004", "RUF012"]

@@ -58,10 +58,12 @@ class VersioningManager:
         unit_of_work_cls=UnitOfWork,
         transaction_cls=None,
         user_cls=None,
-        options={},
+        options=None,
         plugins=None,
         builder=None,
     ):
+        if options is None:
+            options = {}
         self.uow_class = unit_of_work_cls
         if builder is None:
             self.builder = Builder()
@@ -116,7 +118,7 @@ class VersioningManager:
             try:
                 return self.units_of_work[conn.engine]
             except KeyError:
-                for connection in self.units_of_work.keys():
+                for connection in self.units_of_work:
                     if not connection.closed and connection.connection is conn.connection:
                         return self.unit_of_work(conn.session)
                 else:
@@ -196,7 +198,7 @@ class VersioningManager:
 
         """
         if not hasattr(model, "__versioned__"):
-            raise TypeError("Model %r is not versioned." % model)
+            raise TypeError(f"Model {model!r} is not versioned.")
         try:
             return model.__versioned__[name]
         except KeyError:
@@ -364,7 +366,7 @@ class VersioningManager:
             uow.reset(session)
             del self.units_of_work[conn]
 
-        for connection in dict(self.units_of_work).keys():
+        for connection in dict(self.units_of_work):
             if connection.closed or conn.connection is connection.connection:
                 uow = self.units_of_work[connection]
                 uow.reset(session)
@@ -380,7 +382,7 @@ class VersioningManager:
             if connection is conn:
                 del self.session_connection_map[session]
 
-        for connection in dict(self.units_of_work).keys():
+        for connection in dict(self.units_of_work):
             if connection.closed or conn.connection is connection.connection:
                 uow = self.units_of_work[connection]
                 uow.reset()
@@ -410,7 +412,7 @@ class VersioningManager:
         :param opt:
 
         """
-        if c not in self.units_of_work.keys():
+        if c not in self.units_of_work:
             for connection, uow in dict(self.units_of_work).items():
                 if (
                     not connection.closed and connection.connection is c.connection

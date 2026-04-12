@@ -41,8 +41,8 @@ def get_versioning_manager(item):
         return versioned_item.__versioning_manager__
     except AttributeError:
         if isinstance(versioned_item, sa.Table):
-            raise TableNotVersioned('Table "%s"' % versioned_item.name)
-        raise ClassNotVersioned(versioned_item.__name__)
+            raise TableNotVersioned(f'Table "{versioned_item.name}"') from None
+        raise ClassNotVersioned(versioned_item.__name__) from None
 
 
 def option(obj_or_class, option_name):
@@ -85,7 +85,7 @@ def parent_class(version_cls):
         return next((k for k, v in manager.version_class_map.items() if v == version_cls))
     except StopIteration:
         # Should raise Key Error if we can't find the parent_object of a orphaned versioned_model
-        raise KeyError(version_cls)
+        raise KeyError(version_cls) from None
 
 
 def parent_table(version_table):
@@ -99,7 +99,7 @@ def parent_table(version_table):
         return next((k for k, v in manager.version_table_map.items() if v == version_table))
     except StopIteration:
         # Raise Key error as we couldn't find parent_object of versioned_object
-        raise KeyError(version_table)
+        raise KeyError(version_table) from None
 
 
 def transaction_class(cls):
@@ -121,6 +121,7 @@ def version_obj(session, parent_obj):
             parent_obj
         ):
             return version_obj
+    return None
 
 
 def version_class(model):
@@ -303,9 +304,8 @@ def is_modified(obj):
                 continue
             if attr.history.has_changes():
                 return True
-        if key in versioned_relationship_keys:
-            if attr.history.has_changes():
-                return True
+        if key in versioned_relationship_keys and attr.history.has_changes():
+            return True
     return False
 
 
@@ -338,8 +338,8 @@ def count_versions(obj):
         return 0
     manager = get_versioning_manager(obj)
     table_name = manager.option(obj, "table_name") % obj.__table__.name
-    criteria = ["%s = %r" % (pk, getattr(obj, pk)) for pk in get_primary_keys(obj)]
-    query = sa.text("SELECT COUNT(1) FROM %s WHERE %s" % (table_name, " AND ".join(criteria)))
+    criteria = [f"{pk} = {getattr(obj, pk)!r}" for pk in get_primary_keys(obj)]
+    query = sa.text("SELECT COUNT(1) FROM {} WHERE {}".format(table_name, " AND ".join(criteria)))
     return session.execute(query).scalar()
 
 
@@ -381,6 +381,7 @@ class VersioningClauseAdapter(sa.sql.visitors.ReplacingCloningVisitor):
         if isinstance(col, sa.Column):
             table = version_table(col.table)
             return table.c.get(col.key)
+        return None
 
 
 def adapt_columns(expr):
@@ -393,8 +394,8 @@ def get_association_proxies(klass):
     # if they are ok with it as they provide a similar method to detect and
     # provide hypbrid properties.
     # ref: https://github.com/kvesteri/sqlalchemy-utils/issues/679
-    association_proxy_mapping = {}
-    for key, prop in sa.inspect(klass).all_orm_descriptors.items():
-        if isinstance(prop, sa.ext.associationproxy.AssociationProxy):
-            association_proxy_mapping[key] = prop
-    return association_proxy_mapping
+    return {
+        key: prop
+        for key, prop in sa.inspect(klass).all_orm_descriptors.items()
+        if isinstance(prop, sa.ext.associationproxy.AssociationProxy)
+    }

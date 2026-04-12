@@ -31,7 +31,7 @@ def test_versioning(versioning_strategy, property_mod_tracking):
     transaction_cls = TransactionFactory()
     user_cls = None
 
-    Model = declarative_base()
+    Model = declarative_base()  # noqa: N806
 
     options = {
         "create_models": True,
@@ -74,7 +74,7 @@ def test_versioning(versioning_strategy, property_mod_tracking):
 
     Model.metadata.create_all(connection)
 
-    Session = sessionmaker(bind=connection)
+    Session = sessionmaker(bind=connection)  # noqa: N806
     session = Session(autoflush=False)
     session.execute("CREATE EXTENSION IF NOT EXISTS hstore")
 
@@ -82,14 +82,14 @@ def test_versioning(versioning_strategy, property_mod_tracking):
 
     start = time()
 
-    for i in range(20):
-        for i in range(20):
+    for _i in range(20):
+        for _j in range(20):
             session.add(Article(name="Article", tags=[Tag(), Tag()]))
         session.commit()
 
     print("Testing with:")
-    print("   versioning_strategy=%r" % versioning_strategy)
-    print("   property_mod_tracking=%r" % property_mod_tracking)
+    print(f"   versioning_strategy={versioning_strategy!r}")
+    print(f"   property_mod_tracking={property_mod_tracking!r}")
     print(colored("%r seconds" % (time() - start), "red"))
 
     Model.metadata.drop_all(connection)

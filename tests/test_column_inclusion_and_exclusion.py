@@ -8,7 +8,7 @@ class ColumnExclusionTestCase(TestCase):
     def test_excluded_columns_not_included_in_version_class(self):
         cls = version_class(self.TextItem)
         manager = cls._sa_class_manager
-        assert "content" not in manager.keys()
+        assert "content" not in manager
 
     def test_versioning_with_column_exclusion(self):
         item = self.TextItem(name="Some textitem", content="Some content")
@@ -89,7 +89,7 @@ class TestColumnExclusionWithRelationship(TestCase):
     def test_excluded_columns_not_included_in_version_class(self):
         cls = version_class(self.TextItem)
         manager = cls._sa_class_manager
-        assert "content" not in manager.keys()
+        assert "content" not in manager
 
     def test_versioning_with_column_exclusion(self):
         item = self.TextItem(name="Some textitem", content=[self.Word(word="bird")])

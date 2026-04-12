@@ -225,6 +225,7 @@ class ActivityFactory(ModelFactory):
                             getattr(version_cls, primary_key) == getattr(obj, primary_key)
                         )
                     ).scalar_one_or_none()
+                return None
 
             def calculate_object_tx_id(self):
                 self.object_tx_id = self._calculate_tx_id(self.object)
@@ -239,7 +240,7 @@ class ActivityFactory(ModelFactory):
                 return self.object_type + "Version"
 
             @object_version_type.expression
-            def object_version_type(cls):
+            def object_version_type(cls):  # noqa: N805
                 return sa.func.concat(cls.object_type, "Version")
 
             object_version = generic_relationship(object_version_type, (object_id, object_tx_id))
@@ -251,7 +252,7 @@ class ActivityFactory(ModelFactory):
                 return self.target_type + "Version"
 
             @target_version_type.expression
-            def target_version_type(cls):
+            def target_version_type(cls):  # noqa: N805
                 return sa.func.concat(cls.target_type, "Version")
 
             target_version = generic_relationship(target_version_type, (target_id, target_tx_id))
@@ -261,7 +262,7 @@ class ActivityFactory(ModelFactory):
             backref=sa.orm.backref(
                 "activities",
             ),
-            primaryjoin=("%s.id == Activity.transaction_id" % manager.transaction_cls.__name__),
+            primaryjoin=(f"{manager.transaction_cls.__name__}.id == Activity.transaction_id"),
             foreign_keys=[Activity.transaction_id],
         )
         return Activity

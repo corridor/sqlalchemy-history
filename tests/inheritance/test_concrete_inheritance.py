@@ -1,5 +1,5 @@
+import pytest
 import sqlalchemy as sa
-from pytest import fixture, mark
 
 from sqlalchemy_history import version_class, versioning_manager
 from tests import TestCase
@@ -38,7 +38,7 @@ class TestConreteTableInheritance(TestCase):
         self.Article = Article
         self.BlogPost = BlogPost
 
-    @fixture(autouse=True)
+    @pytest.fixture(autouse=True)
     def setup_method_for_concerete_inheritance(self, setup_session):
         self.TextItemVersion = version_class(self.TextItem)
         self.ArticleVersion = version_class(self.Article)
@@ -59,7 +59,7 @@ class TestConreteTableInheritance(TestCase):
         assert self.ArticleVersion.__table__.name == "article_version"
         assert self.BlogPostVersion.__table__.name == "blog_post_version"
 
-    @mark.skipif(True, reason="concrete property is not supported yet")
+    @pytest.mark.skipif(condition=True, reason="concrete property is not supported yet")
     def test_each_object_has_distinct_version_class(self):  # pragma: no cover
         article = self.Article(name="a")
         blogpost = self.BlogPost(title="b")
