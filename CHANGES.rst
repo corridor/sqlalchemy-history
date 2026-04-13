@@ -3,11 +3,27 @@ Changelog
 
 Here you can see the full list of changes between each release.
 
-Unreleased
+2.1.4 (2026-04-13)
 ^^^^^^^^^^
 
--   Remove support for SQLA<2
+-   Drop support for SQLAlchemy 1.4. SQLAlchemy-History now requires SQLAlchemy 2+.
+-   Drop support for Python 3.7 and 3.8. The project now requires Python 3.9+.
+-   Add support for `dynamic` and `write_only` loading strategies, including asyncio-friendly
+    handling of `write_only` version relationships.
+-   Fix enum version-table generation by ensuring generated enum types use unique names.
+-   Fix version object creation during `after_flush_postexec`.
+-   Fix mapper configuration copying for `MappedColumn` mapper args and hybrid property
+    attributes.
+-   Fix relationship reflection against non-versioned classes to avoid cartesian products.
+-   Fix transaction id ordering for Oracle RAS.
+-   Prevent deleted-row attribute assignment from triggering lazy-loads and remove ghost
+    objects from in-memory parent collections.
+-   Avoid hardcoded SQL in `count_versions`.
 
+Internal Improvements:
+-   Move project tooling from Poetry to `uv` and `setuptools-scm`, and remove `setup.py`.
+-   Remove the `cached-property` dependency in favor of `functools`.
+-   Remove legacy SQLAlchemy `Query` API usage from the codebase, tests, and docs.
 
 2.1.0 (2023-11-07)
 ^^^^^^^^^^^^^^^^^^^
