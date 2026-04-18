@@ -1927,6 +1927,7 @@ dependencies = [
     { name = "anyio", version = "4.14.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "sqlalchemy" },
     { name = "sqlalchemy-utils" },
+    { name = "typing-extensions" },
 ]
 
 [package.optional-dependencies]
@@ -1967,6 +1968,7 @@ requires-dist = [
     { name = "sqlalchemy", specifier = ">=2" },
     { name = "sqlalchemy", extras = ["asyncio"], marker = "extra == 'asyncio'", specifier = ">=2" },
     { name = "sqlalchemy-utils", specifier = ">=0.30.12" },
+    { name = "typing-extensions" },
 ]
 provides-extras = ["asyncio"]
 
