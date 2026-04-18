@@ -1,3 +1,4 @@
+import importlib_metadata
 import pytest
 import sqlalchemy as sa
 from sqlalchemy_i18n import Translatable, make_translatable, translation_base
@@ -11,7 +12,9 @@ i18n.get_locale = lambda: "en"
 make_translatable()
 
 
-@pytest.mark.skipif(str(sa.__version__).startswith("2."), reason="i18n doesn't support sqla 2.0 yet")
+@pytest.mark.skipif(
+    importlib_metadata.version("sqlalchemy").startswith("2."), reason="i18n doesn't support sqla 2.0 yet"
+)
 class TestVersioningWithI18nExtension(TestCase):
     def create_models(self):
         class Versioned(self.Model):
