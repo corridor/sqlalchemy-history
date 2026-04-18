@@ -8,9 +8,12 @@ ignore = [
     "TRY003",  # Allow long messages inside exception class
     "N818",    # Allow exception classes without "Error" suffix
     "PLR0913", # Allow long argument lists
+    "ANN002",  # Allow missing type annotations for *args
+    "ANN003",  # Allow missing type annotations for **kwargs
 ]
 select = [
     "A",      # flake8-builtins
+    "ANN",
     "ASYNC",  # flake8-async
     "B",      # flake8-bugbear
     "C4",     # flake8-comprehensions
@@ -74,4 +77,4 @@ case-sensitive = true
 keep-runtime-typing = true
 
 [lint.per-file-ignores]
-"tests/*" = ["S101", "S608", "N806", "PLR2004", "RUF012"]
+"tests/*" = ["S101", "S608", "N806", "PLR2004", "RUF012", "ANN"]
