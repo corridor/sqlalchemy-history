@@ -42,6 +42,7 @@ test = [
     "pymssql",
     "oracledb",
     "pytest-cov",
+    "importlib-metadata",
 ]
 
 [tool.setuptools_scm]
