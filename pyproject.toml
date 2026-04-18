@@ -23,7 +23,11 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = ["SQLAlchemy>=2", "SQLAlchemy-Utils>=0.30.12"]
+dependencies = [
+    "SQLAlchemy>=2",
+    "SQLAlchemy-Utils>=0.30.12",
+    "typing-extensions",
+]
 
 [project.urls]
 Homepage = "https://github.com/corridor/sqlalchemy-history"

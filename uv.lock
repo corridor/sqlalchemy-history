@@ -1305,6 +1305,7 @@ source = { editable = "." }
 dependencies = [
     { name = "sqlalchemy" },
     { name = "sqlalchemy-utils" },
+    { name = "typing-extensions" },
 ]
 
 [package.dev-dependencies]
@@ -1334,6 +1335,7 @@ test = [
 requires-dist = [
     { name = "sqlalchemy", specifier = ">=2" },
     { name = "sqlalchemy-utils", specifier = ">=0.30.12" },
+    { name = "typing-extensions" },
 ]
 
 [package.metadata.requires-dev]
