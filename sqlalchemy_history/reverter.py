@@ -23,7 +23,7 @@ class ReverterException(Exception):
 
 
 class Reverter:
-    def __init__(self, obj, visited_objects=None, relations=None):
+    def __init__(self, obj, visited_objects=None, relations=None) -> None:
         if relations is None:
             relations = []
         self.visited_objects = visited_objects or []
@@ -42,11 +42,11 @@ class Reverter:
                     f"relationship '{subpath}'."
                 )
 
-    def revert_properties(self):
+    def revert_properties(self) -> None:
         for prop in versioned_column_properties(self.parent_class):
             setattr(self.version_parent, prop.key, getattr(self.obj, prop.key))
 
-    def revert_association(self, prop):
+    def revert_association(self, prop) -> None:
         if prop.uselist:
             setattr(self.version_parent, prop.key, [])
             for child_obj in getattr(self.obj, prop.key):
@@ -60,7 +60,7 @@ class Reverter:
             if value:
                 setattr(self.version_parent, prop.key, value)
 
-    def revert_relationship(self, prop):
+    def revert_relationship(self, prop) -> None:
         if prop.secondary is not None:
             self.revert_association(prop)
         elif prop.uselist:
@@ -85,7 +85,7 @@ class Reverter:
             relations=subpaths(self.relations, prop.key),
         )()
 
-    def revert_relationships(self):
+    def revert_relationships(self) -> None:
         for prop in self.parent_mapper.iterate_properties:
             if isinstance(prop, sa.orm.RelationshipProperty):
                 if prop.key in ["versions", "transaction"]:

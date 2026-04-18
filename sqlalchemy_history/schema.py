@@ -28,7 +28,7 @@ def update_end_tx_column(
     end_tx_column_name="end_transaction_id",
     tx_column_name="transaction_id",
     conn=None,
-):
+) -> None:
     """Calculates end transaction columns and updates the version table with the calculated values.
 
     This function can be used for migrating between subquery versioning strategy and validity versioning
@@ -119,7 +119,7 @@ def update_property_mod_flags(
     end_tx_column_name="end_transaction_id",
     tx_column_name="transaction_id",
     conn=None,
-):
+) -> None:
     """Update property modification flags for given table and given columns.
 
     This function can be used for migrating an existing schema to use property mod flags

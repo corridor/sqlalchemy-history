@@ -211,7 +211,7 @@ def versioned_relationships(obj, versioned_column_keys):
             yield prop
 
 
-def vacuum(session, model, yield_per=1000):
+def vacuum(session, model, yield_per=1000) -> None:
     """When making structural changes to version tables (for example dropping
     columns) there are sometimes situations where some old version records
     become futile.
@@ -286,7 +286,7 @@ def is_modified_or_deleted(obj):
     return is_versioned(obj) and (is_modified(obj) or obj in chain(session.deleted, session.new))
 
 
-def is_modified(obj):
+def is_modified(obj) -> bool:
     """
     Return whether or not the versioned properties of given object have been
     modified.

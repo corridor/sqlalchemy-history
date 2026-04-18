@@ -17,7 +17,7 @@ from sqlalchemy_history.utils import (
 
 
 class UnitOfWork:
-    def __init__(self, manager):
+    def __init__(self, manager) -> None:
         self.manager = manager
         self.reset()
 
@@ -30,7 +30,7 @@ class UnitOfWork:
         #       Ref: https://docs.sqlalchemy.org/en/20/orm/session_api.html#sqlalchemy.orm.Session.params.join_transaction_mode
         return sa.orm.session.Session(bind=session.connection(), join_transaction_mode="rollback_only")
 
-    def reset(self, session=None):
+    def reset(self, session=None) -> None:
         """Reset the internal state of this UnitOfWork object.
         Normally this is called after transaction has been committed or rolled back.
         """
@@ -53,7 +53,7 @@ class UnitOfWork:
         """
         return is_session_modified(session) or any(self.manager.plugins.is_session_modified(session))
 
-    def process_before_flush(self, session):
+    def process_before_flush(self, session) -> None:
         """Before flush processor for given session.
 
         This method creates a version session which is later on used for the
@@ -81,7 +81,7 @@ class UnitOfWork:
 
         self.manager.plugins.before_flush(self, session)
 
-    def process_after_flush(self, session):
+    def process_after_flush(self, session) -> None:
         """After flush processor for given session.
 
         Creates version objects for all modified versioned parent objects that
@@ -147,7 +147,7 @@ class UnitOfWork:
             return version_obj
         return self.version_objs[version_key]
 
-    def process_operation(self, operation):
+    def process_operation(self, operation) -> None:
         """Process given operation object. The operation processing has x stages:
 
         1. Get or create a version object for given parent object
@@ -169,7 +169,7 @@ class UnitOfWork:
             self.update_version_validity(target, version_obj)
         operation.processed = True
 
-    def create_version_objects(self, session):
+    def create_version_objects(self, session) -> None:
         """Create version objects for given session based on operations collected by insert, update and
          deleted trackers.
 
@@ -211,7 +211,7 @@ class UnitOfWork:
             )
         return subquery
 
-    def update_version_validity(self, parent, version_obj):
+    def update_version_validity(self, parent, version_obj) -> None:
         """Updates previous version object end_transaction_id based on given parent object and newly created
          version object.
 
@@ -243,7 +243,7 @@ class UnitOfWork:
                     .execution_options(synchronize_session=False)
                 )
 
-    def create_association_versions(self, session):
+    def create_association_versions(self, session) -> None:
         """Creates association table version records for given session.
 
         :param session: SQLAlchemy session object
@@ -267,7 +267,7 @@ class UnitOfWork:
                 )
         self.pending_statements = []
 
-    def make_versions(self, session):
+    def make_versions(self, session) -> None:
         """Create transaction, transaction changes records, version objects.
 
         :param session: SQLAlchemy session object
@@ -289,7 +289,7 @@ class UnitOfWork:
         """Return whether or not this unit of work has changes."""
         return self.operations or self.pending_statements
 
-    def assign_attributes(self, parent_obj, version_obj):
+    def assign_attributes(self, parent_obj, version_obj) -> None:
         """Assign attributes values from parent object to version object.
 
         :param parent_obj: Parent object to get the attribute values from

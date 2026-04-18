@@ -91,10 +91,10 @@ class TransactionMetaFactory(ModelFactory):
 
 
 class TransactionMetaPlugin(Plugin):
-    def after_build_tx_class(self, manager):
+    def after_build_tx_class(self, manager) -> None:
         self.model_class = TransactionMetaFactory()(manager)
         manager.transaction_meta_cls = self.model_class
 
-    def after_build_models(self, manager):
+    def after_build_models(self, manager) -> None:
         self.model_class = TransactionMetaFactory()(manager)
         manager.transaction_meta_cls = self.model_class

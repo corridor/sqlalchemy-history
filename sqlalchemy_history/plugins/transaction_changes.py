@@ -60,13 +60,13 @@ class TransactionChangesFactory(ModelFactory):
 class TransactionChangesPlugin(Plugin):
     objects = None
 
-    def after_build_tx_class(self, manager):
+    def after_build_tx_class(self, manager) -> None:
         self.model_class = TransactionChangesFactory()(manager)
 
-    def after_build_models(self, manager):
+    def after_build_models(self, manager) -> None:
         self.model_class = TransactionChangesFactory()(manager)
 
-    def before_create_version_objects(self, uow, session):
+    def before_create_version_objects(self, uow, session) -> None:
         for entity in uow.operations.entities:
             params = uow.current_transaction.id, str(entity.__name__)
             changes = session.get(self.model_class, params)
@@ -77,14 +77,14 @@ class TransactionChangesPlugin(Plugin):
                 )
                 session.add(changes)
 
-    def clear(self):
+    def clear(self) -> None:
         self.objects = None
 
-    def after_rollback(self, uow, session):
+    def after_rollback(self, uow, session) -> None:
         self.clear()
 
-    def ater_commit(self, uow, session):
+    def ater_commit(self, uow, session) -> None:
         self.clear()
 
-    def after_version_class_built(self, parent_cls, version_cls):
+    def after_version_class_built(self, parent_cls, version_cls) -> None:
         parent_cls.__versioned__["transaction_changes"] = self.model_class

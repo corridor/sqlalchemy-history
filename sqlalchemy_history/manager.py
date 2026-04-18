@@ -61,7 +61,7 @@ class VersioningManager:
         options=None,
         plugins=None,
         builder=None,
-    ):
+    ) -> None:
         if options is None:
             options = {}
         self.uow_class = unit_of_work_cls
@@ -104,7 +104,7 @@ class VersioningManager:
         return self._plugins
 
     @plugins.setter
-    def plugins(self, plugin_collection):
+    def plugins(self, plugin_collection) -> None:
         self._plugins = PluginCollection(plugin_collection)
 
     def fetcher(self, obj):
@@ -125,7 +125,7 @@ class VersioningManager:
                 else:
                     raise
 
-    def reset(self):
+    def reset(self) -> None:
         """Resets this manager's internal state.
 
         This method should be used in test cases that create models on the fly.
@@ -205,7 +205,7 @@ class VersioningManager:
         except KeyError:
             return self.options[name]
 
-    def apply_class_configuration_listeners(self, mapper):
+    def apply_class_configuration_listeners(self, mapper) -> None:
         """Applies class configuration listeners for given mapper.
 
         The listener work in two phases:
@@ -225,7 +225,7 @@ class VersioningManager:
         for event_name, listener in self.class_config_listeners.items():
             sa.event.listen(mapper, event_name, listener)
 
-    def remove_class_configuration_listeners(self, mapper):
+    def remove_class_configuration_listeners(self, mapper) -> None:
         """Remove versioning class configuration listeners from specified mapper.
 
         :param mapper: mapper to remove class configuration listeners from
@@ -234,7 +234,7 @@ class VersioningManager:
         for event_name, listener in self.class_config_listeners.items():
             sa.event.remove(mapper, event_name, listener)
 
-    def track_operations(self, mapper):
+    def track_operations(self, mapper) -> None:
         """Attach listeners for specified mapper that track SQL inserts, updates and deletes.
 
         :param mapper: mapper to track the SQL operations from
@@ -243,7 +243,7 @@ class VersioningManager:
         for event_name, listener in self.mapper_listeners.items():
             sa.event.listen(mapper, event_name, listener)
 
-    def remove_operations_tracking(self, mapper):
+    def remove_operations_tracking(self, mapper) -> None:
         """Remove listeners from specified mapper that track SQL inserts, updates and deletes.
 
         :param mapper: mapper to remove the SQL operations tracking listeners from
@@ -252,7 +252,7 @@ class VersioningManager:
         for event_name, listener in self.mapper_listeners.items():
             sa.event.remove(mapper, event_name, listener)
 
-    def track_session(self, session):
+    def track_session(self, session) -> None:
         """Attach listeners that track the operations (flushing, committing and
         rolling back) of given session.
 
@@ -264,7 +264,7 @@ class VersioningManager:
         for event_name, listener in self.session_listeners.items():
             sa.event.listen(session, event_name, listener)
 
-    def remove_session_tracking(self, session):
+    def remove_session_tracking(self, session) -> None:
         """Remove listeners that track the operations (flushing, committing and rolling back) of given
          session.
         This method should be used in conjunction with `remove_operations_tracking`.
@@ -276,7 +276,7 @@ class VersioningManager:
             sa.event.remove(session, event_name, listener)
 
     @tracked_operation
-    def track_inserts(self, uow, target):
+    def track_inserts(self, uow, target) -> None:
         """Track object insert operations.
 
         Whenever object is inserted it is added to this UnitOfWork's internal operations dictionary.
@@ -284,7 +284,7 @@ class VersioningManager:
         uow.operations.add_insert(target)
 
     @tracked_operation
-    def track_updates(self, uow, target):
+    def track_updates(self, uow, target) -> None:
         """Track object update operations.
 
         Whenever object is updated it is added to this UnitOfWork's internal operations dictionary.
@@ -294,7 +294,7 @@ class VersioningManager:
         uow.operations.add_update(target)
 
     @tracked_operation
-    def track_deletes(self, uow, target):
+    def track_deletes(self, uow, target) -> None:
         """Track object deletion operations.
         Whenever object is deleted it is added to this UnitOfWork's internal operations dictionary.
         """
@@ -317,7 +317,7 @@ class VersioningManager:
         self.units_of_work[conn] = uow
         return uow
 
-    def before_flush(self, session, flush_context, instances):
+    def before_flush(self, session, flush_context, instances) -> None:
         """Before flush listener for SQLAlchemy sessions.
         If this manager has versioning enabled this listener invokes the process before flush of associated
          UnitOfWork object.
@@ -333,7 +333,7 @@ class VersioningManager:
         uow = self.unit_of_work(session)
         uow.process_before_flush(session)
 
-    def after_flush(self, session, flush_context):
+    def after_flush(self, session, flush_context) -> None:
         """After flush listener for SQLAlchemy sessions.
 
         If this manager has versioning enabled this listener gets the UnitOfWork associated with
@@ -348,7 +348,7 @@ class VersioningManager:
         uow = self.unit_of_work(session)
         uow.process_after_flush(session)
 
-    def clear(self, session):
+    def clear(self, session) -> None:
         """Simple SQLAlchemy listener that is being invoked after successful transaction commit or when
          transaction rollback occurs.
         The purpose of this listener is to reset this UnitOfWork back to its initialization state.
@@ -373,7 +373,7 @@ class VersioningManager:
                 uow.reset(session)
                 del self.units_of_work[connection]
 
-    def clear_connection(self, conn):
+    def clear_connection(self, conn) -> None:
         if conn in self.units_of_work:
             uow = self.units_of_work[conn]
             uow.reset()
@@ -389,7 +389,7 @@ class VersioningManager:
                 uow.reset()
                 del self.units_of_work[connection]
 
-    def append_association_operation(self, conn, table_name, params, op):
+    def append_association_operation(self, conn, table_name, params, op) -> None:
         """Append history association operation to pending_statements list.
 
         :param conn:
@@ -406,7 +406,7 @@ class VersioningManager:
         uow = self.get_uow(conn)
         uow.pending_statements.append(stmt)
 
-    def track_cloned_connections(self, c, opt):
+    def track_cloned_connections(self, c, opt) -> None:
         """Track cloned connections from association tables.
 
         :param c:
@@ -420,7 +420,7 @@ class VersioningManager:
                 ):  # ConnectionFairy is the same - this is a clone
                     self.units_of_work[c] = uow
 
-    def track_sql_operations(self, conn, cursor, statement, parameters, context, executemany):
+    def track_sql_operations(self, conn, cursor, statement, parameters, context, executemany) -> None:
         """
         This function tracks all SQLoperators directly done by the sqlalchemy cursor.
         We use it to track operations on tables which are not mapped to a ORM model.

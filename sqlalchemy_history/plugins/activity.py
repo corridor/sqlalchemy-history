@@ -227,10 +227,10 @@ class ActivityFactory(ModelFactory):
                     ).scalar_one_or_none()
                 return None
 
-            def calculate_object_tx_id(self):
+            def calculate_object_tx_id(self) -> None:
                 self.object_tx_id = self._calculate_tx_id(self.object)
 
-            def calculate_target_tx_id(self):
+            def calculate_target_tx_id(self) -> None:
                 self.target_tx_id = self._calculate_tx_id(self.target)
 
             object = generic_relationship(object_type, object_id)
@@ -271,7 +271,7 @@ class ActivityFactory(ModelFactory):
 class ActivityPlugin(Plugin):
     activity_cls = None
 
-    def after_build_models(self, manager):
+    def after_build_models(self, manager) -> None:
         self.activity_cls = ActivityFactory()(manager)
         manager.activity_cls = self.activity_cls
 
@@ -284,12 +284,12 @@ class ActivityPlugin(Plugin):
         """
         return any(isinstance(obj, self.activity_cls) for obj in session)
 
-    def before_flush(self, uow, session):
+    def before_flush(self, uow, session) -> None:
         for obj in session:
             if isinstance(obj, self.activity_cls):
                 obj.transaction = uow.current_transaction
                 obj.calculate_target_tx_id()
                 obj.calculate_object_tx_id()
 
-    def after_version_class_built(self, parent_cls, version_cls):
+    def after_version_class_built(self, parent_cls, version_cls) -> None:
         pass

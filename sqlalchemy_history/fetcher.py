@@ -28,7 +28,7 @@ def parent_criteria(obj, class_=None):
 
 
 class VersionObjectFetcher:
-    def __init__(self, manager):
+    def __init__(self, manager) -> None:
         self.manager = manager
 
     def previous(self, obj):

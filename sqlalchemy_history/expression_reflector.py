@@ -8,7 +8,7 @@ from sqlalchemy_history.utils import version_table
 
 
 class VersionExpressionReflector(sa.sql.visitors.ReplacingCloningVisitor):
-    def __init__(self, parent, relationship):
+    def __init__(self, parent, relationship) -> None:
         self.parent = parent
         self.relationship = relationship
 

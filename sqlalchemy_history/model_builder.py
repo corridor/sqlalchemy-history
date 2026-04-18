@@ -98,7 +98,7 @@ class ModelBuilder:
     """VersionedModelBuilder handles the building of Version models based on parent table attributes and
     versioning configuration."""
 
-    def __init__(self, versioning_manager, model):
+    def __init__(self, versioning_manager, model) -> None:
         """
         Args:
             versioning_manager:
@@ -110,7 +110,7 @@ class ModelBuilder:
         self.manager = versioning_manager
         self.model = model
 
-    def build_parent_relationship(self):
+    def build_parent_relationship(self) -> None:
         """Builds a relationship between currently built version class and parent class (the model whose
         history the currently build version class represents)."""
         conditions = []
@@ -146,7 +146,7 @@ class ModelBuilder:
                 uselist=False,
             )
 
-    def build_transaction_relationship(self, tx_class):
+    def build_transaction_relationship(self, tx_class) -> None:
         """Builds a relationship between currently built version class and Transaction class.
 
         :param tx_class: Transaction class

@@ -5,7 +5,7 @@ from sqlalchemy.sql.sqltypes import Enum
 
 
 class ColumnReflector:
-    def __init__(self, manager, parent_table, model=None):
+    def __init__(self, manager, parent_table, model=None) -> None:
         self.parent_table = parent_table
         self.model = model
         self.manager = manager
@@ -100,7 +100,7 @@ class TableBuilder:
     """TableBuilder handles the building of version tables based on parent table's structure and versioning
     configuration options."""
 
-    def __init__(self, versioning_manager, parent_table, model=None):
+    def __init__(self, versioning_manager, parent_table, model=None) -> None:
         self.manager = versioning_manager
         self.parent_table = parent_table
         self.model = model

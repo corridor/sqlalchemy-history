@@ -11,7 +11,7 @@ from sqlalchemy_history.factory import ModelFactory
 
 
 @compiles(sa.types.BigInteger, "sqlite")
-def compile_big_integer(element, compiler, **kw):
+def compile_big_integer(element, compiler, **kw) -> str:
     return "INTEGER"
 
 
@@ -61,7 +61,7 @@ class TransactionBase:
 class TransactionFactory(ModelFactory):
     model_name = "Transaction"
 
-    def __init__(self, *, remote_addr=True):
+    def __init__(self, *, remote_addr=True) -> None:
         self.remote_addr = remote_addr
 
     def create_class(self, manager):
@@ -106,7 +106,7 @@ class TransactionFactory(ModelFactory):
 
                 user = sa.orm.relationship(user_cls)
 
-            def __repr__(self):
+            def __repr__(self) -> str:
                 fields = ["id", "issued_at", "user"]
                 field_values = OrderedDict((field, getattr(self, field)) for field in fields if hasattr(self, field))
                 return "<Transaction {}>".format(

@@ -36,7 +36,7 @@ class PropertyModTrackerPlugin(Plugin):
             nullable=False,
         )
 
-    def after_build_version_table_columns(self, table_builder, columns):
+    def after_build_version_table_columns(self, table_builder, columns) -> None:
         # Only create modification tracking columns for tables that are
         # associated with actual model classes. In other words do not create
         # mod tracking columns for association tables.
@@ -45,7 +45,7 @@ class PropertyModTrackerPlugin(Plugin):
                 if not table_builder.manager.is_excluded_column(table_builder.model, column) and not column.primary_key:
                     columns.append(self.create_mod_column(column))
 
-    def after_create_version_object(self, uow, parent_obj, version_obj):
+    def after_create_version_object(self, uow, parent_obj, version_obj) -> None:
         session = sa.orm.object_session(parent_obj)
         is_deleted = parent_obj in session.deleted
 
@@ -53,7 +53,7 @@ class PropertyModTrackerPlugin(Plugin):
             if has_changes(parent_obj, prop.key) or is_deleted:
                 setattr(version_obj, prop.key + self.column_suffix, True)
 
-    def after_construct_changeset(self, version_obj, changeset):
+    def after_construct_changeset(self, version_obj, changeset) -> None:
         for key in copy(changeset):
             if key.endswith(self.column_suffix):
                 del changeset[key]

@@ -12,7 +12,7 @@ class Operation:
     UPDATE = 1
     DELETE = 2
 
-    def __init__(self, target, type_):
+    def __init__(self, target, type_) -> None:
         self.target = target
         self.type = type_
         self.processed = False
@@ -27,7 +27,7 @@ class Operation:
 class Operations:
     """A collection of operations"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.objects = OrderedDict()
 
     def format_key(self, target):
@@ -35,25 +35,25 @@ class Operations:
         # identity is not yet updated at this phase
         return (target.__class__, identity(target))
 
-    def __contains__(self, target):
+    def __contains__(self, target) -> bool:
         return self.format_key(target) in self.objects
 
-    def __setitem__(self, key, operation):
+    def __setitem__(self, key, operation) -> None:
         self.objects[key] = operation
 
     def __getitem__(self, key):
         return self.objects[key]
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         del self.objects[key]
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.objects)
 
     def __nonzero__(self):
         return self.__bool__()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(self.objects)
 
     @property
@@ -67,10 +67,10 @@ class Operations:
     def items(self):
         return self.objects.items()
 
-    def add(self, operation):
+    def add(self, operation) -> None:
         self[self.format_key(operation.target)] = operation
 
-    def add_insert(self, target):
+    def add_insert(self, target) -> None:
         if target in self:
             # If the object is deleted and then inserted within the same
             # transaction we are actually dealing with an update.
@@ -78,7 +78,7 @@ class Operations:
         else:
             self.add(Operation(target, Operation.INSERT))
 
-    def add_update(self, target):
+    def add_update(self, target) -> None:
         state_copy = copy(sa.inspect(target).committed_state)
         relationships = sa.inspect(target.__class__).relationships
         # Remove all ONETOMANY and MANYTOMANY relationships
@@ -94,5 +94,5 @@ class Operations:
             else:
                 self.add(Operation(target, Operation.UPDATE))
 
-    def add_delete(self, target):
+    def add_delete(self, target) -> None:
         self.add(Operation(target, Operation.DELETE))
