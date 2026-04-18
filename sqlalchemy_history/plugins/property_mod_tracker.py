@@ -63,7 +63,7 @@ class PropertyModTrackerPlugin(Plugin):
             if has_changes(parent_obj, prop.key) or is_deleted:
                 setattr(version_obj, prop.key + self.column_suffix, True)
 
-    def after_construct_changeset(self, version_obj, changeset):
+    def after_construct_changeset(self, version_obj, changeset) -> None:
         for key in copy(changeset):
             if key.endswith(self.column_suffix):
                 del changeset[key]

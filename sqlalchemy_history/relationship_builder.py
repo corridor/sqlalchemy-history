@@ -25,7 +25,7 @@ class _WriteOnlyCollectionAdapter(t.Generic[_T]):
     backed by a preconstructed SQLAlchemy `Select` clause.
     """
 
-    def __init__(self, statement: sa.Select[_T]):
+    def __init__(self, statement: sa.Select[_T]) -> None:
         self._statement = statement
 
     def select(self) -> sa.Select[_T]:
@@ -35,7 +35,7 @@ class _WriteOnlyCollectionAdapter(t.Generic[_T]):
 class RelationshipBuilder:
     property: RelationshipProperty
 
-    def __init__(self, versioning_manager, model, property_: RelationshipProperty):
+    def __init__(self, versioning_manager, model, property_: RelationshipProperty) -> None:
         self.manager = versioning_manager
         self.property = property_
         self.model = model
@@ -339,7 +339,7 @@ class RelationshipBuilder:
             .correlate(self.local_cls, self.remote_cls)
         )
 
-    def build_association_version_tables(self):
+    def build_association_version_tables(self) -> None:
         """Builds many-to-many association version table for given property.
 
         Association version tables are used for tracking change history of

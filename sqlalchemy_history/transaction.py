@@ -18,7 +18,7 @@ from sqlalchemy_history.factory import ModelFactory
 
 
 @compiles(sa.types.BigInteger, "sqlite")
-def compile_big_integer(element, compiler, **kw):
+def compile_big_integer(element, compiler, **kw) -> str:
     return "INTEGER"
 
 
@@ -115,7 +115,7 @@ class TransactionFactory(ModelFactory):
 
                 user = relationship(user_cls)
 
-            def __repr__(self):
+            def __repr__(self) -> str:
                 fields = ["id", "issued_at", "user"]
                 field_values = OrderedDict((field, getattr(self, field)) for field in fields if hasattr(self, field))
                 return "<Transaction {}>".format(

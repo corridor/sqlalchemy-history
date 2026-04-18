@@ -26,7 +26,7 @@ class ReverterException(Exception):
 
 
 class Reverter:
-    def __init__(self, obj, visited_objects=None, relations=None):
+    def __init__(self, obj, visited_objects=None, relations=None) -> None:
         if relations is None:
             relations = []
         self.visited_objects = visited_objects or []

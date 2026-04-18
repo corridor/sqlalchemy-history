@@ -44,7 +44,7 @@ def make_versioned(
     plugins=None,
     options=None,
     user_cls="User",
-):
+) -> None:
     """This is the public API function of SQLAlchemy-History for making certain mappers and sessions
      versioned.
     By default this applies to all mappers and all sessions.

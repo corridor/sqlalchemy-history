@@ -22,7 +22,7 @@ def prevent_reentry(handler):
     in_handler = False
 
     @wraps(handler)
-    def check_reentry(*args, **kwargs):
+    def check_reentry(*args, **kwargs) -> None:
         nonlocal in_handler
         if in_handler:
             return
