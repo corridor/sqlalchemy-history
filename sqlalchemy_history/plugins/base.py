@@ -1,48 +1,51 @@
+import typing as t
+
+
 class Plugin:
-    def is_session_modified(self, session) -> bool:
+    def is_session_modified(self, session: t.Any) -> bool:
         return False
 
-    def after_build_tx_class(self, manager) -> None:
+    def after_build_tx_class(self, manager: t.Any) -> None:
         pass
 
-    def after_build_models(self, manager) -> None:
+    def after_build_models(self, manager: t.Any) -> None:
         pass
 
-    def after_build_version_table_columns(self, table_builder, columns) -> None:
+    def after_build_version_table_columns(self, table_builder: t.Any, columns: list[t.Any]) -> None:
         pass
 
-    def before_flush(self, uow, session) -> None:
+    def before_flush(self, uow: t.Any, session: t.Any) -> None:
         pass
 
-    def before_create_version_objects(self, uow, session) -> None:
+    def before_create_version_objects(self, uow: t.Any, session: t.Any) -> None:
         pass
 
-    def after_create_version_objects(self, uow, session) -> None:
+    def after_create_version_objects(self, uow: t.Any, session: t.Any) -> None:
         pass
 
-    def after_create_version_object(self, uow, parent_obj, version_obj) -> None:
+    def after_create_version_object(self, uow: t.Any, parent_obj: t.Any, version_obj: t.Any) -> None:
         pass
 
-    def transaction_args(self, uow, session):
+    def transaction_args(self, uow: t.Any, session: t.Any) -> dict[str, t.Any]:
         return {}
 
-    def after_version_class_built(self, parent_cls, version_cls) -> None:
+    def after_version_class_built(self, parent_cls: type[t.Any], version_cls: type[t.Any]) -> None:
         pass
 
-    def after_construct_changeset(self, version_obj, changeset) -> None:
+    def after_construct_changeset(self, version_obj: t.Any, changeset: dict[str, list[t.Any]]) -> None:
         pass
 
 
 class PluginCollection:
-    def __init__(self, plugins=None) -> None:
+    def __init__(self, plugins: t.Optional[t.Union["PluginCollection", t.Sequence[Plugin]]] = None) -> None:
         if plugins is None:
             plugins = []
         if isinstance(plugins, self.__class__):
             self.plugins = plugins.plugins
         else:
-            self.plugins = plugins
+            self.plugins = list(plugins)
 
-    def __iter__(self):
+    def __iter__(self) -> t.Iterator[Plugin]:
         yield from self.plugins
 
     def __len__(self) -> int:
@@ -54,20 +57,20 @@ class PluginCollection:
             ", ".join(map(repr, self.plugins)),
         )
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Plugin:
         return self.plugins[index]
 
-    def __setitem__(self, index, element) -> None:
+    def __setitem__(self, index: int, element: Plugin) -> None:
         self.plugins[index] = element
 
-    def __delitem__(self, index) -> None:
+    def __delitem__(self, index: int) -> None:
         del self.plugins[index]
 
-    def __getattr__(self, attr):
-        def wrapper(*args, **kwargs):
+    def __getattr__(self, attr: str) -> t.Callable[..., list[t.Any]]:
+        def wrapper(*args: t.Any, **kwargs: t.Any) -> list[t.Any]:
             return [getattr(plugin, attr)(*args, **kwargs) for plugin in self.plugins]
 
         return wrapper
 
-    def append(self, el) -> None:
+    def append(self, el: Plugin) -> None:
         self.plugins.append(el)

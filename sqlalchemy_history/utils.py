@@ -1,8 +1,11 @@
+import typing as t
 from collections import defaultdict
 from inspect import isclass
 from itertools import chain
 
 import sqlalchemy as sa
+import sqlalchemy.ext.associationproxy
+import sqlalchemy.orm
 from sqlalchemy.orm.attributes import get_history
 from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy_utils.functions import (
@@ -14,7 +17,11 @@ from sqlalchemy_utils.functions import (
 from sqlalchemy_history.exc import ClassNotVersioned, TableNotVersioned
 
 
-def get_versioning_manager(item):
+if t.TYPE_CHECKING:
+    from sqlalchemy_history.manager import VersioningManager
+
+
+def get_versioning_manager(item: t.Any) -> "VersioningManager":
     """
     Return the associated SQLAlchemy-History VersioningManager for given
     SQLAlchemy declarative model class or object or table.
@@ -45,7 +52,7 @@ def get_versioning_manager(item):
         raise ClassNotVersioned(versioned_item.__name__) from None
 
 
-def option(obj_or_class, option_name):
+def option(obj_or_class: object, option_name: str) -> t.Any:
     """Return the option value of given option for given versioned object or class.
 
     :param obj_or_class: SQLAlchemy declarative model object or class
@@ -60,23 +67,22 @@ def option(obj_or_class, option_name):
     return get_versioning_manager(cls).option(cls, option_name)
 
 
-def tx_column_name(obj):
+def tx_column_name(obj: object) -> str:
     return option(obj, "transaction_column_name")
 
 
-def end_tx_column_name(obj):
+def end_tx_column_name(obj: object) -> str:
     return option(obj, "end_transaction_column_name")
 
 
-def end_tx_attr(obj):
+def end_tx_attr(obj: object) -> t.Any:
     return getattr(obj.__class__, end_tx_column_name(obj))
 
 
-def parent_class(version_cls):
+def parent_class(version_cls: type[sa.orm.DeclarativeBase]) -> type[sa.orm.DeclarativeBase]:
     """
     Return the parent class for given version model class.
 
-    :param model: SQLAlchemy declarative version model class
     :param version_cls:
     :returns:
     """
@@ -88,7 +94,7 @@ def parent_class(version_cls):
         raise KeyError(version_cls) from None
 
 
-def parent_table(version_table):
+def parent_table(version_table: sa.Table) -> sa.Table:
     """
     Return corresponding parent table for any given parent table.
 
@@ -102,7 +108,7 @@ def parent_table(version_table):
         raise KeyError(version_table) from None
 
 
-def transaction_class(cls):
+def transaction_class(cls: object) -> type[t.Any]:
     """
     Return the associated transaction class for given versioned SQLAlchemy
     declarative class or version class.
@@ -113,7 +119,7 @@ def transaction_class(cls):
     return get_versioning_manager(cls).transaction_cls
 
 
-def version_obj(session, parent_obj):
+def version_obj(session: sa.orm.Session, parent_obj: t.Any) -> t.Optional[t.Any]:
     manager = get_versioning_manager(parent_obj)
     uow = manager.unit_of_work(session)
     for version_obj in uow.version_session:
@@ -124,7 +130,7 @@ def version_obj(session, parent_obj):
     return None
 
 
-def version_class(model):
+def version_class(model: type[t.Any]) -> t.Optional[type[t.Any]]:
     """
     Return the version class for given SQLAlchemy declarative model class.
 
@@ -135,7 +141,7 @@ def version_class(model):
     return manager.version_class_map.get(model, None)
 
 
-def version_table(table):
+def version_table(table: sa.Table) -> t.Optional[sa.Table]:
     """
     Return associated version table for given SQLAlchemy Table object.
 
@@ -146,7 +152,7 @@ def version_table(table):
     return manager.version_table_map.get(table, None)
 
 
-def versioned_objects(session):
+def versioned_objects(session: sa.orm.Session) -> t.Iterator[t.Any]:
     """
     Return all versioned objects in given session.
 
@@ -158,7 +164,7 @@ def versioned_objects(session):
             yield obj
 
 
-def is_versioned(obj_or_class):
+def is_versioned(obj_or_class: object) -> bool:
     """
     Return whether or not given object is versioned.
 
@@ -176,7 +182,7 @@ def is_versioned(obj_or_class):
         return False
 
 
-def versioned_column_properties(obj_or_class):
+def versioned_column_properties(obj_or_class: object) -> t.Iterator[sa.orm.ColumnProperty[t.Any]]:
     """
 
     :param obj: SQLAlchemy declarative model object
@@ -198,7 +204,10 @@ def versioned_column_properties(obj_or_class):
             yield getattr(mapper.attrs, key)
 
 
-def versioned_relationships(obj, versioned_column_keys):
+def versioned_relationships(
+    obj: t.Any,
+    versioned_column_keys: t.Iterable[str],
+) -> t.Iterator[sa.orm.RelationshipProperty[t.Any]]:
     """
 
     :param obj: SQLAlchemy declarative model object
@@ -211,7 +220,7 @@ def versioned_relationships(obj, versioned_column_keys):
             yield prop
 
 
-def vacuum(session, model, yield_per=1000) -> None:
+def vacuum(session: sa.orm.Session, model: type[t.Any], yield_per: int = 1000) -> None:
     """When making structural changes to version tables (for example dropping
     columns) there are sometimes situations where some old version records
     become futile.
@@ -243,7 +252,7 @@ def vacuum(session, model, yield_per=1000) -> None:
             versions[version_id].append(version)
 
 
-def is_table_column(column):
+def is_table_column(column: object) -> bool:
     """
     Return wheter of not give field is a column over the database table.
 
@@ -254,7 +263,7 @@ def is_table_column(column):
     return isinstance(column, sa.Column)
 
 
-def is_internal_column(model, column_name):
+def is_internal_column(model: object, column_name: str) -> bool:
     """
     Return whether or not given column of given SQLAlchemy declarative classs
     is considered an internal column (a column whose purpose is mainly
@@ -273,7 +282,7 @@ def is_internal_column(model, column_name):
     )
 
 
-def is_modified_or_deleted(obj):
+def is_modified_or_deleted(obj: t.Any) -> bool:
     """
     Return whether or not some of the versioned properties of given SQLAlchemy
     declarative object have been modified or if the object has been deleted.
@@ -286,7 +295,7 @@ def is_modified_or_deleted(obj):
     return is_versioned(obj) and (is_modified(obj) or obj in chain(session.deleted, session.new))
 
 
-def is_modified(obj) -> bool:
+def is_modified(obj: t.Any) -> bool:
     """
     Return whether or not the versioned properties of given object have been
     modified.
@@ -309,7 +318,7 @@ def is_modified(obj) -> bool:
     return False
 
 
-def is_session_modified(session):
+def is_session_modified(session: sa.orm.Session) -> bool:
     """Return whether or not any of the versioned objects in given session have
     been either modified or deleted.
 
@@ -320,7 +329,7 @@ def is_session_modified(session):
     return any(is_modified_or_deleted(obj) for obj in versioned_objects(session))
 
 
-def count_versions(obj):
+def count_versions(obj: t.Any) -> int:
     """
     Return the number of versions given object has. This function works even
     when obj has `create_models` and `create_tables` versioned settings
@@ -347,7 +356,7 @@ def count_versions(obj):
     return session.scalar(stmt)
 
 
-def changeset(obj):
+def changeset(obj: t.Any) -> dict[str, list[t.Any]]:
     """
     Return a humanized changeset for given SQLAlchemy declarative object. With
     this function you can easily check the changeset of given object in current
@@ -381,18 +390,18 @@ def changeset(obj):
 
 
 class VersioningClauseAdapter(sa.sql.visitors.ReplacingCloningVisitor):
-    def replace(self, col):
+    def replace(self, col: t.Any) -> t.Optional[t.Any]:
         if isinstance(col, sa.Column):
             table = version_table(col.table)
             return table.c.get(col.key)
         return None
 
 
-def adapt_columns(expr):
+def adapt_columns(expr: t.Any) -> t.Any:
     return VersioningClauseAdapter().traverse(expr)
 
 
-def get_association_proxies(klass):
+def get_association_proxies(klass: type[t.Any]) -> dict[str, t.Any]:
     """Get Association proxy mappings for ORM Models"""
     # NOTE: Ideally this method we should try to move it to sqlalchemy-utils
     # if they are ok with it as they provide a similar method to detect and

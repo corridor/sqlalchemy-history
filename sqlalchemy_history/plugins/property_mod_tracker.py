@@ -15,18 +15,21 @@ transactions the plugin automatically updates these boolean columns.
 """
 
 from copy import copy
+import typing as t
 
 import sqlalchemy as sa
+import sqlalchemy.orm
 from sqlalchemy_utils.functions import has_changes
 
 from sqlalchemy_history.plugins.base import Plugin
+from sqlalchemy_history.table_builder import TableBuilder
 from sqlalchemy_history.utils import versioned_column_properties
 
 
 class PropertyModTrackerPlugin(Plugin):
     column_suffix = "_mod"
 
-    def create_mod_column(self, column):
+    def create_mod_column(self, column: sa.Column[t.Any]) -> sa.Column[t.Any]:
         return sa.Column(
             column.name + self.column_suffix,
             sa.Boolean,
@@ -36,7 +39,11 @@ class PropertyModTrackerPlugin(Plugin):
             nullable=False,
         )
 
-    def after_build_version_table_columns(self, table_builder, columns) -> None:
+    def after_build_version_table_columns(
+        self,
+        table_builder: TableBuilder,
+        columns: list[sa.Column[t.Any]],
+    ) -> None:
         # Only create modification tracking columns for tables that are
         # associated with actual model classes. In other words do not create
         # mod tracking columns for association tables.
@@ -45,7 +52,7 @@ class PropertyModTrackerPlugin(Plugin):
                 if not table_builder.manager.is_excluded_column(table_builder.model, column) and not column.primary_key:
                     columns.append(self.create_mod_column(column))
 
-    def after_create_version_object(self, uow, parent_obj, version_obj) -> None:
+    def after_create_version_object(self, uow: t.Any, parent_obj: t.Any, version_obj: t.Any) -> None:
         session = sa.orm.object_session(parent_obj)
         is_deleted = parent_obj in session.deleted
 
@@ -53,7 +60,7 @@ class PropertyModTrackerPlugin(Plugin):
             if has_changes(parent_obj, prop.key) or is_deleted:
                 setattr(version_obj, prop.key + self.column_suffix, True)
 
-    def after_construct_changeset(self, version_obj, changeset) -> None:
+    def after_construct_changeset(self, version_obj: t.Any, changeset: dict[str, list[t.Any]]) -> None:
         for key in copy(changeset):
             if key.endswith(self.column_suffix):
                 del changeset[key]

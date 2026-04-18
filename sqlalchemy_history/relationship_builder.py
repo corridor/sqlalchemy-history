@@ -6,8 +6,8 @@ import typing as t
 import warnings
 
 import sqlalchemy as sa
-from sqlalchemy.orm import RelationshipProperty, Session
-from sqlalchemy.sql.selectable import ExecutableReturnsRows
+import sqlalchemy.orm
+from sqlalchemy.orm import AppenderQuery, DeclarativeBase, RelationshipProperty, Session
 
 from sqlalchemy_history.exc import ClassNotVersioned
 from sqlalchemy_history.expression_reflector import VersionExpressionReflector
@@ -15,6 +15,9 @@ from sqlalchemy_history.operation import Operation
 from sqlalchemy_history.table_builder import TableBuilder
 from sqlalchemy_history.utils import adapt_columns, option, version_class
 
+
+if t.TYPE_CHECKING:
+    from sqlalchemy_history.manager import VersioningManager
 
 _T = t.TypeVar("_T")
 
@@ -25,22 +28,31 @@ class _WriteOnlyCollectionAdapter(t.Generic[_T]):
     backed by a preconstructed SQLAlchemy `Select` clause.
     """
 
-    def __init__(self, statement: sa.Select[_T]) -> None:
+    def __init__(self, statement: sa.Select[tuple[_T]]) -> None:
         self._statement = statement
 
-    def select(self) -> sa.Select[_T]:
+    def select(self) -> sa.Select[tuple[_T]]:
         return self._statement
 
 
-class RelationshipBuilder:
-    property: RelationshipProperty
+_RemoteCls = t.TypeVar("_RemoteCls", bound=type[DeclarativeBase])
 
-    def __init__(self, versioning_manager, model, property_: RelationshipProperty) -> None:
+
+class RelationshipBuilder(t.Generic[_RemoteCls]):
+    property: RelationshipProperty
+    remote_cls: _RemoteCls
+
+    def __init__(
+        self,
+        versioning_manager: "VersioningManager",
+        model: type[DeclarativeBase],
+        property_: RelationshipProperty,
+    ) -> None:
         self.manager = versioning_manager
         self.property = property_
         self.model = model
 
-    def one_to_many_subquery(self, obj):
+    def one_to_many_subquery(self, obj: sa.orm.DeclarativeBase) -> sa.ColumnElement[bool]:
         tx_column = option(obj, "transaction_column_name")
 
         remote_alias = sa.orm.aliased(self.remote_cls)
@@ -63,7 +75,7 @@ class RelationshipBuilder:
             .correlate(self.local_cls, self.remote_cls)
         )
 
-    def many_to_one_subquery(self, obj):
+    def many_to_one_subquery(self, obj: sa.orm.DeclarativeBase) -> sa.ColumnElement[bool]:
         tx_column = option(obj, "transaction_column_name")
         reflector = VersionExpressionReflector(obj, self.property)
         subquery = sa.select(sa.func.max(getattr(self.remote_cls, tx_column))).where(
@@ -75,10 +87,19 @@ class RelationshipBuilder:
         subquery = subquery.scalar_subquery()
         return getattr(self.remote_cls, tx_column) == subquery
 
-    def select(self, obj):
+    def select(self, obj: sa.orm.DeclarativeBase) -> sa.Select[tuple[t.Any]]:
         return sa.select(self.remote_cls).filter(self.criteria(obj))
 
-    def process_query(self, query: ExecutableReturnsRows, session: Session):
+    def process_query(
+        self,
+        query: sa.Select[tuple[_RemoteCls]],
+        session: Session,
+    ) -> t.Union[
+        AppenderQuery[_RemoteCls],
+        _WriteOnlyCollectionAdapter[_RemoteCls],
+        t.Optional[_RemoteCls],
+        t.Sequence[_RemoteCls],
+    ]:
         """Process given SQLAlchemy Query object depending on the associated RelationshipProperty object.
 
         This method handles both legacy Query objects (for backward compatibility with
@@ -109,7 +130,7 @@ class RelationshipBuilder:
             return session.scalars(query.limit(1)).first()
         return session.scalars(query).all()
 
-    def criteria(self, obj):
+    def criteria(self, obj: sa.orm.DeclarativeBase) -> t.Optional[sa.ColumnElement[bool]]:
         direction = self.property.direction
 
         if self.versioned:
@@ -129,7 +150,7 @@ class RelationshipBuilder:
             return criteria
         return None
 
-    def many_to_many_criteria(self, obj):
+    def many_to_many_criteria(self, obj: sa.orm.DeclarativeBase) -> sa.ColumnElement[bool]:
         """Returns the many-to-many query.
 
         Looks up remote items through associations and for each item returns
@@ -181,7 +202,7 @@ class RelationshipBuilder:
             self.remote_cls.operation_type != Operation.DELETE,
         )
 
-    def many_to_one_criteria(self, obj):
+    def many_to_one_criteria(self, obj: sa.orm.DeclarativeBase) -> sa.ColumnElement[bool]:
         """Returns the many-to-one query.
 
         Returns the item on the 'one' side with the highest transaction id
@@ -215,7 +236,7 @@ class RelationshipBuilder:
             self.remote_cls.operation_type != Operation.DELETE,
         )
 
-    def one_to_many_criteria(self, obj):
+    def one_to_many_criteria(self, obj: sa.orm.DeclarativeBase) -> sa.ColumnElement[bool]:
         """Returns the one-to-many query.
 
         For each item on the 'many' side, returns its latest version as long as
@@ -255,18 +276,27 @@ class RelationshipBuilder:
         )
 
     @property  # noqa: A003
-    def reflected_relationship(self):
+    def reflected_relationship(self) -> property:
         """Builds a reflected one-to-many, one-to-one and many-to-one relationship between two version
         classes."""
 
         @property
-        def relationship(obj):
+        def relationship(
+            obj: sa.orm.DeclarativeBase,
+        ) -> t.Union[
+            AppenderQuery[_RemoteCls],
+            _WriteOnlyCollectionAdapter[_RemoteCls],
+            t.Optional[_RemoteCls],
+            t.Sequence[_RemoteCls],
+        ]:
             session = sa.orm.object_session(obj)
+            if session is None:
+                raise sa.orm.exc.DetachedInstanceError(f"Instance {obj!r} is not bound to any session")
             return self.process_query(self.select(obj), session)
 
         return relationship
 
-    def association_subquery(self, obj):
+    def association_subquery(self, obj: sa.orm.DeclarativeBase) -> sa.ColumnElement[bool]:
         """Returns an EXISTS clause that checks if an association exists for given
         SQLAlchemy declarative object.
 
@@ -365,7 +395,7 @@ class RelationshipBuilder:
             # a self-referential many-to-many relationship
             self.association_version_table = metadata.tables[table_name]
 
-    def __call__(self):
+    def __call__(self) -> None:
         """Builds reflected relationship between version classes based on given parent object's
         RelationshipProperty."""
         self.local_cls = version_class(self.model)

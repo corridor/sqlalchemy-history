@@ -22,21 +22,29 @@ transaction_id          entity_name
 ================    =================
 """
 
+import typing as t
+
 import sqlalchemy as sa
+import sqlalchemy.orm
 
 from sqlalchemy_history.factory import ModelFactory
 from sqlalchemy_history.plugins.base import Plugin
 
 
+if t.TYPE_CHECKING:
+    from sqlalchemy_history.manager import VersioningManager
+    from sqlalchemy_history.unit_of_work import UnitOfWork
+
+
 class TransactionChangesBase:
-    transaction_id = sa.Column(sa.BigInteger, primary_key=True)
-    entity_name = sa.Column(sa.Unicode(255), primary_key=True)
+    transaction_id: sa.orm.Mapped[int] = sa.orm.mapped_column(sa.BigInteger, primary_key=True)
+    entity_name: sa.orm.Mapped[str] = sa.orm.mapped_column(sa.Unicode(255), primary_key=True)
 
 
 class TransactionChangesFactory(ModelFactory):
     model_name = "TransactionChanges"
 
-    def create_class(self, manager):
+    def create_class(self, manager: "VersioningManager") -> type[t.Any]:
         """Create TransactionChanges class.
 
         :param manager:
@@ -60,13 +68,13 @@ class TransactionChangesFactory(ModelFactory):
 class TransactionChangesPlugin(Plugin):
     objects = None
 
-    def after_build_tx_class(self, manager) -> None:
+    def after_build_tx_class(self, manager: "VersioningManager") -> None:
         self.model_class = TransactionChangesFactory()(manager)
 
-    def after_build_models(self, manager) -> None:
+    def after_build_models(self, manager: "VersioningManager") -> None:
         self.model_class = TransactionChangesFactory()(manager)
 
-    def before_create_version_objects(self, uow, session) -> None:
+    def before_create_version_objects(self, uow: "UnitOfWork", session: sa.orm.Session) -> None:
         for entity in uow.operations.entities:
             params = uow.current_transaction.id, str(entity.__name__)
             changes = session.get(self.model_class, params)
@@ -80,11 +88,11 @@ class TransactionChangesPlugin(Plugin):
     def clear(self) -> None:
         self.objects = None
 
-    def after_rollback(self, uow, session) -> None:
+    def after_rollback(self, uow: "UnitOfWork", session: sa.orm.Session) -> None:
         self.clear()
 
-    def ater_commit(self, uow, session) -> None:
+    def ater_commit(self, uow: "UnitOfWork", session: sa.orm.Session) -> None:
         self.clear()
 
-    def after_version_class_built(self, parent_cls, version_cls) -> None:
+    def after_version_class_built(self, parent_cls: type[t.Any], version_cls: type[t.Any]) -> None:
         parent_cls.__versioned__["transaction_changes"] = self.model_class

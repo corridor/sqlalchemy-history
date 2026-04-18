@@ -2,11 +2,15 @@
 phase by the manager
 """
 
+import typing as t
 from copy import copy
 from functools import wraps
 from inspect import getmro
 
 import sqlalchemy as sa
+import sqlalchemy.ext.hybrid
+import sqlalchemy.orm
+import typing_extensions as te
 from sqlalchemy.orm.descriptor_props import ConcreteInheritedProperty
 from sqlalchemy_utils.functions import get_declarative_base, get_hybrid_properties
 
@@ -16,11 +20,17 @@ from sqlalchemy_history.table_builder import TableBuilder
 from sqlalchemy_history.utils import get_association_proxies, version_class
 
 
-def prevent_reentry(handler):
+if t.TYPE_CHECKING:
+    from sqlalchemy_history.manager import VersioningManager
+
+_P = te.ParamSpec("_P")
+
+
+def prevent_reentry(handler: t.Callable[_P, None]) -> t.Callable[_P, None]:
     in_handler = False
 
     @wraps(handler)
-    def check_reentry(*args, **kwargs) -> None:
+    def check_reentry(*args: _P.args, **kwargs: _P.kwargs) -> None:
         nonlocal in_handler
         if in_handler:
             return
@@ -32,6 +42,8 @@ def prevent_reentry(handler):
 
 
 class Builder:
+    manager: "VersioningManager"
+
     def build_tables(self) -> None:
         """
         Build tables for version models based on classes that were collected
@@ -56,7 +68,7 @@ class Builder:
                     table = builder()
                     self.manager.tables[cls] = table
 
-    def closest_matching_table(self, model):
+    def closest_matching_table(self, model: type[t.Any]) -> t.Optional[sa.Table]:
         """
         Returns the closest matching table from the generated tables dictionary
         for given model. First tries to fetch an exact match for given model.
@@ -92,7 +104,7 @@ class Builder:
 
             self.manager.plugins.after_build_models(self.manager)
 
-    def build_relationships(self, version_classes) -> None:
+    def build_relationships(self, version_classes: t.Iterable[type[t.Any]]) -> None:
         """
         Builds relationships for all version classes.
 
@@ -109,7 +121,7 @@ class Builder:
                 builder = RelationshipBuilder(self.manager, cls, prop)
                 builder()
 
-    def instrument_versioned_classes(self, mapper, cls) -> None:
+    def instrument_versioned_classes(self, mapper: sa.orm.Mapper[t.Any], cls: type[t.Any]) -> None:
         """
         Collect versioned class and add it to pending_classes list.
 
@@ -173,7 +185,7 @@ class Builder:
         self.create_association_proxies(pending_classes_copies)
         self.create_hybrid_properties(pending_classes_copies)
 
-    def enable_active_history(self, version_classes) -> None:
+    def enable_active_history(self, version_classes: t.Iterable[type[t.Any]]) -> None:
         """
         Assign all versioned attributes to use active history.
 
@@ -187,7 +199,7 @@ class Builder:
                 attr = getattr(cls, prop.key)
                 attr.impl.active_history = True
 
-    def create_column_aliases(self, version_classes) -> None:
+    def create_column_aliases(self, version_classes: t.Iterable[type[t.Any]]) -> None:
         """
         Create aliases for the columns from the original model.
         This, for example, imitates the behavior of @declared_attr columns.
@@ -212,7 +224,7 @@ class Builder:
 
                     version_class_mapper.add_property(key, sa.orm.column_property(version_class_column))
 
-    def create_association_proxies(self, version_classes) -> None:
+    def create_association_proxies(self, version_classes: t.Iterable[type[t.Any]]) -> None:
         """
         Create Association proxy for Column of Versioned Models from Original Model
         """
@@ -226,7 +238,7 @@ class Builder:
                     property(fget=getattr(cls, key).get),
                 )
 
-    def create_hybrid_properties(self, version_classes) -> None:
+    def create_hybrid_properties(self, version_classes: t.Iterable[type[t.Any]]) -> None:
         """
         Create Hybrid Property for Column as a property in Versioned Models from Original Model
         """

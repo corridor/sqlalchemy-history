@@ -1,25 +1,36 @@
 """Transaction model makes transactions for history tables"""
 
 import datetime
+import typing as t
 from collections import OrderedDict
 
 import sqlalchemy as sa
+import sqlalchemy.orm
 from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.orm import Mapped, mapped_column
 
 from sqlalchemy_history.exc import ImproperlyConfigured, NoChangesAttribute
 from sqlalchemy_history.factory import ModelFactory
 
 
-@compiles(sa.types.BigInteger, "sqlite")
-def compile_big_integer(element, compiler, **kw) -> str:
+if t.TYPE_CHECKING:
+    from sqlalchemy_history.manager import VersioningManager
+
+
+@compiles(sa.BigInteger, "sqlite")
+def compile_big_integer(*args, **kwargs) -> str:
     return "INTEGER"
 
 
 class TransactionBase:
-    issued_at = sa.Column(sa.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+    __versioning_manager__: "VersioningManager"
+    issued_at: Mapped[datetime.datetime] = mapped_column(
+        sa.DateTime,
+        default=lambda: datetime.datetime.now(datetime.timezone.utc),
+    )
 
     @property
-    def entity_names(self):
+    def entity_names(self) -> list[str]:
         """Return a list of entity names that changed during this transaction.
 
         Raises a NoChangesAttribute exception if the 'changes' column does
@@ -30,7 +41,7 @@ class TransactionBase:
         raise NoChangesAttribute
 
     @property
-    def changed_entities(self):
+    def changed_entities(self) -> list[t.Any]:
         """Return all changed entities for this transaction log entry.
 
         Entities are returned as a dict where keys are entity classes and
@@ -41,6 +52,8 @@ class TransactionBase:
         entities = {}
 
         session = sa.orm.object_session(self)
+        if session is None:
+            raise RuntimeError(f"Object {self} is not bound to any session")
 
         for class_, version_class in tuples:
             try:
@@ -61,25 +74,25 @@ class TransactionBase:
 class TransactionFactory(ModelFactory):
     model_name = "Transaction"
 
-    def __init__(self, *, remote_addr=True) -> None:
+    def __init__(self, *, remote_addr: bool = True) -> None:
         self.remote_addr = remote_addr
 
-    def create_class(self, manager):
+    def create_class(self, manager: "VersioningManager") -> type:
         """Create Transaction class."""
 
         class Transaction(manager.declarative_base, TransactionBase):
             __tablename__ = "transaction"
             __versioning_manager__ = manager
 
-            id = sa.Column(
-                sa.types.BigInteger,
-                sa.schema.Sequence("transaction_id_seq", start=1, order=True),
+            id: Mapped[int] = mapped_column(
+                sa.BigInteger,
+                sa.Sequence("transaction_id_seq", start=1, order=True),
                 primary_key=True,
                 autoincrement=True,
             )
 
             if self.remote_addr:
-                remote_addr = sa.Column(sa.String(50))
+                remote_addr: Mapped[t.Optional[str]] = mapped_column(sa.String(50))
 
             if manager.user_cls:
                 user_cls = manager.user_cls
@@ -98,7 +111,7 @@ class TransactionFactory(ModelFactory):
                             "relationship "
                         ) from None
 
-                user_id = sa.Column(
+                user_id: Mapped[int] = mapped_column(
                     sa.inspect(user_cls).primary_key[0].type,
                     sa.ForeignKey(sa.inspect(user_cls).primary_key[0]),
                     index=True,

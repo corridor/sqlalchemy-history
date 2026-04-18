@@ -4,6 +4,8 @@ from copy import copy
 from time import time
 
 import sqlalchemy as sa
+import sqlalchemy.exc
+import sqlalchemy.orm
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import close_all_sessions, sessionmaker

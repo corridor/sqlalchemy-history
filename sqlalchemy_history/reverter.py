@@ -1,17 +1,20 @@
 """Reverter Reverts."""
 
+import typing as t
+
 import sqlalchemy as sa
+import sqlalchemy.orm
 
 from sqlalchemy_history.operation import Operation
 from sqlalchemy_history.utils import parent_class, versioned_column_properties
 
 
-def first_level(paths):
+def first_level(paths: t.Sequence[str]) -> t.Iterator[str]:
     for path in paths:
         yield path.split(".")[0]
 
 
-def subpaths(paths, name):
+def subpaths(paths: t.Sequence[str], name: str) -> t.Iterator[str]:
     for path in paths:
         parts = path.split(".")
         if len(parts) > 1 and parts[0] == name:
@@ -22,8 +25,18 @@ class ReverterException(Exception):
     pass
 
 
+_Version = t.TypeVar("_Version", bound=sa.orm.DeclarativeBase)
+
+
 class Reverter:
-    def __init__(self, obj, visited_objects=None, relations=None) -> None:
+    session: sa.orm.Session
+
+    def __init__(
+        self,
+        obj: _Version,
+        visited_objects: t.Optional[list[t.Any]] = None,
+        relations: t.Sequence[str] = (),
+    ) -> None:
         if relations is None:
             relations = []
         self.visited_objects = visited_objects or []
@@ -31,7 +44,10 @@ class Reverter:
         self.version_parent = self.obj.version_parent
         self.parent_class = parent_class(self.obj.__class__)
         self.parent_mapper = sa.inspect(self.parent_class)
-        self.session = sa.orm.object_session(self.obj)
+        session = sa.orm.object_session(self.obj)
+        if session is None:
+            raise sa.orm.exc.DetachedInstanceError(f"Instance {obj!r} is not bound to any session")
+        self.session = session
 
         self.relations = list(relations)
         for path in relations:
@@ -46,7 +62,7 @@ class Reverter:
         for prop in versioned_column_properties(self.parent_class):
             setattr(self.version_parent, prop.key, getattr(self.obj, prop.key))
 
-    def revert_association(self, prop) -> None:
+    def revert_association(self, prop: sa.orm.RelationshipProperty) -> None:
         if prop.uselist:
             setattr(self.version_parent, prop.key, [])
             for child_obj in getattr(self.obj, prop.key):
@@ -60,7 +76,7 @@ class Reverter:
             if value:
                 setattr(self.version_parent, prop.key, value)
 
-    def revert_relationship(self, prop) -> None:
+    def revert_relationship(self, prop: sa.orm.RelationshipProperty) -> None:
         if prop.secondary is not None:
             self.revert_association(prop)
         elif prop.uselist:
@@ -78,7 +94,7 @@ class Reverter:
         else:
             self.revert_child(getattr(self.obj, prop.key), prop)
 
-    def revert_child(self, child, prop):
+    def revert_child(self, child: t.Any, prop: sa.orm.RelationshipProperty) -> t.Any:
         return self.__class__(
             child,
             visited_objects=self.visited_objects,
@@ -96,7 +112,7 @@ class Reverter:
 
                 self.revert_relationship(prop)
 
-    def __call__(self):
+    def __call__(self) -> t.Any:
         if self.obj in self.visited_objects:
             return None if self.obj.operation_type == Operation.DELETE else self.version_parent
 

@@ -47,12 +47,19 @@ keys and values to the meta property of Transaction class.
     )
 """
 
+import typing as t
+
 import sqlalchemy as sa
+import sqlalchemy.orm
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm.collections import attribute_mapped_collection
 
 from sqlalchemy_history.factory import ModelFactory
 from sqlalchemy_history.plugins.base import Plugin
+
+
+if t.TYPE_CHECKING:
+    from sqlalchemy_history.manager import VersioningManager
 
 
 class TransactionMetaBase:
@@ -64,7 +71,7 @@ class TransactionMetaBase:
 class TransactionMetaFactory(ModelFactory):
     model_name = "TransactionMeta"
 
-    def create_class(self, manager):
+    def create_class(self, manager: "VersioningManager") -> type[t.Any]:
         """Create TransactionMeta class.
 
         :param manager:
@@ -91,10 +98,10 @@ class TransactionMetaFactory(ModelFactory):
 
 
 class TransactionMetaPlugin(Plugin):
-    def after_build_tx_class(self, manager) -> None:
+    def after_build_tx_class(self, manager: "VersioningManager") -> None:
         self.model_class = TransactionMetaFactory()(manager)
         manager.transaction_meta_cls = self.model_class
 
-    def after_build_models(self, manager) -> None:
+    def after_build_models(self, manager: "VersioningManager") -> None:
         self.model_class = TransactionMetaFactory()(manager)
         manager.transaction_meta_cls = self.model_class

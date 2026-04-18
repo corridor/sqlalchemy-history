@@ -1,18 +1,16 @@
 import functools
+import typing as t
 
 import sqlalchemy as sa
+import typing_extensions as te
 
 from sqlalchemy_history.reverter import Reverter
-from sqlalchemy_history.utils import (
-    get_versioning_manager,
-    is_internal_column,
-    parent_class,
-)
+from sqlalchemy_history.utils import get_versioning_manager, is_internal_column, parent_class
 
 
 class VersionClassBase:
     @functools.cached_property
-    def previous(self):
+    def previous(self) -> t.Optional[te.Self]:
         """Returns the previous version relative to this version in the version
         history. If current version is the first version this method returns
         None.
@@ -22,22 +20,23 @@ class VersionClassBase:
         return get_versioning_manager(self).fetcher(parent_class(self.__class__)).previous(self)
 
     @functools.cached_property
-    def next(self):
+    def next(self) -> t.Optional[te.Self]:
         """Returns the next version relative to this version in the version
         history. If current version is the last version this method returns
         None.
 
 
         """
+
         return get_versioning_manager(self).fetcher(parent_class(self.__class__)).next(self)
 
     @functools.cached_property
-    def index(self):
+    def index(self) -> t.Optional[int]:
         """ """
         return get_versioning_manager(self).fetcher(parent_class(self.__class__)).index(self)
 
     @property
-    def changeset(self):
+    def changeset(self) -> dict[str, list[t.Any]]:
         """
         Return a dictionary of changed fields in this version with keys as
         field names and values as lists with first value as the old field value
@@ -59,7 +58,7 @@ class VersionClassBase:
         manager.plugins.after_construct_changeset(self, data)
         return data
 
-    def revert(self, relations=None):
+    def revert(self, relations: t.Optional[t.Sequence[str]] = None) -> t.Any:
         if relations is None:
             relations = []
         return Reverter(self, relations=relations)()

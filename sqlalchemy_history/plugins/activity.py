@@ -155,14 +155,23 @@ target is the given article.
 - [_generic relationships](https://sqlalchemy-utils.readthedocs.io/en/latest/generic_relationship.html)
 """  # noqa: E501
 
+import typing as t
+
 import sqlalchemy as sa
+import sqlalchemy.orm
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.inspection import inspect
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import JSONType, generic_relationship
 
 from sqlalchemy_history.factory import ModelFactory
 from sqlalchemy_history.plugins.base import Plugin
 from sqlalchemy_history.utils import version_class, version_obj
+
+
+if t.TYPE_CHECKING:
+    from sqlalchemy_history.manager import VersioningManager
+    from sqlalchemy_history.unit_of_work import UnitOfWork
 
 
 class ActivityBase:
@@ -176,14 +185,14 @@ class ActivityBase:
     verb = sa.Column(sa.Unicode(255))
 
     @hybrid_property
-    def actor(self):
+    def actor(self) -> t.Any:
         return self.transaction.user
 
 
 class ActivityFactory(ModelFactory):
     model_name = "Activity"
 
-    def create_class(self, manager):
+    def create_class(self, manager: "VersioningManager") -> type:
         """Create Activity class.
 
         :param manager:
@@ -192,27 +201,28 @@ class ActivityFactory(ModelFactory):
 
         class Activity(manager.declarative_base, ActivityBase):
             __tablename__ = "activity"
+
             manager = self
 
-            transaction_id = sa.Column(sa.BigInteger, index=True, nullable=False)
+            transaction_id: Mapped[int] = mapped_column(sa.BigInteger, index=True)
 
-            data = sa.Column(JSONType)
+            data: Mapped[str] = mapped_column(JSONType)
 
-            object_type = sa.Column(sa.String(255))
+            object_type: Mapped[str] = mapped_column(sa.String(255))
 
-            object_id = sa.Column(sa.BigInteger)
+            object_id: Mapped[int] = mapped_column(sa.BigInteger)
 
-            object_tx_id = sa.Column(sa.BigInteger)
+            object_tx_id: Mapped[int] = mapped_column(sa.BigInteger)
 
-            target_type = sa.Column(sa.String(255))
+            target_type: Mapped[str] = mapped_column(sa.String(255))
 
-            target_id = sa.Column(sa.BigInteger)
+            target_id: Mapped[int] = mapped_column(sa.BigInteger)
 
-            target_tx_id = sa.Column(sa.BigInteger)
+            target_tx_id: Mapped[int] = mapped_column(sa.BigInteger)
 
-            def _calculate_tx_id(self, obj):
+            def _calculate_tx_id(self, obj: object) -> t.Optional[int]:
                 session = sa.orm.object_session(self)
-                if obj:
+                if session and obj:
                     object_version = version_obj(session, obj)
                     if object_version:
                         return object_version.transaction_id
@@ -236,11 +246,11 @@ class ActivityFactory(ModelFactory):
             object = generic_relationship(object_type, object_id)
 
             @hybrid_property
-            def object_version_type(self):
+            def object_version_type(self) -> str:
                 return self.object_type + "Version"
 
             @object_version_type.expression
-            def object_version_type(cls):  # noqa: N805
+            def object_version_type(cls) -> sa.ColumnElement[str]:  # noqa: N805
                 return sa.func.concat(cls.object_type, "Version")
 
             object_version = generic_relationship(object_version_type, (object_id, object_tx_id))
@@ -248,11 +258,11 @@ class ActivityFactory(ModelFactory):
             target = generic_relationship(target_type, target_id)
 
             @hybrid_property
-            def target_version_type(self):
+            def target_version_type(self) -> str:
                 return self.target_type + "Version"
 
             @target_version_type.expression
-            def target_version_type(cls):  # noqa: N805
+            def target_version_type(cls) -> sa.ColumnElement[str]:  # noqa: N805
                 return sa.func.concat(cls.target_type, "Version")
 
             target_version = generic_relationship(target_version_type, (target_id, target_tx_id))
@@ -271,11 +281,11 @@ class ActivityFactory(ModelFactory):
 class ActivityPlugin(Plugin):
     activity_cls = None
 
-    def after_build_models(self, manager) -> None:
+    def after_build_models(self, manager: "VersioningManager") -> None:
         self.activity_cls = ActivityFactory()(manager)
         manager.activity_cls = self.activity_cls
 
-    def is_session_modified(self, session):
+    def is_session_modified(self, session: sa.orm.Session) -> bool:
         """Return that the session has been modified if the session contains an
         activity class.
 
@@ -284,12 +294,12 @@ class ActivityPlugin(Plugin):
         """
         return any(isinstance(obj, self.activity_cls) for obj in session)
 
-    def before_flush(self, uow, session) -> None:
+    def before_flush(self, uow: "UnitOfWork", session: sa.orm.Session) -> None:
         for obj in session:
             if isinstance(obj, self.activity_cls):
                 obj.transaction = uow.current_transaction
                 obj.calculate_target_tx_id()
                 obj.calculate_object_tx_id()
 
-    def after_version_class_built(self, parent_cls, version_cls) -> None:
+    def after_version_class_built(self, parent_cls: type[t.Any], version_cls: type[t.Any]) -> None:
         pass

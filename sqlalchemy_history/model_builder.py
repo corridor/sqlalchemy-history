@@ -1,10 +1,12 @@
 """Model Builder module build Versioned Models"""
 
+import typing as t
 from copy import copy
 
 import sqlalchemy as sa
+import sqlalchemy.orm
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import MappedColumn, column_property
+from sqlalchemy.orm import DeclarativeBase, MappedColumn, column_property
 from sqlalchemy_utils.functions import get_declarative_base, get_primary_keys
 from sqlalchemy_utils.models import generic_repr
 
@@ -12,7 +14,14 @@ from sqlalchemy_history.utils import adapt_columns, option
 from sqlalchemy_history.version import VersionClassBase
 
 
-def find_closest_versioned_parent(manager, model):
+if t.TYPE_CHECKING:
+    from sqlalchemy_history.manager import VersioningManager
+
+
+def find_closest_versioned_parent(
+    manager: "VersioningManager",
+    model: type[t.Any],
+) -> t.Optional[type[t.Any]]:
     """Finds the closest versioned parent for current parent model.
 
     :param manager:
@@ -25,7 +34,7 @@ def find_closest_versioned_parent(manager, model):
     return None
 
 
-def versioned_parents(manager, model):
+def versioned_parents(manager: "VersioningManager", model: type[t.Any]) -> t.Iterator[type[t.Any]]:
     """Finds all versioned ancestors for current parent model.
 
     :param manager:
@@ -37,7 +46,7 @@ def versioned_parents(manager, model):
             yield manager.version_class_map[class_]
 
 
-def get_base_class(manager, model):
+def get_base_class(manager: "VersioningManager", model: type[t.Any]) -> tuple[type[t.Any], ...]:
     """Returns all base classes for history model.
 
     :param manager:
@@ -47,7 +56,11 @@ def get_base_class(manager, model):
     return option(model, "base_classes") or (get_declarative_base(model),)
 
 
-def version_base(manager, parent_cls, base_class_factory=None):
+def version_base(
+    manager: "VersioningManager",
+    parent_cls: type[t.Any],
+    base_class_factory: t.Optional[t.Callable[["VersioningManager", type[t.Any]], tuple[type[t.Any], ...]]] = None,
+) -> type[t.Any]:
     """
 
     :param manager:
@@ -70,7 +83,7 @@ def version_base(manager, parent_cls, base_class_factory=None):
     return version_base_cls
 
 
-def copy_mapper_args(model):
+def copy_mapper_args(model: type[t.Any]) -> dict[str, t.Any]:
     """
 
     :param model:
@@ -98,7 +111,7 @@ class ModelBuilder:
     """VersionedModelBuilder handles the building of Version models based on parent table attributes and
     versioning configuration."""
 
-    def __init__(self, versioning_manager, model) -> None:
+    def __init__(self, versioning_manager: "VersioningManager", model: type[t.Any]) -> None:
         """
         Args:
             versioning_manager:
@@ -146,7 +159,7 @@ class ModelBuilder:
                 uselist=False,
             )
 
-    def build_transaction_relationship(self, tx_class) -> None:
+    def build_transaction_relationship(self, tx_class: type[DeclarativeBase]) -> None:
         """Builds a relationship between currently built version class and Transaction class.
 
         :param tx_class: Transaction class
@@ -164,11 +177,16 @@ class ModelBuilder:
                 foreign_keys=[transaction_column],
             )
 
-    def base_classes(self):
+    def base_classes(self) -> tuple[type[t.Any], ...]:
         """Returns all base classes for history model."""
         return (version_base(self.manager, self.model),)
 
-    def inheritance_args(self, cls, version_table, table):
+    def inheritance_args(
+        self,
+        cls: type[t.Any],
+        version_table: sa.Table,
+        table: sa.Table,
+    ) -> dict[str, t.Any]:
         """Return mapper inheritance args for currently built history model."""
         args = {}
 
@@ -194,7 +212,7 @@ class ModelBuilder:
 
         return args
 
-    def get_inherited_denormalized_columns(self, table):
+    def get_inherited_denormalized_columns(self, table: sa.Table) -> dict[str, t.Any]:
         parent_models = list(versioned_parents(self.manager, self.model))
         mapper = sa.inspect(self.model)
         args = {}
@@ -211,7 +229,7 @@ class ModelBuilder:
                 args[column] = column_property(table.c[column], *[m.__table__.c[column] for m in parent_models])
         return args
 
-    def build_model(self, table):
+    def build_model(self, table: sa.Table) -> type[DeclarativeBase]:
         """Build history model class.
 
         :param table:
@@ -220,7 +238,7 @@ class ModelBuilder:
         args = {}
 
         @declared_attr
-        def mapper_args(cls):
+        def mapper_args(cls: type[t.Any]) -> dict[str, t.Any]:
             mapper_args = {}
             mapper_args.update(self.inheritance_args(cls, table, self.model.__table__))
             return mapper_args
@@ -248,7 +266,7 @@ class ModelBuilder:
             version_cls = generic_repr(*primary_keys)(version_cls)
         return version_cls
 
-    def __call__(self, table, tx_class):
+    def __call__(self, table: sa.Table, tx_class: type[t.Any]) -> type[DeclarativeBase]:
         """Build history model and relationships to parent model, transaction log model."""
         # versioned attributes need to be copied for each child class,
         # otherwise each child class would share the same __versioned__

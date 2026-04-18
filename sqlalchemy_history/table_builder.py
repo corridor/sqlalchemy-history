@@ -1,22 +1,34 @@
 """Table Builder Builds versioned table."""
 
+import typing as t
+
 import sqlalchemy as sa
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql.sqltypes import Enum
 
 
+if t.TYPE_CHECKING:
+    from sqlalchemy_history.manager import VersioningManager
+
+
 class ColumnReflector:
-    def __init__(self, manager, parent_table, model=None) -> None:
+    def __init__(
+        self,
+        manager: "VersioningManager",
+        parent_table: sa.Table,
+        model: t.Optional[type[t.Any]] = None,
+    ) -> None:
         self.parent_table = parent_table
         self.model = model
         self.manager = manager
 
-    def option(self, name):
+    def option(self, name: str) -> t.Any:
         try:
             return self.manager.option(self.model, name)
         except TypeError:
             return self.manager.options[name]
 
-    def reflect_column(self, column):
+    def reflect_column(self, column: sa.Column[t.Any]) -> sa.Column[t.Any]:
         """Make a copy of parent table column and some alterations to it.
 
         :param column: SQLAlchemy Column object of parent table
@@ -51,7 +63,7 @@ class ColumnReflector:
         return column_copy
 
     @property
-    def operation_type_column(self):
+    def operation_type_column(self) -> sa.Column[t.Any]:
         """Return the operation type column. By default the name of this column is 'operation_type'."""
         return sa.Column(
             self.option("operation_type_column_name"),
@@ -61,7 +73,7 @@ class ColumnReflector:
         )
 
     @property
-    def transaction_column(self):
+    def transaction_column(self) -> sa.Column[t.Any]:
         """Returns transaction column. By default the name of this column is 'transaction_id'."""
         return sa.Column(
             self.option("transaction_column_name"),
@@ -72,19 +84,19 @@ class ColumnReflector:
         )
 
     @property
-    def end_transaction_column(self):
+    def end_transaction_column(self) -> sa.Column[t.Any]:
         """Returns end_transaction column. By default the name of this column is 'end_transaction_id'."""
         return sa.Column(self.option("end_transaction_column_name"), sa.BigInteger, index=True)
 
     @property
-    def reflected_parent_columns(self):
+    def reflected_parent_columns(self) -> t.Iterator[sa.Column[t.Any]]:
         for column in self.parent_table.c:
             if self.model and self.manager.is_excluded_column(self.model, column):
                 continue
             reflected_column = self.reflect_column(column)
             yield reflected_column
 
-    def __iter__(self):
+    def __iter__(self) -> t.Iterator[sa.Column[t.Any]]:
         yield from self.reflected_parent_columns
 
         # Only yield internal version columns if parent model is not using
@@ -100,27 +112,32 @@ class TableBuilder:
     """TableBuilder handles the building of version tables based on parent table's structure and versioning
     configuration options."""
 
-    def __init__(self, versioning_manager, parent_table, model=None) -> None:
+    def __init__(
+        self,
+        versioning_manager: "VersioningManager",
+        parent_table: sa.Table,
+        model: t.Optional[type[DeclarativeBase]] = None,
+    ) -> None:
         self.manager = versioning_manager
         self.parent_table = parent_table
         self.model = model
 
-    def option(self, name):
+    def option(self, name: str) -> t.Any:
         try:
             return self.manager.option(self.model, name)
         except TypeError:
             return self.manager.options[name]
 
     @property
-    def table_name(self):
+    def table_name(self) -> str:
         """Returns the version table name for current parent table."""
         return self.option("table_name") % self.parent_table.name
 
     @property
-    def columns(self):
+    def columns(self) -> list[sa.Column[t.Any]]:
         return list(ColumnReflector(self.manager, self.parent_table, self.model))
 
-    def __call__(self, extends=None):
+    def __call__(self, extends: t.Optional[sa.Table] = None) -> sa.Table:
         """Builds version table."""
 
         self.parent_table.__versioning_manager__ = self.manager
