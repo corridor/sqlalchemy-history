@@ -7,24 +7,71 @@ The Module contains following Class
 
 """
 
+import typing as t
 from functools import wraps
 
 import sqlalchemy as sa
+import sqlalchemy.event
+import sqlalchemy.orm
+import typing_extensions as te
 from sqlalchemy.orm import object_session
 from sqlalchemy_utils import get_column_key
 
 from sqlalchemy_history.builder import Builder
+from sqlalchemy_history.factory import ModelFactory
 from sqlalchemy_history.fetcher import SubqueryFetcher, ValidityFetcher
 from sqlalchemy_history.operation import Operation
 from sqlalchemy_history.plugins import PluginCollection
+from sqlalchemy_history.plugins.base import Plugin
 from sqlalchemy_history.transaction import TransactionFactory
 from sqlalchemy_history.unit_of_work import UnitOfWork
 from sqlalchemy_history.utils import is_modified, is_versioned
 
 
+class VersioningOptions(te.TypedDict, total=False):
+    versioning: bool
+    """Master switch to enable/disable versioning entirely."""
+
+    base_classes: t.Optional[tuple[type]]
+    """A tuple of base classes to use for generated version models"""
+
+    table_name: str
+    """Template for version table names; %s is replaced with the original table name."""
+
+    exclude: t.Sequence[str]
+    """Column names to exclude from version tracking."""
+
+    include: t.Sequence[str]
+    """Column names to explicitly include; empty means all non-excluded columns."""
+
+    support_async: bool
+    """Enable compatibility with async SQLAlchemy sessions."""
+
+    create_models: bool
+    """Automatically generate ORM models for version tables."""
+
+    create_tables: bool
+    """Automatically create version tables in the database via DDL."""
+
+    transaction_column_name: str
+    """Column name storing the transaction ID for the start of a version's validity."""
+
+    end_transaction_column_name: str
+    """Column name storing the transaction ID for the end of a version's validity."""
+
+    operation_type_column_name: str
+    """Column name storing the DML operation type (INSERT=0, UPDATE=1, DELETE=2)."""
+
+    strategy: t.Literal["validity", "subquery"]
+    """Versioning strategy: "validity" tracks start/end transactions; "subquery" uses subqueries instead."""
+
+    use_module_name: bool
+    """Prefix generated version model names with the parent model's module name to avoid collisions."""
+
+
 def tracked_operation(func):
     @wraps(func)
-    def wrapper(self, mapper, connection, target):
+    def wrapper(self, mapper: sa.orm.Mapper, connection: sa.Connection, target):
         if not is_versioned(target):
             return None
         session = object_session(target)
@@ -53,17 +100,20 @@ class VersioningManager:
 
     """
 
+    options: VersioningOptions
+    metadata: t.Optional[sa.MetaData]
+    units_of_work: dict[t.Union[sa.Connection, sa.Engine], UnitOfWork]
+    declarative_base: sa.orm.DeclarativeBase
+
     def __init__(
         self,
-        unit_of_work_cls=UnitOfWork,
-        transaction_cls=None,
-        user_cls=None,
-        options=None,
-        plugins=None,
-        builder=None,
+        unit_of_work_cls: type[UnitOfWork] = UnitOfWork,
+        transaction_cls: t.Optional[ModelFactory] = None,
+        user_cls: t.Optional[t.Union[str, type[t.Any]]] = None,
+        options: t.Optional[VersioningOptions] = None,
+        plugins: t.Optional[t.Union[PluginCollection, t.Sequence[Plugin]]] = None,
+        builder: t.Optional[Builder] = None,
     ) -> None:
-        if options is None:
-            options = {}
         self.uow_class = unit_of_work_cls
         if builder is None:
             self.builder = Builder()
@@ -78,33 +128,31 @@ class VersioningManager:
         if user_cls is not None:
             self.user_cls = user_cls
 
-        self.options = {
-            "versioning": True,
-            "base_classes": None,
-            "table_name": "%s_version",
-            "exclude": [],
-            "include": [],
-            "support_async": False,
-            "create_models": True,
-            "create_tables": True,
-            "transaction_column_name": "transaction_id",
-            "end_transaction_column_name": "end_transaction_id",
-            "operation_type_column_name": "operation_type",
-            "strategy": "validity",
-            "use_module_name": False,
-        }
-        if plugins is None:
-            self.plugins = []
-        else:
-            self.plugins = plugins
-        self.options.update(options)
+        self.options = VersioningOptions(
+            versioning=True,
+            base_classes=None,
+            table_name="%s_version",
+            exclude=[],
+            include=[],
+            support_async=False,
+            create_models=True,
+            create_tables=True,
+            transaction_column_name="transaction_id",
+            end_transaction_column_name="end_transaction_id",
+            operation_type_column_name="operation_type",
+            strategy="validity",
+            use_module_name=False,
+        )
+        self.options.update(options or {})
+
+        self.plugins = plugins or []
 
     @property
-    def plugins(self):
+    def plugins(self) -> PluginCollection:
         return self._plugins
 
     @plugins.setter
-    def plugins(self, plugin_collection) -> None:
+    def plugins(self, plugin_collection: t.Union[PluginCollection, t.Sequence[Plugin]]) -> None:
         self._plugins = PluginCollection(plugin_collection)
 
     def fetcher(self, obj):
@@ -112,7 +160,7 @@ class VersioningManager:
             return SubqueryFetcher(self)
         return ValidityFetcher(self)
 
-    def get_uow(self, conn):
+    def get_uow(self, conn: sa.Connection) -> UnitOfWork:
         try:
             return self.units_of_work[conn]
         except KeyError:
@@ -120,7 +168,11 @@ class VersioningManager:
                 return self.units_of_work[conn.engine]
             except KeyError:
                 for connection in self.units_of_work:
-                    if not connection.closed and connection.connection is conn.connection:
+                    if (
+                        isinstance(connection, sa.Connection)
+                        and not connection.closed
+                        and connection.connection is conn.connection
+                    ):
                         return self.unit_of_work(conn.session)
                 else:
                     raise
@@ -177,7 +229,7 @@ class VersioningManager:
 
         return self.is_excluded_property(model, key)
 
-    def is_excluded_property(self, model, key):
+    def is_excluded_property(self, model, key: str) -> bool:
         """Returns whether or not given property of given model is excluded from the associated history model.
 
         :param model: SQLAlchemy declarative model object.
@@ -188,7 +240,7 @@ class VersioningManager:
             return False
         return key in self.option(model, "exclude")
 
-    def option(self, model, name):
+    def option(self, model, name: str):
         """Returns the option value for given model.
 
         If the option is not found from given model falls back to default values of this manager object.
@@ -205,7 +257,7 @@ class VersioningManager:
         except KeyError:
             return self.options[name]
 
-    def apply_class_configuration_listeners(self, mapper) -> None:
+    def apply_class_configuration_listeners(self, mapper: type[sa.orm.Mapper]) -> None:
         """Applies class configuration listeners for given mapper.
 
         The listener work in two phases:
@@ -225,7 +277,7 @@ class VersioningManager:
         for event_name, listener in self.class_config_listeners.items():
             sa.event.listen(mapper, event_name, listener)
 
-    def remove_class_configuration_listeners(self, mapper) -> None:
+    def remove_class_configuration_listeners(self, mapper: type[sa.orm.Mapper]) -> None:
         """Remove versioning class configuration listeners from specified mapper.
 
         :param mapper: mapper to remove class configuration listeners from
@@ -234,7 +286,7 @@ class VersioningManager:
         for event_name, listener in self.class_config_listeners.items():
             sa.event.remove(mapper, event_name, listener)
 
-    def track_operations(self, mapper) -> None:
+    def track_operations(self, mapper: type[sa.orm.Mapper]) -> None:
         """Attach listeners for specified mapper that track SQL inserts, updates and deletes.
 
         :param mapper: mapper to track the SQL operations from
@@ -243,7 +295,7 @@ class VersioningManager:
         for event_name, listener in self.mapper_listeners.items():
             sa.event.listen(mapper, event_name, listener)
 
-    def remove_operations_tracking(self, mapper) -> None:
+    def remove_operations_tracking(self, mapper: type[sa.orm.Mapper]) -> None:
         """Remove listeners from specified mapper that track SQL inserts, updates and deletes.
 
         :param mapper: mapper to remove the SQL operations tracking listeners from
@@ -264,7 +316,7 @@ class VersioningManager:
         for event_name, listener in self.session_listeners.items():
             sa.event.listen(session, event_name, listener)
 
-    def remove_session_tracking(self, session) -> None:
+    def remove_session_tracking(self, session: type[sa.orm.Session]) -> None:
         """Remove listeners that track the operations (flushing, committing and rolling back) of given
          session.
         This method should be used in conjunction with `remove_operations_tracking`.
@@ -276,7 +328,7 @@ class VersioningManager:
             sa.event.remove(session, event_name, listener)
 
     @tracked_operation
-    def track_inserts(self, uow, target) -> None:
+    def track_inserts(self, uow: UnitOfWork, target) -> None:
         """Track object insert operations.
 
         Whenever object is inserted it is added to this UnitOfWork's internal operations dictionary.
@@ -284,7 +336,7 @@ class VersioningManager:
         uow.operations.add_insert(target)
 
     @tracked_operation
-    def track_updates(self, uow, target) -> None:
+    def track_updates(self, uow: UnitOfWork, target) -> None:
         """Track object update operations.
 
         Whenever object is updated it is added to this UnitOfWork's internal operations dictionary.
@@ -294,13 +346,13 @@ class VersioningManager:
         uow.operations.add_update(target)
 
     @tracked_operation
-    def track_deletes(self, uow, target) -> None:
+    def track_deletes(self, uow: UnitOfWork, target) -> None:
         """Track object deletion operations.
         Whenever object is deleted it is added to this UnitOfWork's internal operations dictionary.
         """
         uow.operations.add_delete(target)
 
-    def unit_of_work(self, session):
+    def unit_of_work(self, session: sa.orm.Session):
         """Return the associated SQLAlchemy-History UnitOfWork object for given SQLAlchemy session object.
 
         If no UnitOfWork object exists for given object then this method tries to create one.
@@ -317,7 +369,7 @@ class VersioningManager:
         self.units_of_work[conn] = uow
         return uow
 
-    def before_flush(self, session, flush_context, instances) -> None:
+    def before_flush(self, session: sa.orm.Session, flush_context, instances) -> None:
         """Before flush listener for SQLAlchemy sessions.
         If this manager has versioning enabled this listener invokes the process before flush of associated
          UnitOfWork object.
@@ -333,7 +385,7 @@ class VersioningManager:
         uow = self.unit_of_work(session)
         uow.process_before_flush(session)
 
-    def after_flush(self, session, flush_context) -> None:
+    def after_flush(self, session: sa.orm.Session, flush_context) -> None:
         """After flush listener for SQLAlchemy sessions.
 
         If this manager has versioning enabled this listener gets the UnitOfWork associated with
@@ -348,7 +400,7 @@ class VersioningManager:
         uow = self.unit_of_work(session)
         uow.process_after_flush(session)
 
-    def clear(self, session) -> None:
+    def clear(self, session: sa.orm.Session) -> None:
         """Simple SQLAlchemy listener that is being invoked after successful transaction commit or when
          transaction rollback occurs.
         The purpose of this listener is to reset this UnitOfWork back to its initialization state.
@@ -373,7 +425,7 @@ class VersioningManager:
                 uow.reset(session)
                 del self.units_of_work[connection]
 
-    def clear_connection(self, conn) -> None:
+    def clear_connection(self, conn: sa.Connection) -> None:
         if conn in self.units_of_work:
             uow = self.units_of_work[conn]
             uow.reset()
@@ -389,7 +441,7 @@ class VersioningManager:
                 uow.reset()
                 del self.units_of_work[connection]
 
-    def append_association_operation(self, conn, table_name, params, op) -> None:
+    def append_association_operation(self, conn: sa.Connection, table_name: str, params, op) -> None:
         """Append history association operation to pending_statements list.
 
         :param conn:
@@ -398,6 +450,9 @@ class VersioningManager:
         :param op:
 
         """
+        if self.metadata is None:
+            return
+
         stmt = (
             self.metadata.tables[self.options["table_name"] % table_name]
             .insert()
@@ -420,7 +475,7 @@ class VersioningManager:
                 ):  # ConnectionFairy is the same - this is a clone
                     self.units_of_work[c] = uow
 
-    def track_sql_operations(self, conn, cursor, statement, parameters, context, executemany) -> None:
+    def track_sql_operations(self, conn: sa.Connection, cursor, statement, parameters, context, executemany) -> None:
         """
         This function tracks all SQLoperators directly done by the sqlalchemy cursor.
         We use it to track operations on tables which are not mapped to a ORM model.

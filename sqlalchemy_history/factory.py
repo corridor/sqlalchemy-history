@@ -2,11 +2,22 @@
 Factory package manages and makes sure if a model class already exists indeclarative model registry or not
 """
 
+import typing as t
+
+from sqlalchemy.orm.clsregistry import ClsRegistryToken
+
+
+if t.TYPE_CHECKING:
+    from sqlalchemy_history.manager import VersioningManager
+
 
 class ModelFactory:
-    model_name = None
+    model_name: t.ClassVar[str]
 
-    def __call__(self, manager):
+    def create_class(self, manager: "VersioningManager") -> type:
+        raise NotImplementedError
+
+    def __call__(self, manager: "VersioningManager") -> t.Union[type, ClsRegistryToken]:
         """Create model class but only if it doesn't already exist
         in declarative model registry.
         """
