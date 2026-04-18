@@ -13,17 +13,13 @@ import sqlalchemy as sa
 import sqlalchemy.event
 import sqlalchemy.orm
 
-from sqlalchemy_history.exc import (  # noqa: F401
-    ClassNotVersioned,
-    ImproperlyConfigured,
-    TableNotVersioned,
-)
+from sqlalchemy_history.exc import ClassNotVersioned, ImproperlyConfigured, TableNotVersioned
 from sqlalchemy_history.manager import VersioningManager, VersioningOptions
-from sqlalchemy_history.operation import Operation  # noqa: F401
+from sqlalchemy_history.operation import Operation
 from sqlalchemy_history.plugins.base import Plugin, PluginCollection
-from sqlalchemy_history.transaction import TransactionFactory  # noqa: F401
-from sqlalchemy_history.unit_of_work import UnitOfWork  # noqa: F401
-from sqlalchemy_history.utils import (  # noqa: F401
+from sqlalchemy_history.transaction import TransactionFactory
+from sqlalchemy_history.unit_of_work import UnitOfWork
+from sqlalchemy_history.utils import (
     changeset,
     count_versions,
     get_versioning_manager,
