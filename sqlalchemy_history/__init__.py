@@ -7,8 +7,11 @@ Modules exported by this package:
 - `remove_versioning`: Remove the versioning from given mapper / session and manager.
 """
 
+import typing as t
+
 import sqlalchemy as sa
 import sqlalchemy.event
+import sqlalchemy.orm
 from sqlalchemy.orm import Mapper, Session
 
 from sqlalchemy_history.exc import (  # noqa: F401
@@ -16,8 +19,9 @@ from sqlalchemy_history.exc import (  # noqa: F401
     ImproperlyConfigured,
     TableNotVersioned,
 )
-from sqlalchemy_history.manager import VersioningManager
+from sqlalchemy_history.manager import VersioningManager, VersioningOptions
 from sqlalchemy_history.operation import Operation  # noqa: F401
+from sqlalchemy_history.plugins.base import Plugin, PluginCollection
 from sqlalchemy_history.transaction import TransactionFactory  # noqa: F401
 from sqlalchemy_history.unit_of_work import UnitOfWork  # noqa: F401
 from sqlalchemy_history.utils import (  # noqa: F401
@@ -38,12 +42,12 @@ versioning_manager = VersioningManager()
 
 
 def make_versioned(
-    mapper=Mapper,
-    session=Session,
-    manager=versioning_manager,
-    plugins=None,
-    options=None,
-    user_cls="User",
+    mapper: type[sa.orm.Mapper] = sa.orm.Mapper,
+    session: type[sa.orm.Session] = sa.orm.Session,
+    manager: VersioningManager = versioning_manager,
+    plugins: t.Optional[t.Union[PluginCollection, t.Sequence[Plugin]]] = None,
+    options: t.Optional[VersioningOptions] = None,
+    user_cls: t.Optional[t.Union[str, type[t.Any]]] = "User",
 ) -> None:
     """This is the public API function of SQLAlchemy-History for making certain mappers and sessions
      versioned.
@@ -93,7 +97,11 @@ def make_versioned(
     )
 
 
-def remove_versioning(mapper=Mapper, session=Session, manager=versioning_manager):
+def remove_versioning(
+    mapper: type[sa.orm.Mapper] = sa.orm.Mapper,
+    session: type[sa.orm.Session] = sa.orm.Session,
+    manager: VersioningManager = versioning_manager,
+) -> None:
     """Remove the versioning from given mapper / session and manager.
 
     **Examples**
