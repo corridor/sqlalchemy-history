@@ -62,3 +62,6 @@ include = ["sqlalchemy_history", "sqlalchemy_history.*"]
 [tool.coverage.run]
 dynamic_context = "test_function"
 branch = true
+
+[tool.ty.src]
+exclude = ["tests/"]
