@@ -29,6 +29,9 @@ dependencies = [
     "typing-extensions",
 ]
 
+[project.optional-dependencies]
+alembic = ["alembic"]
+
 [project.urls]
 Homepage = "https://github.com/corridor/sqlalchemy-history"
 Repository = "https://github.com/corridor/sqlalchemy-history"
@@ -38,6 +41,7 @@ Changelog = "https://github.com/corridor/sqlalchemy-history/releases"
 [dependency-groups]
 dev = ["ruff", "tox", "pre-commit"]
 test = [
+    "termcolor",          # Used in benchmark.py
     "pytest",
     "flexmock",
     "psycopg2-binary",
