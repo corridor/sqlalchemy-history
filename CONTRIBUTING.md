@@ -23,7 +23,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 uv venv venv --python 3.13 --seed
 source venv/bin/activate
-uv sync --active --dev
+uv sync --active --all-groups --all-extras
 ```
 - Install Git hooks with `prek`.
 ```
