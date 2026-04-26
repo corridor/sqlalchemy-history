@@ -18,7 +18,9 @@ class TestHybridProperty(TestCase):
             name = sa.Column(sa.Unicode(255), nullable=False)
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
-            publish = sa.Column(sa.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+            publish = sa.Column(
+                sa.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+            )
 
             author_id = sa.Column(sa.Integer, sa.ForeignKey("article_author.id"), nullable=False)
 
