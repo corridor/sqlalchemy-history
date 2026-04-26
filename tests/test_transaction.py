@@ -1,3 +1,4 @@
+import datetime
 import os
 import time
 
@@ -50,6 +51,13 @@ class TestTransaction(TestCase):
         self.session.add(self.article)
         self.session.commit()
         assert self.article.versions[0].transaction.issued_at != self.article.versions[1].transaction.issued_at
+
+    def test_transaction_issued_at_is_naive(self):
+        uow = versioning_manager.unit_of_work(self.session)
+        tx = uow.create_transaction(self.session)
+
+        assert isinstance(tx.issued_at, datetime.datetime)
+        assert tx.issued_at.tzinfo is None
 
 
 # Check that the tests pass without TransactionChangesPlugin
