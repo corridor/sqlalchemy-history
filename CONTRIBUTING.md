@@ -25,6 +25,10 @@ uv venv venv --python 3.13 --seed
 source venv/bin/activate
 uv sync --active --dev
 ```
+- Install Git hooks with `prek`.
+```
+uv run --active prek install --prepare-hooks
+```
 - Checkout branch with name relevant to issue issue you are working
 ```
 git checkout -b short-issue-desc 
@@ -37,11 +41,10 @@ git checkout -b add-issue-num
 - Before commiting, verify if the changes are working in your local system
 ```
 # Run tests locally
-DB=sqlite DB=sqlite uv run --active pytest
+DB=sqlite uv run --active pytest
 
-# Lint & Format
-uv run --active ruff format .
-uv run --active ruff check --fix .
+# Run local hooks and formatting checks
+uv run --active prek run --all-files
 ```
 - Add commit for your changes with message title and message description brifly explaining the approach
     - Keep commit message title 72 characters
