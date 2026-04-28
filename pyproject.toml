@@ -32,7 +32,7 @@ Issues = "https://github.com/corridor/sqlalchemy-history/issues"
 Changelog = "https://github.com/corridor/sqlalchemy-history/releases"
 
 [dependency-groups]
-dev = ["ruff", "tox", "prek"]
+dev = ["ruff", "prek"]
 test = [
     "pytest",
     "flexmock",
