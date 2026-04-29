@@ -12,7 +12,7 @@ An auditing extension for sqlalchemy which keeps a track of the history of your 
 - Does not store updates which don't change anything
 - Supports alembic migrations
 - Can revert objects data as well as all object relations at given transaction even if the object was deleted
-- Transactions can be queried afterwards using SQLAlchemy query syntax
+- Transactions can be queried afterwards using SQLAlchemy select syntax
 - Query for changed records at given transaction
 - Temporal relationship reflection. Get the relationships of an object in that point in time.
 

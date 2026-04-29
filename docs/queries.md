@@ -49,5 +49,5 @@ PropertyModTrackerPlugin.
 
 ```python
 >>> ArticleVersion = version_class(Article)
->>> session.scalars(sa.select(ArticleHistory).filter(ArticleVersion.name_mod)).all()
+>>> session.scalars(sa.select(ArticleVersion).filter(ArticleVersion.name_mod)).all()
 ```

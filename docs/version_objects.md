@@ -42,7 +42,7 @@ property which holds a dict of changed fields in that version.
 ```python
 >>> article = Article(name=u'New article', content=u'Some content')
 >>> session.add(article)
->>> session.commit(article)
+>>> session.commit()
 >>> version = article.versions[0]
 >>> version.changeset
 {
@@ -103,7 +103,7 @@ Lastly we check the category relations of different article versions.
 
 The logic how SQLAlchemy-History builds these relationships is within the RelationshipBuilder class.
 
-#### Relationships to non-versioned classes
+### Relationships to non-versioned classes
 
 Let's take previous example of Articles and Categories. Now consider that only Article model is versioned:
 
@@ -143,7 +143,7 @@ Here Article versions will still reflect the relationships of Article model but 
 True
 ```
 
-#### Dynamic relationships
+### Dynamic relationships
 
 If the parent class has a dynamic relationship it will be reflected as a property which returns a query in the associated version class.
 

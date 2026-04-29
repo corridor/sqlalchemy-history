@@ -7,7 +7,7 @@ One of the major benefits of SQLAlchemy-History is its ability to revert changes
 ```python
 >>> article = Article(name=u'New article', content=u'Some content')
 >>> session.add(article)
->>> session.commit(article)
+>>> session.commit()
 >>> version = article.versions[0]
 >>> article.name = u'Updated article'
 >>> session.commit()
@@ -22,7 +22,7 @@ One of the major benefits of SQLAlchemy-History is its ability to revert changes
 ```python
 >>> article = Article(name=u'New article', content=u'Some content')
 >>> session.add(article)
->>> session.commit(article)
+>>> session.commit()
 >>> version = article.versions[0]
 >>> session.delete(article)
 >>> session.commit()
@@ -55,7 +55,7 @@ Now lets say some user first adds an article with couple of tags:
 ```python
 >>> article = Article(
 ...     name=u'Some article',
-...     tags=[Tag(u'Good'), Tag(u'Interesting')]
+...     tags=[Tag(name=u'Good'), Tag(name=u'Interesting')]
 ... )
 >>> session.add(article)
 >>> session.commit()
