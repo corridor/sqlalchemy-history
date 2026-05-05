@@ -3,6 +3,15 @@ Changelog
 
 Here you can see the full list of changes between each release.
 
+Unreleased
+^^^^^^^^^^
+
+-   Fix ``versioned_column_properties`` (and the version-table builder) failing on
+    columns whose names shadow dict-API attributes of ``mapper.attrs`` such as
+    ``values``, ``keys``, or ``items``. Attribute access returned a bound method
+    instead of the column property, raising ``AttributeError: 'function' object
+    has no attribute 'key'`` on insert.
+
 2.1.4 (2026-04-13)
 ^^^^^^^^^^
 
