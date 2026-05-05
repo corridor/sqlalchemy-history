@@ -195,7 +195,10 @@ def versioned_column_properties(obj_or_class):
             continue
 
         if not manager.is_excluded_property(obj_or_class, key):
-            yield getattr(mapper.attrs, key)
+            # Use subscript access: attribute access via getattr collides with
+            # dict-API methods on the namespace (e.g. a column named ``values``
+            # would resolve to ``ReadOnlyProperties.values``).
+            yield mapper.attrs[key]
 
 
 def versioned_relationships(obj, versioned_column_keys):
