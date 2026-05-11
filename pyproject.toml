@@ -34,7 +34,6 @@ Changelog = "https://github.com/corridor/sqlalchemy-history/releases"
 [dependency-groups]
 dev = ["ruff", "prek"]
 test = [
-    "sqlalchemy_i18n",
     "pytest",
     "pytest-cov",
     # Drivers
