@@ -9,6 +9,7 @@ Unreleased
 -   Fix ``versioned_column_properties`` failing on columns whose names shadow
     ``mapper.attrs`` dict-API methods (e.g. ``values``, ``keys``, ``items``).
 -   Remove SQLAlchemy-i18n support
+-   Support async sqlalchemy
 
 2.1.4 (2026-04-13)
 ^^^^^^^^^^

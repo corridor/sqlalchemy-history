@@ -2,11 +2,12 @@ import contextlib
 import inspect
 import itertools as it
 import os
+import typing as t
 from copy import copy
 
 import pytest
 import sqlalchemy as sa
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, make_url
 from sqlalchemy.orm import close_all_sessions, column_property, declarative_base, sessionmaker
 
 from sqlalchemy_history import (
@@ -29,18 +30,36 @@ def log_sql(conn, cursor, statement, parameters, context, executemany):
     QueryPool.queries.append(statement)
 
 
-def get_dns_from_driver(driver):  # pragma: no cover
-    if driver == "postgres":
-        return "postgresql://postgres:postgres@localhost/sqlalchemy_history_test"
-    if driver == "mysql":
-        return "mysql+pymysql://root@localhost/sqlalchemy_history_test"
-    if driver == "sqlite":
-        return "sqlite:///:memory:"
-    if driver == "mssql":
-        return "mssql+pymssql://sa:MSsql2022@localhost:1433"
-    if driver == "oracle":
-        return "oracle+oracledb://SYSTEM:Oracle2022@localhost:1521/?service_name=XEPDB1"
-    raise RuntimeError(f"Unknown driver given: {driver!r}")
+def get_dns_from_driver(driver, *, mode: t.Literal["sync", "async"] = "sync"):  # pragma: no cover
+    BASE_URLS = {
+        "postgres": make_url("postgresql://postgres:postgres@localhost/sqlalchemy_history_test"),
+        "mysql": make_url("mysql+pymysql://root@localhost/sqlalchemy_history_test"),
+        "sqlite": make_url("sqlite:///:memory:"),
+        "mssql": make_url(
+            "mssql+pyodbc://sa:MSsql2022@localhost:1433/master?driver=ODBC+Driver+17+for+SQL+Server&TrustServerCertificate=yes"
+        ),
+        "oracle": make_url("oracle+oracledb://SYSTEM:Oracle2022@localhost:1521/?service_name=XEPDB1"),
+    }
+    DRIVERS: dict[t.Literal["sync", "async"], dict[str, str]] = {
+        "sync": {
+            "postgres": "postgresql",
+            "mysql": "mysql+pymysql",
+            "sqlite": "sqlite",
+            "mssql": "mssql+pyodbc",
+            "oracle": "oracle+oracledb",
+        },
+        "async": {
+            "postgres": "postgresql+asyncpg",
+            "mysql": "mysql+aiomysql",
+            "sqlite": "sqlite+aiosqlite",
+            "mssql": "mssql+aioodbc",
+            "oracle": "oracle+oracledb",
+        },
+    }
+    try:
+        return BASE_URLS[driver].set(drivername=DRIVERS[mode][driver])
+    except KeyError as exc:
+        raise RuntimeError(f"Unknown driver given: {driver!r}") from exc
 
 
 class TestCase:

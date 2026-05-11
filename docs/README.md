@@ -1,5 +1,3 @@
-[![Coverage Status](https://coveralls.io/repos/github/corridor/sqlalchemy-history/badge.svg)](https://coveralls.io/github/corridor/sqlalchemy-history)
-
 # SQLAlchemy-History
 
 SQLAlchemy-history is a fork of sqlalchemy-continuum.
@@ -15,6 +13,7 @@ An auditing extension for sqlalchemy which keeps a track of the history of your 
 - Transactions can be queried afterwards using SQLAlchemy select syntax
 - Query for changed records at given transaction
 - Temporal relationship reflection. Get the relationships of an object in that point in time.
+- Support async sqlalchemy
 
 ## QuickStart
 
@@ -57,30 +56,102 @@ For completeness, below is a working example.
 ```python
 from sqlalchemy_history import make_versioned
 from sqlalchemy import Column, Integer, Unicode, UnicodeText, create_engine
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import create_session, configure_mappers
+from sqlalchemy.orm import DeclarativeBase, create_session, configure_mappers
+
 make_versioned(user_cls=None)
-Base = declarative_base()
+
+
+class Base(DeclarativeBase):
+    pass
+
+
 class Article(Base):
     __versioned__ = {}
-    __tablename__ = 'article'
+    __tablename__ = "article"
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(Unicode(255))
     content = Column(UnicodeText)
+
+
 configure_mappers()
-engine = create_engine('sqlite://')
+engine = create_engine("sqlite://")
 Base.metadata.create_all(engine)
 session = create_session(bind=engine, autocommit=False)
-article = Article(name='Some article', content='Some content')
+article = Article(name="Some article", content="Some content")
 session.add(article)
 session.commit()
-print(article.versions[0].name) # 'Some article'
-article.name = 'Updated name'
+print(article.versions[0].name)  # 'Some article'
+article.name = "Updated name"
 session.commit()
-print(article.versions[1].name) # 'Updated name'
+print(article.versions[1].name)  # 'Updated name'
 article.versions[0].revert()
-print(article.name) # 'Some article'
+print(article.name)  # 'Some article'
 ```
+
+<details>
+<summary>Async working example</summary>
+
+```python
+import asyncio
+
+import sqlalchemy as sa
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase, configure_mappers
+
+from sqlalchemy_history import make_versioned
+
+make_versioned(user_cls=None, options={"support_async": True})
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class Article(Base):
+    __versioned__ = {}
+    __tablename__ = "article"
+    id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    name = sa.Column(sa.Unicode(255))
+    content = sa.Column(sa.UnicodeText)
+
+
+async def main():
+    configure_mappers()
+
+    engine = create_async_engine("sqlite+aiosqlite://")
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    Session = async_sessionmaker(engine, expire_on_commit=False)
+
+    async with Session() as session:
+        article = Article(name="Some article", content="Some content")
+        session.add(article)
+        await session.commit()
+
+        versions = (await session.scalars(article.versions.select())).all()
+        print(versions[0].name)  # 'Some article'
+
+        article.name = "Updated name"
+        await session.commit()
+
+        versions = (await session.scalars(article.versions.select())).all()
+        print(versions[1].name)  # 'Updated name'
+
+        versions[0].revert()
+        await session.commit()
+        print(article.name)  # 'Some article'
+
+    await engine.dispose()
+
+
+asyncio.run(main())
+```
+
+</details>
+
+For more async querying and revert examples, see [Async support](async.md).
 
 ## Resources
 

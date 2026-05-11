@@ -3,6 +3,8 @@
 import operator
 
 import sqlalchemy as sa
+from sqlalchemy.ext.asyncio import async_object_session
+from sqlalchemy.orm import aliased, object_session
 from sqlalchemy_utils import get_primary_keys, identity
 
 from sqlalchemy_history.utils import end_tx_column_name, tx_column_name
@@ -37,15 +39,15 @@ class VersionObjectFetcher:
         history. If current version is the first version this method returns
         None.
         """
-        session = sa.orm.object_session(obj)
+        session = object_session(obj)
         return session.scalars(self.previous_query(obj).limit(1)).first()
 
     def index(self, obj):
         """
         Return the index of this version in the version history.
         """
-        session = sa.orm.object_session(obj)
-        return session.execute(self._index_query(obj)).fetchone()[0]
+        session = object_session(obj)
+        return session.scalar(self._index_query(obj))
 
     def next(self, obj):
         """
@@ -53,8 +55,39 @@ class VersionObjectFetcher:
         history. If current version is the last version this method returns
         None.
         """
-        session = sa.orm.object_session(obj)
+        session = object_session(obj)
         return session.scalars(self.next_query(obj).limit(1)).first()
+
+    async def aprevious(self, obj):
+        """
+        Returns the previous version relative to this version in the version
+        history. If current version is the first version this method returns
+        None.
+
+        Use this when working with async SQLAlchemy.
+        """
+        async_session = async_object_session(obj)
+        return (await async_session.scalars(self.previous_query(obj).limit(1))).first()
+
+    async def aindex(self, obj):
+        """
+        Return the index of this version in the version history.
+
+        Use this when working with async SQLAlchemy.
+        """
+        async_session = async_object_session(obj)
+        return await async_session.scalar(self._index_query(obj))
+
+    async def anext(self, obj):
+        """
+        Returns the next version relative to this version in the version
+        history. If current version is the last version this method returns
+        None.
+
+        Use this when working with async SQLAlchemy.
+        """
+        async_session = async_object_session(obj)
+        return (await async_session.scalars(self.next_query(obj).limit(1))).first()
 
     def _transaction_id_subquery(self, obj, next_or_prev="next", alias=None):
         if next_or_prev == "next":
@@ -65,7 +98,7 @@ class VersionObjectFetcher:
             func = sa.func.max
 
         if alias is None:
-            alias = sa.orm.aliased(obj.__class__)
+            alias = aliased(obj.__class__)
             table = alias.__table__
             attrs = alias.c if hasattr(alias, "c") else alias
         else:
@@ -104,7 +137,7 @@ class VersionObjectFetcher:
         Returns the query needed for fetching the index of this record relative
         to version history.
         """
-        alias = sa.orm.aliased(obj.__class__)
+        alias = aliased(obj.__class__)
 
         subquery = (
             sa.select(sa.func.count("1"))
