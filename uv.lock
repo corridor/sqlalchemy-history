@@ -423,30 +423,6 @@ wheels = [
 ]
 
 [[package]]
-name = "flexmock"
-version = "0.12.2"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version < '3.10'",
-]
-sdist = { url = "https://files.pythonhosted.org/packages/46/ff/ff46c8b701751a3eebfa98eb5493020c2cc68fe14b144c86b44224a666d6/flexmock-0.12.2.tar.gz", hash = "sha256:435c661c3b35477575eb9150428a1cfd7c62cb992aa7887567c3357aebc9aca1", size = 53195, upload-time = "2024-12-27T08:20:59.255Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/11/fd/a3680f79676bef325167852568f973105c97befe166cc21147f6f71b9e62/flexmock-0.12.2-py3-none-any.whl", hash = "sha256:46c5c125548af8f8906f3199efaca6d35cfee0a7ddc77cd8135f69376c3b3e23", size = 20688, upload-time = "2024-12-27T08:20:56.388Z" },
-]
-
-[[package]]
-name = "flexmock"
-version = "0.13.0"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.10'",
-]
-sdist = { url = "https://files.pythonhosted.org/packages/75/a6/9f3a7fea15d309a41e472aad643396c41ef88302ea038dc7c8c45e3bad12/flexmock-0.13.0.tar.gz", hash = "sha256:6829d7a0d7f746db3087da8fda62f924e52df7ece4051c2f59ad586cf5ad7977", size = 50748, upload-time = "2026-01-10T19:53:25.152Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/ca/4d99da952769810955eed0777ae20de67cf8257ab22b294ca43cbb5531d1/flexmock-0.13.0-py3-none-any.whl", hash = "sha256:524f657591147d4cbdd82ce6002f361393ec439cb81ab560429926ca2fb44937", size = 20618, upload-time = "2026-01-10T19:53:23.619Z" },
-]
-
-[[package]]
 name = "greenlet"
 version = "3.2.5"
 source = { registry = "https://pypi.org/simple" }
@@ -1002,8 +978,6 @@ dev = [
     { name = "ruff" },
 ]
 test = [
-    { name = "flexmock", version = "0.12.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "flexmock", version = "0.13.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "oracledb" },
     { name = "psycopg2-binary" },
     { name = "pymssql" },
@@ -1026,7 +1000,6 @@ dev = [
     { name = "ruff" },
 ]
 test = [
-    { name = "flexmock" },
     { name = "oracledb" },
     { name = "psycopg2-binary" },
     { name = "pymssql" },
