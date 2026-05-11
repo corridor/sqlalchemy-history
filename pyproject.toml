@@ -34,14 +34,14 @@ Changelog = "https://github.com/corridor/sqlalchemy-history/releases"
 [dependency-groups]
 dev = ["ruff", "prek"]
 test = [
+    "sqlalchemy_i18n",
     "pytest",
-    "flexmock",
+    "pytest-cov",
+    # Drivers
     "psycopg2-binary",
     "PyMySQL",
-    "sqlalchemy_i18n",
     "pymssql",
     "oracledb",
-    "pytest-cov",
 ]
 
 [tool.setuptools_scm]
