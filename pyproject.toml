@@ -50,6 +50,12 @@ test = [
     "aioodbc",
     "aiomysql",
 ]
+docs = [
+    "mkdocs",
+    "mkdocs-autorefs",
+    "mkdocs-awesome-pages-plugin",
+    "mkdocstrings-python",
+]
 
 [tool.setuptools_scm]
 root = "."
