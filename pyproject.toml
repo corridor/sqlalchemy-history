@@ -23,7 +23,10 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = ["SQLAlchemy>=2", "SQLAlchemy-Utils>=0.30.12"]
+dependencies = ["SQLAlchemy>=2", "SQLAlchemy-Utils>=0.30.12", "anyio>3"]
+
+[project.optional-dependencies]
+asyncio = ["SQLAlchemy[asyncio]>=2"]
 
 [project.urls]
 Homepage = "https://github.com/corridor/sqlalchemy-history"
@@ -34,13 +37,18 @@ Changelog = "https://github.com/corridor/sqlalchemy-history/releases"
 [dependency-groups]
 dev = ["ruff", "prek"]
 test = [
+    "sqlalchemy-history[asyncio]",
     "pytest",
     "pytest-cov",
     # Drivers
     "psycopg2-binary",
     "PyMySQL",
-    "pymssql",
-    "oracledb",
+    "pyodbc",
+    "oracledb",        # Supports both sync and async
+    "aiosqlite",
+    "asyncpg",
+    "aioodbc",
+    "aiomysql",
 ]
 
 [tool.setuptools_scm]
