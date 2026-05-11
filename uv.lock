@@ -888,15 +888,6 @@ wheels = [
 ]
 
 [[package]]
-name = "six"
-version = "1.17.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031, upload-time = "2024-12-04T17:35:28.174Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
-]
-
-[[package]]
 name = "sqlalchemy"
 version = "2.0.49"
 source = { registry = "https://pypi.org/simple" }
@@ -985,7 +976,6 @@ test = [
     { name = "pytest", version = "8.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "pytest", version = "9.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "pytest-cov" },
-    { name = "sqlalchemy-i18n" },
 ]
 
 [package.metadata]
@@ -1006,21 +996,6 @@ test = [
     { name = "pymysql" },
     { name = "pytest" },
     { name = "pytest-cov" },
-    { name = "sqlalchemy-i18n" },
-]
-
-[[package]]
-name = "sqlalchemy-i18n"
-version = "1.1.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "six" },
-    { name = "sqlalchemy" },
-    { name = "sqlalchemy-utils" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/59/fa/1a160da6baca573af96f73bf7ac48590fa119bc03c9127bc30667e11df2c/SQLAlchemy-i18n-1.1.0.tar.gz", hash = "sha256:de33376483a581ca14218d8f57a114466c5f72b674a95839b6c4564a6e67796f", size = 28197, upload-time = "2021-05-23T11:33:25.811Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/19/2c/206137ac5b769504df83a8cbb48ce0563bd627e5890e39122fd24b64a4a6/SQLAlchemy_i18n-1.1.0-py3-none-any.whl", hash = "sha256:7b9635c6aed9d68c4360a207b72a8fc1b8f8cd6bdba9602c81d1101ccd6894b0", size = 10086, upload-time = "2021-05-23T11:33:23.924Z" },
 ]
 
 [[package]]
