@@ -63,6 +63,9 @@ root = "."
 [tool.setuptools.packages.find]
 include = ["sqlalchemy_history", "sqlalchemy_history.*"]
 
+[tool.setuptools.package-data]
+sqlalchemy_history = ["py.typed"]
+
 [tool.coverage.run]
 dynamic_context = "test_function"
 branch = true
