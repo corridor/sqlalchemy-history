@@ -3,6 +3,8 @@
 from copy import copy
 
 import sqlalchemy as sa
+from sqlalchemy.orm import Session, aliased, object_session
+from sqlalchemy.orm.exc import ObjectDeletedError
 from sqlalchemy_utils import get_primary_keys, identity
 
 from sqlalchemy_history.operation import Operation, Operations
@@ -28,7 +30,7 @@ class UnitOfWork:
         #       sqla-history, we set the transaction mode as `rollback_only` as that has least impact.
         #       Ideally something like a "readonly" mode would be ideal for us.
         #       Ref: https://docs.sqlalchemy.org/en/20/orm/session_api.html#sqlalchemy.orm.Session.params.join_transaction_mode
-        return sa.orm.session.Session(bind=session.connection(), join_transaction_mode="rollback_only")
+        return Session(bind=session.connection(), join_transaction_mode="rollback_only")
 
     def reset(self, session=None):
         """Reset the internal state of this UnitOfWork object.
@@ -199,7 +201,7 @@ class UnitOfWork:
         :param alias:  (Default value = None)
         """
         fetcher = self.manager.fetcher(parent)
-        session = sa.orm.object_session(version_obj)
+        session = object_session(version_obj)
 
         subquery = fetcher._transaction_id_subquery(version_obj, next_or_prev="prev", alias=alias)
         if session.connection().engine.dialect.name == "mysql":
@@ -221,10 +223,10 @@ class UnitOfWork:
         :param version_obj: SQLAlchemy declarative version object
 
         """
-        session = sa.orm.object_session(version_obj)
+        session = object_session(version_obj)
         for class_ in version_obj.__class__.__mro__:
             if class_ in self.manager.version_class_map.values():
-                subquery = self.version_validity_subquery(parent, version_obj, alias=sa.orm.aliased(class_.__table__))
+                subquery = self.version_validity_subquery(parent, version_obj, alias=aliased(class_.__table__))
                 subquery = subquery.scalar_subquery()
 
                 session.execute(
@@ -303,6 +305,6 @@ class UnitOfWork:
             else:
                 try:
                     value = getattr(parent_obj, prop.key)
-                except sa.orm.exc.ObjectDeletedError:
+                except ObjectDeletedError:
                     value = None
             setattr(version_obj, prop.key, value)

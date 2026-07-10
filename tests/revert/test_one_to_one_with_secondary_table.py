@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.orm import backref, relationship
 
 from tests import TestCase
 
@@ -35,9 +36,7 @@ class TestRevertOneToOneSecondaryRelationship(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
 
-        Tag.article = sa.orm.relationship(
-            Article, secondary=article_tag, backref=sa.orm.backref("tag", uselist=False), uselist=False
-        )
+        Tag.article = relationship(Article, secondary=article_tag, backref=backref("tag", uselist=False), uselist=False)
 
         self.Article = Article
         self.Tag = Tag

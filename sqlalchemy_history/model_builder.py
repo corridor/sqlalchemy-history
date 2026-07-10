@@ -4,7 +4,7 @@ from copy import copy
 
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import MappedColumn, column_property
+from sqlalchemy.orm import MappedColumn, column_property, relationship
 from sqlalchemy_utils.functions import get_declarative_base, get_primary_keys
 from sqlalchemy_utils.models import generic_repr
 
@@ -127,7 +127,7 @@ class ModelBuilder:
         if not hasattr(self.model, "versions"):
             # Keep legacy dynamic loading by default, but allow SQLAlchemy 2.x
             # style write-only access for version collections when support_async=True
-            self.model.versions = sa.orm.relationship(
+            self.model.versions = relationship(
                 self.version_class,
                 primaryjoin=sa.and_(*conditions),
                 foreign_keys=foreign_keys,
@@ -138,7 +138,7 @@ class ModelBuilder:
             # We must explicitly declare this relationship, instead of
             # specifying as a backref to the one above, since they are
             # viewonly=True and SQLAlchemy will warn if using backref.
-            self.version_class.version_parent = sa.orm.relationship(
+            self.version_class.version_parent = relationship(
                 self.model,
                 primaryjoin=sa.and_(*conditions),
                 foreign_keys=model_keys,
@@ -158,7 +158,7 @@ class ModelBuilder:
         transaction_column = getattr(self.version_class, option(self.model, "transaction_column_name"))
 
         if not hasattr(self.version_class, "transaction"):
-            self.version_class.transaction = sa.orm.relationship(
+            self.version_class.transaction = relationship(
                 tx_class,
                 primaryjoin=tx_class.id == transaction_column,
                 foreign_keys=[transaction_column],

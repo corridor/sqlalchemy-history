@@ -1,6 +1,7 @@
 from copy import copy
 
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from tests import TestCase, create_test_cases
 
@@ -27,7 +28,7 @@ class OneToOneRelationshipsTestCase(TestCase):
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
             author_id = sa.Column(sa.Integer, sa.ForeignKey(User.id))
-            author = sa.orm.relationship(User)
+            author = relationship(User)
 
         self.Article = Article
         self.User = User

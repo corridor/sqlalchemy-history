@@ -1,17 +1,20 @@
 """Reverter Reverts."""
 
+import typing as t
+
 import sqlalchemy as sa
+from sqlalchemy.orm import RelationshipProperty, object_session
 
 from sqlalchemy_history.operation import Operation
 from sqlalchemy_history.utils import parent_class, versioned_column_properties
 
 
-def first_level(paths):
+def first_level(paths: t.Iterable[str]) -> t.Iterable[str]:
     for path in paths:
         yield path.split(".")[0]
 
 
-def subpaths(paths, name):
+def subpaths(paths: t.Iterable[str], name: str) -> t.Iterable[str]:
     for path in paths:
         parts = path.split(".")
         if len(parts) > 1 and parts[0] == name:
@@ -31,7 +34,7 @@ class Reverter:
         self.version_parent = self.obj.version_parent
         self.parent_class = parent_class(self.obj.__class__)
         self.parent_mapper = sa.inspect(self.parent_class)
-        self.session = sa.orm.object_session(self.obj)
+        self.session = object_session(self.obj)
 
         self.relations = list(relations)
         for path in relations:
@@ -42,11 +45,11 @@ class Reverter:
                     f"relationship '{subpath}'."
                 )
 
-    def revert_properties(self):
+    def revert_properties(self) -> None:
         for prop in versioned_column_properties(self.parent_class):
             setattr(self.version_parent, prop.key, getattr(self.obj, prop.key))
 
-    def revert_association(self, prop):
+    def revert_association(self, prop: RelationshipProperty) -> None:
         if prop.uselist:
             setattr(self.version_parent, prop.key, [])
             for child_obj in getattr(self.obj, prop.key):
@@ -60,7 +63,7 @@ class Reverter:
             if value:
                 setattr(self.version_parent, prop.key, value)
 
-    def revert_relationship(self, prop):
+    def revert_relationship(self, prop: RelationshipProperty) -> None:
         if prop.secondary is not None:
             self.revert_association(prop)
         elif prop.uselist:
@@ -78,16 +81,16 @@ class Reverter:
         else:
             self.revert_child(getattr(self.obj, prop.key), prop)
 
-    def revert_child(self, child, prop):
+    def revert_child(self, child, prop: RelationshipProperty):
         return self.__class__(
             child,
             visited_objects=self.visited_objects,
             relations=subpaths(self.relations, prop.key),
         )()
 
-    def revert_relationships(self):
+    def revert_relationships(self) -> None:
         for prop in self.parent_mapper.iterate_properties:
-            if isinstance(prop, sa.orm.RelationshipProperty):
+            if isinstance(prop, RelationshipProperty):
                 if prop.key in ["versions", "transaction"]:
                     continue
 

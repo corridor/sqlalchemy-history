@@ -1,5 +1,6 @@
 import pytest
-import sqlalchemy as sa
+import sqlalchemy.event
+from sqlalchemy.orm import Session
 
 from sqlalchemy_history import versioning_manager
 from tests import TestCase
@@ -8,7 +9,7 @@ from tests import TestCase
 class TestBeforeFlushListener(TestCase):
     @pytest.fixture(autouse=True)
     def setup_method_to_modify_listner(self, setup_session):
-        @sa.event.listens_for(sa.orm.Session, "before_flush")
+        @sqlalchemy.event.listens_for(Session, "before_flush")
         def before_flush(session, ctx, instances):
             for obj in session.dirty:
                 obj.name = "Updated article"
@@ -24,7 +25,7 @@ class TestBeforeFlushListener(TestCase):
         yield
         self.session.expunge(self.article)
         del self.article
-        sa.event.remove(sa.orm.Session, "before_flush", self.before_flush)
+        sqlalchemy.event.remove(Session, "before_flush", self.before_flush)
 
     def test_manual_tx_creation_with_no_actual_changes(self):
         self.article.name = "Some article"

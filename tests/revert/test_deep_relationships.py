@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from tests import TestCase
 
@@ -23,7 +24,7 @@ class TestRevertDeepRelations(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
             category_id = sa.Column(sa.Integer, sa.ForeignKey(Category.id))
-            category = sa.orm.relationship(Category, backref="articles")
+            category = relationship(Category, backref="articles")
 
         class Tag(self.Model):
             __tablename__ = "tag"
@@ -34,7 +35,7 @@ class TestRevertDeepRelations(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
-            article = sa.orm.relationship(Article, backref="tags")
+            article = relationship(Article, backref="tags")
 
         self.Category = Category
         self.Article = Article

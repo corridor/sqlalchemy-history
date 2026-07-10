@@ -2,6 +2,7 @@ from copy import copy
 
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.orm import backref, relationship
 
 from tests import TestCase
 
@@ -28,7 +29,7 @@ class TestDynamicOneToManyRelationships(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
-            article = sa.orm.relationship(Article, backref=sa.orm.backref("tags", lazy="dynamic"))
+            article = relationship(Article, backref=backref("tags", lazy="dynamic"))
 
         self.Article = Article
         self.Tag = Tag
@@ -76,9 +77,7 @@ class TestDynamicManyToManyRelationships(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
 
-        Tag.articles = sa.orm.relationship(
-            Article, secondary=article_tag, backref=sa.orm.backref("tags", lazy="dynamic")
-        )
+        Tag.articles = relationship(Article, secondary=article_tag, backref=backref("tags", lazy="dynamic"))
 
         self.Article = Article
         self.Tag = Tag

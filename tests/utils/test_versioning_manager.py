@@ -2,6 +2,7 @@ from copy import copy
 
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.orm import aliased, relationship
 
 from sqlalchemy_history import versioning_manager
 from sqlalchemy_history.exc import ClassNotVersioned, TableNotVersioned
@@ -44,7 +45,7 @@ class TestVersioningManager(TestCase):
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
-            articles = sa.orm.relationship(Article, secondary=article_tag, backref="tags")
+            articles = relationship(Article, secondary=article_tag, backref="tags")
 
         self.Article = Article
         self.article_tag = article_tag
@@ -66,8 +67,8 @@ class TestVersioningManager(TestCase):
         assert get_versioning_manager(self.article_tag) == versioning_manager
 
     def test_aliased_class(self):
-        assert get_versioning_manager(sa.orm.aliased(self.Article)) == versioning_manager
-        assert get_versioning_manager(sa.orm.aliased(self.ArticleVersion)) == versioning_manager
+        assert get_versioning_manager(aliased(self.Article)) == versioning_manager
+        assert get_versioning_manager(aliased(self.ArticleVersion)) == versioning_manager
 
     def test_unknown_class(self):
         with pytest.raises(ClassNotVersioned):

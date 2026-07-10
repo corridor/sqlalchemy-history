@@ -1,5 +1,6 @@
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from sqlalchemy_history.reverter import Reverter, ReverterException
 from tests import TestCase
@@ -182,7 +183,7 @@ class TestRevertWithColumnExclusion(RevertTestCase):
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
-            article = sa.orm.relationship(Article, backref="tags")
+            article = relationship(Article, backref="tags")
 
         self.Article = Article
         self.Tag = Tag

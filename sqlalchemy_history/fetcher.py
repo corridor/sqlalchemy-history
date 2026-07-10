@@ -1,6 +1,7 @@
 """Fetcher Module helps traverse across versions for a given versioned object."""
 
 import operator
+import typing as t
 
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import async_object_session
@@ -10,7 +11,11 @@ from sqlalchemy_utils import get_primary_keys, identity
 from sqlalchemy_history.utils import end_tx_column_name, tx_column_name
 
 
-def parent_identity(obj_or_class):
+if t.TYPE_CHECKING:
+    from sqlalchemy_history.manager import VersioningManager
+
+
+def parent_identity(obj_or_class) -> tuple:
     return tuple(
         getattr(obj_or_class, column_key)
         for column_key in get_primary_keys(obj_or_class)
@@ -18,19 +23,19 @@ def parent_identity(obj_or_class):
     )
 
 
-def eqmap(callback, iterable):
+def eqmap(callback, iterable) -> t.Iterator[bool]:
     for a, b in zip(*map(callback, iterable)):
         yield a == b
 
 
-def parent_criteria(obj, class_=None):
+def parent_criteria(obj, class_=None) -> t.Iterator[bool]:
     if class_ is None:
         class_ = obj.__class__
     return eqmap(parent_identity, (class_, obj))
 
 
 class VersionObjectFetcher:
-    def __init__(self, manager):
+    def __init__(self, manager: "VersioningManager") -> None:
         self.manager = manager
 
     def previous(self, obj):
@@ -42,7 +47,7 @@ class VersionObjectFetcher:
         session = object_session(obj)
         return session.scalars(self.previous_query(obj).limit(1)).first()
 
-    def index(self, obj):
+    def index(self, obj) -> int:
         """
         Return the index of this version in the version history.
         """
@@ -69,7 +74,7 @@ class VersionObjectFetcher:
         async_session = async_object_session(obj)
         return (await async_session.scalars(self.previous_query(obj).limit(1))).first()
 
-    async def aindex(self, obj):
+    async def aindex(self, obj) -> int:
         """
         Return the index of this version in the version history.
 
@@ -89,7 +94,9 @@ class VersionObjectFetcher:
         async_session = async_object_session(obj)
         return (await async_session.scalars(self.next_query(obj).limit(1))).first()
 
-    def _transaction_id_subquery(self, obj, next_or_prev="next", alias=None):
+    def _transaction_id_subquery(
+        self, obj, next_or_prev: t.Literal["next", "previous"] = "next", alias=None
+    ) -> sa.ScalarSelect:
         if next_or_prev == "next":
             op = operator.gt
             func = sa.func.min
@@ -124,7 +131,7 @@ class VersionObjectFetcher:
         )
         return query.scalar_subquery()
 
-    def _next_prev_query(self, obj, next_or_prev="next"):
+    def _next_prev_query(self, obj, next_or_prev: t.Literal["next", "previous"] = "next") -> sa.Select:
         subquery = self._transaction_id_subquery(obj, next_or_prev=next_or_prev)
         subquery = subquery.scalar_subquery()
 
@@ -132,7 +139,7 @@ class VersionObjectFetcher:
             sa.and_(getattr(obj.__class__, tx_column_name(obj)) == subquery, *parent_criteria(obj))
         )
 
-    def _index_query(self, obj):
+    def _index_query(self, obj) -> sa.Select:
         """
         Returns the query needed for fetching the index of this record relative
         to version history.
@@ -155,14 +162,14 @@ class VersionObjectFetcher:
 
 
 class SubqueryFetcher(VersionObjectFetcher):
-    def previous_query(self, obj):
+    def previous_query(self, obj) -> sa.Select:
         """
         Returns the query that fetches the previous version relative to this
         version in the version history.
         """
         return self._next_prev_query(obj, "previous")
 
-    def next_query(self, obj):
+    def next_query(self, obj) -> sa.Select:
         """
         Returns the query that fetches the next version relative to this
         version in the version history.
@@ -171,7 +178,7 @@ class SubqueryFetcher(VersionObjectFetcher):
 
 
 class ValidityFetcher(VersionObjectFetcher):
-    def next_query(self, obj):
+    def next_query(self, obj) -> sa.Select:
         """
         Returns the query that fetches the next version relative to this
         version in the version history.
@@ -183,7 +190,7 @@ class ValidityFetcher(VersionObjectFetcher):
             )
         )
 
-    def previous_query(self, obj):
+    def previous_query(self, obj) -> sa.Select:
         """
         Returns the query that fetches the previous version relative to this
         version in the version history.

@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from sqlalchemy_history.exc import TableNotVersioned
 from sqlalchemy_history.utils import version_table
@@ -39,7 +40,7 @@ class TestVersionTableDefault(TestCase):
             __versioned__ = {"table_name": "%s_custom"}
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
-            articles = sa.orm.relationship("Article", secondary=article_author_table, backref="author")
+            articles = relationship("Article", secondary=article_author_table, backref="author")
 
         class User(self.Model):
             __tablename__ = "user"

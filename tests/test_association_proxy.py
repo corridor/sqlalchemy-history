@@ -1,4 +1,6 @@
 import sqlalchemy as sa
+from sqlalchemy.ext.associationproxy import AssociationProxy, AssociationProxyInstance, association_proxy
+from sqlalchemy.orm import relationship
 
 from sqlalchemy_history.utils import get_association_proxies, version_class
 from tests import TestCase
@@ -17,7 +19,7 @@ class TestAssociationProxy(TestCase):
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
 
-            upanaam = sa.ext.associationproxy.association_proxy("tags", "name")
+            upanaam = association_proxy("tags", "name")
 
         class Tag(self.Model):
             __tablename__ = "tag"
@@ -28,7 +30,7 @@ class TestAssociationProxy(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
-            article = sa.orm.relationship(Article, backref="tags")
+            article = relationship(Article, backref="tags")
 
         self.Article = Article
         self.Tag = Tag
@@ -37,7 +39,7 @@ class TestAssociationProxy(TestCase):
         assoc_mapping = get_association_proxies(self.Article)
         assert len(assoc_mapping) == 1
         assert next(iter(assoc_mapping.keys())) == "upanaam"
-        assert isinstance(assoc_mapping["upanaam"], sa.ext.associationproxy.AssociationProxy)
+        assert isinstance(assoc_mapping["upanaam"], AssociationProxy)
 
     def test_association_proxy_detection(self):
         """
@@ -45,7 +47,7 @@ class TestAssociationProxy(TestCase):
          are handled, For now a property in versioned model should be available for proxy attributes of
          orginal model
         """
-        assert issubclass(type(self.Article.upanaam), sa.ext.associationproxy.AssociationProxyInstance)
+        assert issubclass(type(self.Article.upanaam), AssociationProxyInstance)
         assert isinstance(version_class(self.Article).upanaam, property)
 
     def test_association_proxy_retrieval(self):

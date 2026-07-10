@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.orm import deferred
 
 from tests import TestCase
 
@@ -35,7 +36,7 @@ class TestDeleteWithDeferredColumn(TestCase):
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
-            name = sa.orm.deferred(sa.Column(sa.Unicode(255)))
+            name = deferred(sa.Column(sa.Unicode(255)))
 
         self.TextItem = TextItem
 

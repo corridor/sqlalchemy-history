@@ -6,7 +6,7 @@ from time import time
 import sqlalchemy as sa
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import close_all_sessions, sessionmaker
+from sqlalchemy.orm import close_all_sessions, configure_mappers, relationship, sessionmaker
 from termcolor import colored
 
 from sqlalchemy_history import make_versioned, remove_versioning, versioning_manager
@@ -66,9 +66,9 @@ def test_versioning(versioning_strategy, property_mod_tracking):
 
         id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
         article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
-        article = sa.orm.relationship(Article, backref="tags")
+        article = relationship(Article, backref="tags")
 
-    sa.orm.configure_mappers()
+    configure_mappers()
 
     connection = engine.connect()
 

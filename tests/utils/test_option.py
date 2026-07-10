@@ -1,5 +1,5 @@
 import pytest
-import sqlalchemy as sa
+from sqlalchemy.orm import aliased
 
 from sqlalchemy_history.utils import option
 from tests import TestCase
@@ -25,4 +25,4 @@ class TestOption(TestCase):
         ],
     )
     def test_option(self, attribute):
-        assert option(self.Article, attribute) == option(sa.orm.aliased(self.Article), attribute)
+        assert option(self.Article, attribute) == option(aliased(self.Article), attribute)

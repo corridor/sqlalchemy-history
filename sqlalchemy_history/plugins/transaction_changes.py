@@ -22,10 +22,18 @@ transaction_id          entity_name
 ================    =================
 """
 
+import typing as t
+
 import sqlalchemy as sa
+from sqlalchemy.orm import Session, backref, relationship
 
 from sqlalchemy_history.factory import ModelFactory
 from sqlalchemy_history.plugins.base import Plugin
+
+
+if t.TYPE_CHECKING:
+    from sqlalchemy_history.manager import VersioningManager
+    from sqlalchemy_history.unit_of_work import UnitOfWork
 
 
 class TransactionChangesBase:
@@ -36,7 +44,7 @@ class TransactionChangesBase:
 class TransactionChangesFactory(ModelFactory):
     model_name = "TransactionChanges"
 
-    def create_class(self, manager):
+    def create_class(self, manager: "VersioningManager") -> type:
         """Create TransactionChanges class.
 
         :param manager:
@@ -46,11 +54,9 @@ class TransactionChangesFactory(ModelFactory):
         class TransactionChanges(manager.declarative_base, TransactionChangesBase):
             __tablename__ = "transaction_changes"
 
-        TransactionChanges.transaction = sa.orm.relationship(
+        TransactionChanges.transaction = relationship(
             manager.transaction_cls,
-            backref=sa.orm.backref(
-                "changes",
-            ),
+            backref=backref("changes"),
             primaryjoin=(f"{manager.transaction_cls.__name__}.id == TransactionChanges.transaction_id"),
             foreign_keys=[TransactionChanges.transaction_id],
         )
@@ -60,13 +66,13 @@ class TransactionChangesFactory(ModelFactory):
 class TransactionChangesPlugin(Plugin):
     objects = None
 
-    def after_build_tx_class(self, manager):
+    def after_build_tx_class(self, manager: "VersioningManager") -> None:
         self.model_class = TransactionChangesFactory()(manager)
 
-    def after_build_models(self, manager):
+    def after_build_models(self, manager: "VersioningManager") -> None:
         self.model_class = TransactionChangesFactory()(manager)
 
-    def before_create_version_objects(self, uow, session):
+    def before_create_version_objects(self, uow: "UnitOfWork", session: Session) -> None:
         for entity in uow.operations.entities:
             params = uow.current_transaction.id, str(entity.__name__)
             changes = session.get(self.model_class, params)
@@ -77,14 +83,14 @@ class TransactionChangesPlugin(Plugin):
                 )
                 session.add(changes)
 
-    def clear(self):
+    def clear(self) -> None:
         self.objects = None
 
-    def after_rollback(self, uow, session):
+    def after_rollback(self, uow: "UnitOfWork", session: Session) -> None:
         self.clear()
 
-    def ater_commit(self, uow, session):
+    def ater_commit(self, uow: "UnitOfWork", session: Session) -> None:
         self.clear()
 
-    def after_version_class_built(self, parent_cls, version_cls):
+    def after_version_class_built(self, parent_cls, version_cls) -> None:
         parent_cls.__versioned__["transaction_changes"] = self.model_class

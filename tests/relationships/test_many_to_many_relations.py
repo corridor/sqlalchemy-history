@@ -3,6 +3,7 @@ import os
 
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from sqlalchemy_history import versioning_manager
 from tests import TestCase, create_test_cases
@@ -47,7 +48,7 @@ class ManyToManyRelationshipsTestCase(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
 
-        Tag.articles = sa.orm.relationship(Article, secondary=article_tag, backref="tags")
+        Tag.articles = relationship(Article, secondary=article_tag, backref="tags")
 
         self.Article = Article
         self.Tag = Tag
@@ -246,7 +247,7 @@ class TestManyToManyRelationshipWithViewOnly(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
 
-        Tag.articles = sa.orm.relationship(Article, secondary=article_tag, viewonly=True)
+        Tag.articles = relationship(Article, secondary=article_tag, viewonly=True)
 
         self.article_tag = article_tag
         self.Article = Article
@@ -279,7 +280,7 @@ class TestManyToManySelfReferential(TestCase):
             sa.Column("referred_id", sa.Integer, sa.ForeignKey("article.id"), primary_key=True),
         )
 
-        Article.references = sa.orm.relationship(
+        Article.references = relationship(
             Article,
             secondary=article_references,
             primaryjoin=Article.id == article_references.c.referring_id,
@@ -367,7 +368,7 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
             schema="other",
         )
 
-        Article.references = sa.orm.relationship(
+        Article.references = relationship(
             Article,
             secondary=article_references,
             primaryjoin=Article.id == article_references.c.referring_id,
@@ -437,7 +438,7 @@ class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTe
             )
             name = sa.Column(sa.Unicode(255))
 
-        Tag.articles = sa.orm.relationship(Article, secondary=article_tag, backref="tags")
+        Tag.articles = relationship(Article, secondary=article_tag, backref="tags")
 
         self.Article = Article
         self.Tag = Tag

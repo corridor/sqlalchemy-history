@@ -1,6 +1,7 @@
 from copy import copy
 
 import sqlalchemy as sa
+from sqlalchemy.orm import backref, relationship
 
 from tests import TestCase
 
@@ -27,7 +28,7 @@ class TestWriteOnlyOneToManyRelationships(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
-            article = sa.orm.relationship(Article, backref=sa.orm.backref("tags", lazy="write_only"))
+            article = relationship(Article, backref=backref("tags", lazy="write_only"))
 
         self.Article = Article
         self.Tag = Tag
@@ -105,9 +106,7 @@ class TestWriteOnlyManyToManyRelationships(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
 
-        Tag.articles = sa.orm.relationship(
-            Article, secondary=article_tag, backref=sa.orm.backref("tags", lazy="write_only")
-        )
+        Tag.articles = relationship(Article, secondary=article_tag, backref=backref("tags", lazy="write_only"))
 
         self.Article = Article
         self.Tag = Tag

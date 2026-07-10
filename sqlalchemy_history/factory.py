@@ -2,11 +2,17 @@
 Factory package manages and makes sure if a model class already exists indeclarative model registry or not
 """
 
+import typing as t
+
+
+if t.TYPE_CHECKING:
+    from sqlalchemy_history.manager import VersioningManager
+
 
 class ModelFactory:
-    model_name = None
+    model_name: t.Optional[str] = None
 
-    def __call__(self, manager):
+    def __call__(self, manager: "VersioningManager") -> type:
         """Create model class but only if it doesn't already exist
         in declarative model registry.
         """
@@ -16,3 +22,6 @@ class ModelFactory:
         if self.model_name not in registry:
             return self.create_class(manager)
         return registry[self.model_name]
+
+    def create_class(self, manager: "VersioningManager") -> type:
+        raise NotImplementedError

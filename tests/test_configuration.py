@@ -1,6 +1,6 @@
 import pytest
 import sqlalchemy as sa
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import backref, declarative_base, relationship
 
 from sqlalchemy_history import (
     ClassNotVersioned,
@@ -91,7 +91,7 @@ class TestWithCreateModelsAsFalse(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
-            article = sa.orm.relationship(Article, backref=sa.orm.backref("category", uselist=False))
+            article = relationship(Article, backref=backref("category", uselist=False))
 
         self.Article = Article
         self.Category = Category

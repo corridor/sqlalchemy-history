@@ -1,10 +1,17 @@
 """Transaction model makes transactions for history tables"""
 
+import typing as t
+
+
+if t.TYPE_CHECKING:
+    from sqlalchemy_history.manager import VersioningManager
+
 import datetime
 from collections import OrderedDict
 
 import sqlalchemy as sa
 from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.orm import object_session, relationship
 
 from sqlalchemy_history.exc import ImproperlyConfigured, NoChangesAttribute
 from sqlalchemy_history.factory import ModelFactory
@@ -21,7 +28,7 @@ class TransactionBase:
     )
 
     @property
-    def entity_names(self):
+    def entity_names(self) -> list[str]:
         """Return a list of entity names that changed during this transaction.
 
         Raises a NoChangesAttribute exception if the 'changes' column does
@@ -42,7 +49,7 @@ class TransactionBase:
         tuples = set(manager.version_class_map.items())
         entities = {}
 
-        session = sa.orm.object_session(self)
+        session = object_session(self)
 
         for class_, version_class in tuples:
             try:
@@ -63,10 +70,10 @@ class TransactionBase:
 class TransactionFactory(ModelFactory):
     model_name = "Transaction"
 
-    def __init__(self, *, remote_addr=True):
+    def __init__(self, *, remote_addr: bool = True) -> None:
         self.remote_addr = remote_addr
 
-    def create_class(self, manager):
+    def create_class(self, manager: "VersioningManager") -> type:
         """Create Transaction class."""
 
         class Transaction(manager.declarative_base, TransactionBase):
@@ -106,7 +113,7 @@ class TransactionFactory(ModelFactory):
                     index=True,
                 )
 
-                user = sa.orm.relationship(user_cls)
+                user = relationship(user_cls)
 
             def __repr__(self):
                 fields = ["id", "issued_at", "user"]

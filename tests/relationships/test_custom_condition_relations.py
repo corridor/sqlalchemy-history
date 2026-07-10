@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from tests import TestCase, create_test_cases
 
@@ -29,13 +30,13 @@ class CustomConditionRelationsTestCase(TestCase):
 
         primary_key_overlaps = {"overlaps": "secondary_tags, Article"}
         secondary_key_overlaps = {"overlaps": "primary_tags, Article"}
-        Article.primary_tags = sa.orm.relationship(
+        Article.primary_tags = relationship(
             Tag,
             primaryjoin=sa.and_(Tag.article_id == Article.id, Tag.category == "primary"),
             **primary_key_overlaps,
         )
 
-        Article.secondary_tags = sa.orm.relationship(
+        Article.secondary_tags = relationship(
             Tag,
             primaryjoin=sa.and_(Tag.article_id == Article.id, Tag.category == "secondary"),
             **secondary_key_overlaps,

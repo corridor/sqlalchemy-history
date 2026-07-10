@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.orm import column_property, relationship
 
 from sqlalchemy_history import get_versioning_manager
 from tests import TestCase
@@ -89,11 +90,11 @@ class TestChangeSetWhenParentContainsAdditionalColumns(ChangeSetTestCase):
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
-            article = sa.orm.relationship(Article, backref="tags")
+            article = relationship(Article, backref="tags")
 
         subquery = sa.select(sa.func.count(Tag.id)).where(Tag.article_id == Article.id).correlate_except(Tag)
         subquery = subquery.scalar_subquery()
-        Article.tag_count = sa.orm.column_property(subquery)
+        Article.tag_count = column_property(subquery)
 
         self.Article = Article
         self.Tag = Tag

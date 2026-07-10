@@ -2,11 +2,13 @@
 phase by the manager
 """
 
+import typing as t
 from copy import copy
 from functools import wraps
 from inspect import getmro
 
 import sqlalchemy as sa
+from sqlalchemy.orm import Mapper, column_property
 from sqlalchemy.orm.descriptor_props import ConcreteInheritedProperty
 from sqlalchemy_utils.functions import get_declarative_base, get_hybrid_properties
 
@@ -32,7 +34,7 @@ def prevent_reentry(handler):
 
 
 class Builder:
-    def build_tables(self):
+    def build_tables(self) -> None:
         """
         Build tables for version models based on classes that were collected
         during class instrumentation process.
@@ -56,7 +58,7 @@ class Builder:
                     table = builder()
                     self.manager.tables[cls] = table
 
-    def closest_matching_table(self, model):
+    def closest_matching_table(self, model) -> t.Optional[sa.Table]:
         """
         Returns the closest matching table from the generated tables dictionary
         for given model. First tries to fetch an exact match for given model.
@@ -71,7 +73,7 @@ class Builder:
         ordered_subclasses = [cls for cls in getmro(model) if cls in subclasses]
         return self.manager.tables[ordered_subclasses[0]] if ordered_subclasses else None
 
-    def build_models(self):
+    def build_models(self) -> None:
         """
         Build declarative version models based on classes that were collected
         during class instrumentation process.
@@ -92,7 +94,7 @@ class Builder:
 
             self.manager.plugins.after_build_models(self.manager)
 
-    def build_relationships(self, version_classes):
+    def build_relationships(self, version_classes) -> None:
         """
         Builds relationships for all version classes.
 
@@ -109,7 +111,7 @@ class Builder:
                 builder = RelationshipBuilder(self.manager, cls, prop)
                 builder()
 
-    def instrument_versioned_classes(self, mapper, cls):
+    def instrument_versioned_classes(self, mapper: Mapper, cls) -> None:
         """
         Collect versioned class and add it to pending_classes list.
 
@@ -128,7 +130,7 @@ class Builder:
             self.manager.pending_classes.append(cls)
             self.manager.metadata = cls.metadata
 
-    def build_transaction_class(self):
+    def build_transaction_class(self) -> None:
         if self.manager.pending_classes:
             cls = self.manager.pending_classes[0]
             self.manager.declarative_base = get_declarative_base(cls)
@@ -136,7 +138,7 @@ class Builder:
             self.manager.plugins.after_build_tx_class(self.manager)
 
     @prevent_reentry
-    def configure_versioned_classes(self):
+    def configure_versioned_classes(self) -> None:
         """
         Configures all versioned classes that were collected during
         instrumentation process. The configuration has 6 steps:
@@ -173,7 +175,7 @@ class Builder:
         self.create_association_proxies(pending_classes_copies)
         self.create_hybrid_properties(pending_classes_copies)
 
-    def enable_active_history(self, version_classes):
+    def enable_active_history(self, version_classes) -> None:
         """
         Assign all versioned attributes to use active history.
 
@@ -187,7 +189,7 @@ class Builder:
                 attr = getattr(cls, prop.key)
                 attr.impl.active_history = True
 
-    def create_column_aliases(self, version_classes):
+    def create_column_aliases(self, version_classes) -> None:
         """
         Create aliases for the columns from the original model.
         This, for example, imitates the behavior of @declared_attr columns.
@@ -210,9 +212,9 @@ class Builder:
                     if version_class_column is None:
                         continue
 
-                    version_class_mapper.add_property(key, sa.orm.column_property(version_class_column))
+                    version_class_mapper.add_property(key, column_property(version_class_column))
 
-    def create_association_proxies(self, version_classes):
+    def create_association_proxies(self, version_classes) -> None:
         """
         Create Association proxy for Column of Versioned Models from Original Model
         """
@@ -226,7 +228,7 @@ class Builder:
                     property(fget=getattr(cls, key).get),
                 )
 
-    def create_hybrid_properties(self, version_classes):
+    def create_hybrid_properties(self, version_classes) -> None:
         """
         Create Hybrid Property for Column as a property in Versioned Models from Original Model
         """
