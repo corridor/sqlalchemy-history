@@ -2,6 +2,7 @@ import datetime
 from copy import copy
 
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from tests import TestCase
 
@@ -42,7 +43,7 @@ class TestBug27(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
-            articles = sa.orm.relationship(Article, secondary=article_author_table, backref="authors")
+            articles = relationship(Article, secondary=article_author_table, backref="authors")
 
         self.Article = Article
         self.Author = Author

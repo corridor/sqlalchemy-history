@@ -1,6 +1,7 @@
 import datetime
 
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from sqlalchemy_history import version_class
 from sqlalchemy_history.operation import Operation
@@ -37,7 +38,7 @@ class UpdateEndTransactionID(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(self.Article.id))
-            article = sa.orm.relationship(self.Article, backref="labels", secondary=article_label_table)
+            article = relationship(self.Article, backref="labels", secondary=article_label_table)
 
         self.article_label_table = article_label_table
         self.Label = Label

@@ -8,6 +8,8 @@ Modules exported by this package:
 """
 
 import sqlalchemy as sa
+import sqlalchemy.event
+from sqlalchemy.orm import Mapper, Session
 
 from sqlalchemy_history.exc import (  # noqa: F401
     ClassNotVersioned,
@@ -39,8 +41,8 @@ versioning_manager = VersioningManager()
 
 
 def make_versioned(
-    mapper=sa.orm.Mapper,
-    session=sa.orm.session.Session,
+    mapper=Mapper,
+    session=Session,
     manager=versioning_manager,
     plugins=None,
     options=None,
@@ -83,18 +85,18 @@ def make_versioned(
     manager.track_operations(mapper)
     manager.track_session(session)
 
-    sa.event.listen(sa.engine.Engine, "before_cursor_execute", manager.track_sql_operations)
+    sqlalchemy.event.listen(sa.engine.Engine, "before_cursor_execute", manager.track_sql_operations)
 
-    sa.event.listen(sa.engine.Engine, "rollback", manager.clear_connection)
+    sqlalchemy.event.listen(sa.engine.Engine, "rollback", manager.clear_connection)
 
-    sa.event.listen(
+    sqlalchemy.event.listen(
         sa.engine.Engine,
         "set_connection_execution_options",
         manager.track_cloned_connections,
     )
 
 
-def remove_versioning(mapper=sa.orm.Mapper, session=sa.orm.session.Session, manager=versioning_manager):
+def remove_versioning(mapper=Mapper, session=Session, manager=versioning_manager):
     """Remove the versioning from given mapper / session and manager.
 
     **Examples**
@@ -103,10 +105,10 @@ def remove_versioning(mapper=sa.orm.Mapper, session=sa.orm.session.Session, mana
         None
 
     :param mapper: SQLAlchemy mapper to remove the versioning from. (Default value = sa.orm.Mapper)
-    :type mapper: sa.orm.Mapper
+    :type mapper:  sa.orm.Mapper
     :param session: SQLAlchemy session to remove the versioning from. By default this is
                     sa.orm.session.Session meaning it applies to all sessions.
-                     (Default value = sa.orm.session.Session)
+                    (Default value = sa.orm.session.Session)
     :param manager: SQLAlchemy-History versioning manager. (Default value = versioning_manager)
     :type manager: VersioningManager
 
@@ -117,11 +119,11 @@ def remove_versioning(mapper=sa.orm.Mapper, session=sa.orm.session.Session, mana
     manager.remove_class_configuration_listeners(mapper)
     manager.remove_operations_tracking(mapper)
     manager.remove_session_tracking(session)
-    sa.event.remove(sa.engine.Engine, "before_cursor_execute", manager.track_sql_operations)
+    sqlalchemy.event.remove(sa.engine.Engine, "before_cursor_execute", manager.track_sql_operations)
 
-    sa.event.remove(sa.engine.Engine, "rollback", manager.clear_connection)
+    sqlalchemy.event.remove(sa.engine.Engine, "rollback", manager.clear_connection)
 
-    sa.event.remove(
+    sqlalchemy.event.remove(
         sa.engine.Engine,
         "set_connection_execution_options",
         manager.track_cloned_connections,

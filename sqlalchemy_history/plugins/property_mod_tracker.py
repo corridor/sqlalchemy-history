@@ -14,9 +14,17 @@ columns `name_mod` and `content_mod` for the version model. When user commits
 transactions the plugin automatically updates these boolean columns.
 """
 
+import typing as t
+
+
+if t.TYPE_CHECKING:
+    from sqlalchemy_history.table_builder import TableBuilder
+    from sqlalchemy_history.unit_of_work import UnitOfWork
+
 from copy import copy
 
 import sqlalchemy as sa
+from sqlalchemy.orm import object_session
 from sqlalchemy_utils.functions import has_changes
 
 from sqlalchemy_history.plugins.base import Plugin
@@ -26,7 +34,7 @@ from sqlalchemy_history.utils import versioned_column_properties
 class PropertyModTrackerPlugin(Plugin):
     column_suffix = "_mod"
 
-    def create_mod_column(self, column):
+    def create_mod_column(self, column: sa.Column) -> sa.Column:
         return sa.Column(
             column.name + self.column_suffix,
             sa.Boolean,
@@ -36,17 +44,19 @@ class PropertyModTrackerPlugin(Plugin):
             nullable=False,
         )
 
-    def after_build_version_table_columns(self, table_builder, columns):
+    def after_build_version_table_columns(self, table_builder: "TableBuilder", columns: list[sa.Column]) -> None:
         # Only create modification tracking columns for tables that are
         # associated with actual model classes. In other words do not create
         # mod tracking columns for association tables.
         if table_builder.model:
-            for column in table_builder.parent_table.c:
-                if not table_builder.manager.is_excluded_column(table_builder.model, column) and not column.primary_key:
-                    columns.append(self.create_mod_column(column))
+            columns.extend(
+                self.create_mod_column(column)
+                for column in table_builder.parent_table.c
+                if not table_builder.manager.is_excluded_column(table_builder.model, column) and not column.primary_key
+            )
 
-    def after_create_version_object(self, uow, parent_obj, version_obj):
-        session = sa.orm.object_session(parent_obj)
+    def after_create_version_object(self, uow: "UnitOfWork", parent_obj, version_obj):
+        session = object_session(parent_obj)
         is_deleted = parent_obj in session.deleted
 
         for prop in versioned_column_properties(parent_obj):

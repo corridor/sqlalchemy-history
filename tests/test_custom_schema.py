@@ -2,7 +2,7 @@ import os
 
 import pytest
 import sqlalchemy as sa
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, relationship
 
 from tests import TestCase
 
@@ -45,7 +45,7 @@ class TestCustomSchema(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
 
-        Tag.articles = sa.orm.relationship(Article, secondary=article_tag, backref="tags")
+        Tag.articles = relationship(Article, secondary=article_tag, backref="tags")
 
         self.Article = Article
         self.Tag = Tag

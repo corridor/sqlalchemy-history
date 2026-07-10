@@ -1,6 +1,7 @@
 from copy import copy
 
 import sqlalchemy as sa
+from sqlalchemy.orm import backref, relationship
 
 from tests import TestCase
 
@@ -27,7 +28,7 @@ class TestRevertOneToOneRelationship(TestCase):
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
             category_id = sa.Column(sa.Integer, sa.ForeignKey(Category.id))
-            category = sa.orm.relationship(Category, backref=sa.orm.backref("article", uselist=False))
+            category = relationship(Category, backref=backref("article", uselist=False))
 
         self.Article = Article
         self.Category = Category

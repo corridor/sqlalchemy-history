@@ -11,6 +11,7 @@ from functools import wraps
 
 import sqlalchemy as sa
 from sqlalchemy.orm import object_session
+from sqlalchemy.orm.exc import UnmappedColumnError
 from sqlalchemy_utils import get_column_key
 
 from sqlalchemy_history.builder import Builder
@@ -172,7 +173,7 @@ class VersioningManager:
     def is_excluded_column(self, model, column):
         try:
             key = get_column_key(model, column)
-        except sa.orm.exc.UnmappedColumnError:
+        except UnmappedColumnError:
             return False
 
         return self.is_excluded_property(model, key)

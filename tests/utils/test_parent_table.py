@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from sqlalchemy_history.utils import parent_table, version_table
 from tests import TestCase
@@ -30,7 +31,7 @@ class TestParentTable(TestCase):
             __versioned__ = {"baseclass": (self.Model,)}
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
-            articles = sa.orm.relationship("Article", secondary=article_author_table, backref="author")
+            articles = relationship("Article", secondary=article_author_table, backref="author")
 
         self.Author = Author
         self.article_author_table = article_author_table

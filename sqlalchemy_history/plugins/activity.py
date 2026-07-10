@@ -158,6 +158,7 @@ target is the given article.
 import sqlalchemy as sa
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.inspection import inspect
+from sqlalchemy.orm import backref, object_session, relationship
 from sqlalchemy_utils import JSONType, generic_relationship
 
 from sqlalchemy_history.factory import ModelFactory
@@ -211,7 +212,7 @@ class ActivityFactory(ModelFactory):
             target_tx_id = sa.Column(sa.BigInteger)
 
             def _calculate_tx_id(self, obj):
-                session = sa.orm.object_session(self)
+                session = object_session(self)
                 if obj:
                     object_version = version_obj(session, obj)
                     if object_version:
@@ -257,11 +258,9 @@ class ActivityFactory(ModelFactory):
 
             target_version = generic_relationship(target_version_type, (target_id, target_tx_id))
 
-        Activity.transaction = sa.orm.relationship(
+        Activity.transaction = relationship(
             manager.transaction_cls,
-            backref=sa.orm.backref(
-                "activities",
-            ),
+            backref=backref("activities"),
             primaryjoin=(f"{manager.transaction_cls.__name__}.id == Activity.transaction_id"),
             foreign_keys=[Activity.transaction_id],
         )

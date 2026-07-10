@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from tests import TestCase
 
@@ -35,7 +36,7 @@ class TestRevertManyToManyRelationship(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
 
-        Tag.articles = sa.orm.relationship(Article, secondary=article_tag, backref="tags")
+        Tag.articles = relationship(Article, secondary=article_tag, backref="tags")
 
         self.Article = Article
         self.Tag = Tag

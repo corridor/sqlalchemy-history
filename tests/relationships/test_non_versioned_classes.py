@@ -1,6 +1,7 @@
 from copy import copy
 
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from tests import TestCase
 
@@ -26,7 +27,7 @@ class TestRelationshipToNonVersionedClass(TestCase):
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
             author_id = sa.Column(sa.Integer, sa.ForeignKey(User.id))
-            author = sa.orm.relationship(User)
+            author = relationship(User)
 
         self.Article = Article
         self.User = User
@@ -88,7 +89,7 @@ class TestManyToManyRelationshipToNonVersionedClass(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
 
-        Tag.articles = sa.orm.relationship(Article, secondary=article_tag, backref="tags")
+        Tag.articles = relationship(Article, secondary=article_tag, backref="tags")
 
         self.Article = Article
         self.Tag = Tag

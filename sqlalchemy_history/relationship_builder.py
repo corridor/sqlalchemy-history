@@ -6,7 +6,7 @@ import typing as t
 import warnings
 
 import sqlalchemy as sa
-from sqlalchemy.orm import RelationshipProperty, Session
+from sqlalchemy.orm import RelationshipProperty, Session, aliased, object_session
 from sqlalchemy.sql.selectable import ExecutableReturnsRows
 
 from sqlalchemy_history.exc import ClassNotVersioned
@@ -43,7 +43,7 @@ class RelationshipBuilder:
     def one_to_many_subquery(self, obj):
         tx_column = option(obj, "transaction_column_name")
 
-        remote_alias = sa.orm.aliased(self.remote_cls)
+        remote_alias = aliased(self.remote_cls)
         primary_keys = [
             getattr(remote_alias, column.name)
             for column in sa.inspect(remote_alias).mapper.columns
@@ -261,7 +261,7 @@ class RelationshipBuilder:
 
         @property
         def relationship(obj):
-            session = sa.orm.object_session(obj)
+            session = object_session(obj)
             return self.process_query(self.select(obj), session)
 
         return relationship

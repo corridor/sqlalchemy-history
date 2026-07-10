@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.orm import backref, relationship
 
 from tests import TestCase, create_test_cases
 
@@ -146,7 +147,7 @@ class TestOneToManyWithUseListFalse(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
-            article = sa.orm.relationship(Article, backref=sa.orm.backref("category", uselist=False))
+            article = relationship(Article, backref=backref("category", uselist=False))
 
         self.Article = Article
         self.Category = Category
@@ -176,7 +177,7 @@ class TestOneToManySelfReferential(TestCase):
             description = sa.Column(sa.UnicodeText)
 
             parent_article_id = sa.Column(sa.ForeignKey(id))  # noqa: A003
-            parent_article = sa.orm.relationship("Article", remote_side=[id], backref="child_articles")  # noqa: A003
+            parent_article = relationship("Article", remote_side=[id], backref="child_articles")  # noqa: A003
 
         self.Article = Article
 

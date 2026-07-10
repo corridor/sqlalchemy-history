@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from sqlalchemy_history import version_class
 from tests import TestCase
@@ -81,7 +82,7 @@ class TestColumnExclusionWithRelationship(TestCase):
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
-            content = sa.orm.relationship(Word, secondary="text_item_word")
+            content = relationship(Word, secondary="text_item_word")
 
         self.TextItem = TextItem
         self.Word = Word

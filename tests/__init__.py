@@ -8,7 +8,14 @@ from copy import copy
 import pytest
 import sqlalchemy as sa
 from sqlalchemy import create_engine, make_url
-from sqlalchemy.orm import close_all_sessions, column_property, declarative_base, sessionmaker
+from sqlalchemy.orm import (
+    close_all_sessions,
+    column_property,
+    configure_mappers,
+    declarative_base,
+    relationship,
+    sessionmaker,
+)
 
 from sqlalchemy_history import (
     ClassNotVersioned,
@@ -111,7 +118,7 @@ class TestCase:
     @pytest.fixture
     def setup_models(self, setup_engine):
         self.create_models()
-        sa.orm.configure_mappers()
+        configure_mappers()
 
     @pytest.fixture
     def setup_connection(self, setup_models):
@@ -182,7 +189,7 @@ class TestCase:
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
-            article = sa.orm.relationship(Article, backref="tags")
+            article = relationship(Article, backref="tags")
 
         self.Article = Article
         self.Tag = Tag

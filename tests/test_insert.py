@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.orm import deferred
 
 from sqlalchemy_history import count_versions, versioning_manager
 from tests import TestCase
@@ -48,7 +49,7 @@ class TestInsertWithDeferredColumn(TestCase):
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
-            name = sa.orm.deferred(sa.Column(sa.Unicode(255)))
+            name = deferred(sa.Column(sa.Unicode(255)))
 
         self.TextItem = TextItem
 
@@ -66,7 +67,7 @@ class TestInsertNonVersionedObject(TestCase):
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
-            name = sa.orm.deferred(sa.Column(sa.Unicode(255)))
+            name = deferred(sa.Column(sa.Unicode(255)))
 
         class Tag(self.Model):
             __tablename__ = "tag"
@@ -74,7 +75,7 @@ class TestInsertNonVersionedObject(TestCase):
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
-            name = sa.orm.deferred(sa.Column(sa.Unicode(255)))
+            name = deferred(sa.Column(sa.Unicode(255)))
 
         self.TextItem = TextItem
 

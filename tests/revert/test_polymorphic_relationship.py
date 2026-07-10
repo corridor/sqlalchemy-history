@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from tests import TestCase
 
@@ -12,7 +13,7 @@ class TestRevertPolymorphicRelationship(TestCase):
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
-            parts = sa.orm.relationship("Part", back_populates="car", cascade="all, delete-orphan", lazy="selectin")
+            parts = relationship("Part", back_populates="car", cascade="all, delete-orphan", lazy="selectin")
 
         class Part(self.Model):
             __tablename__ = "part"
@@ -22,7 +23,7 @@ class TestRevertPolymorphicRelationship(TestCase):
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             car_id = sa.Column(sa.Integer, sa.ForeignKey(Car.id))
-            car = sa.orm.relationship(Car, back_populates="parts")
+            car = relationship(Car, back_populates="parts")
 
             part_type = sa.Column(sa.String(50))
 

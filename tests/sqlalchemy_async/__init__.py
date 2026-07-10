@@ -5,7 +5,7 @@ from copy import copy
 import pytest
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, close_all_sessions, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, column_property
+from sqlalchemy.orm import DeclarativeBase, column_property, configure_mappers, relationship
 
 from sqlalchemy_history import (
     ClassNotVersioned,
@@ -72,7 +72,7 @@ class AsyncTestCase:
     @pytest.fixture
     async def setup_models(self, setup_engine):
         self.create_models()
-        sa.orm.configure_mappers()
+        configure_mappers()
 
     @pytest.fixture
     async def setup_tables(self, setup_models):
@@ -117,7 +117,7 @@ class AsyncTestCase:
             )
             name = sa.Column(sa.Unicode(255))
             article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id))
-            article = sa.orm.relationship(Article, backref="tags")
+            article = relationship(Article, backref="tags")
 
         self.Article = Article
         self.Tag = Tag
