@@ -8,6 +8,7 @@ ignore = [
     "TRY003",  # Allow long messages inside exception class
     "N818",    # Allow exception classes without "Error" suffix
     "PLR0913", # Allow long argument lists
+    "PLR0917", # Allow too many arguments
 ]
 select = [
     "A",      # flake8-builtins
