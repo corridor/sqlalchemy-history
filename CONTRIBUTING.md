@@ -3,68 +3,86 @@
 ## **Instructions**
 
 ### Issues
+
 - Add new requirement/issue/questions in issue tracker of repository.
 - Issue(s) raised on repository should preferably have minimum reproducible code whereever relevant for others to reproduce and work on issue.
 
 ### Pull Requests
+
 - Each PR should have a corresponding issue available in issue tracker of repository.
-- To raise a PR, fork **sqlalchemy-history** 
+- To raise a PR, fork **sqlalchemy-history**
 - Clone the project in your local machine
-```
+
+```sh
 git clone https://github.com/corridor/sqlalchemy-history.git
 cd sqlalchemy-history
 ```
+
 - Install uv in your local system
-```
+
+```sh
 # Refer https://docs.astral.sh/uv/getting-started/installation
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
+
 - Install requirements of project into virtual environment.
+
+```sh
+uv sync --all-groups --all-extras
 ```
-uv venv venv --python 3.13 --seed
-source venv/bin/activate
-uv sync --active --dev
-```
+
 - Install Git hooks with `prek`.
+
+```sh
+uv run prek install --prepare-hooks
 ```
-uv run --active prek install --prepare-hooks
-```
+
 - Checkout branch with name relevant to issue issue you are working
-```
+
+```sh
 git checkout -b short-issue-desc 
 # OR
 git checkout -b fix-issue-num
 # OR 
 git checkout -b add-issue-num
 ```
+
 - Make changes as per the issue you are working on and add/modify testfile(s) if you are adding new feature or fixing bugs in existing code
+
 - Before commiting, verify if the changes are working in your local system
-```
+
+```sh
 # Run tests locally
-DB=sqlite uv run --active pytest
+DB=sqlite uv run pytest
 
 # Run local hooks and formatting checks
-uv run --active prek run --all-files
+uv run prek run --all-files
 ```
+
 - Add commit for your changes with message title and message description brifly explaining the approach
-    - Keep commit message title 72 characters
-    - The “type” has to be any one of:
-        - feat: A new feature addition
-        - fix: A bug being fix to an existing capability
-        - test: A test case being added or changed
-        - refactor: A code change that neither fixes a bug nor adds a feature
-        - chore: Other changes that don’t modify src or test files
-```
+  - Keep commit message title 72 characters
+  - The “type” has to be any one of:
+    - feat: A new feature addition
+    - fix: A bug being fix to an existing capability
+    - test: A test case being added or changed
+    - refactor: A code change that neither fixes a bug nor adds a feature
+    - chore: Other changes that don’t modify src or test files
+
+```sh
 git commit
 # The commit message should follow this structure
 type(issue#Num): a short title goes here
 
 A long description of what you are trying to change in this commit.
+
 ```
+
 - Push the changes in your fork 
-```
+
+```sh
 git push origin <branch-name>
 ```
+
 - Got to github, and raise a PR `corridor/sqlalchemy-history:main` and wait for a review.
 - Maintainer(s) of the project will review and approve the CI flow to validate changes across different environments.
 - If changes are valid and passes all the tests, maintainer(s) will accept the PR(s)
