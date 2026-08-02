@@ -27,6 +27,7 @@ dependencies = ["SQLAlchemy>=2", "SQLAlchemy-Utils>=0.30.12", "anyio>3"]
 
 [project.optional-dependencies]
 asyncio = ["SQLAlchemy[asyncio]>=2"]
+alembic = ["alembic"]
 
 [project.urls]
 Homepage = "https://github.com/corridor/sqlalchemy-history"
@@ -50,6 +51,7 @@ test = [
     "aioodbc",
     "aiomysql",
     "importlib-metadata",
+    "termcolor",          # Used in benchmark.py
 ]
 docs = [
     "mkdocs",
