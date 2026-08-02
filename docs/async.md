@@ -57,8 +57,7 @@ async def main():
         await session.commit()
 
         latest_version = await session.scalar(
-            sa
-            .select(ArticleVersion)
+            sa.select(ArticleVersion)
             .where(ArticleVersion.id == article.id)
             .order_by(ArticleVersion.transaction_id.desc())
             .limit(1)
