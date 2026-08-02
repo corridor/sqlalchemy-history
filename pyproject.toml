@@ -72,3 +72,6 @@ sqlalchemy_history = ["py.typed"]
 [tool.coverage.run]
 dynamic_context = "test_function"
 branch = true
+
+[tool.uv]
+exclude-newer = "1 week" # Cooldown period for new vulnerabilities
