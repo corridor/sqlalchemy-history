@@ -7,6 +7,7 @@ The Module contains following Class
 
 """
 
+from copy import deepcopy
 from functools import wraps
 
 import sqlalchemy as sa
@@ -71,15 +72,8 @@ class VersioningManager:
         else:
             self.builder = builder
         self.builder.manager = self
-        self.reset()
-        if transaction_cls is not None:
-            self.transaction_cls = transaction_cls
-        else:
-            self.transaction_cls = TransactionFactory()
-        if user_cls is not None:
-            self.user_cls = user_cls
 
-        self.options = {
+        default_options = {
             "versioning": True,
             "base_classes": None,
             "table_name": "%s_version",
@@ -94,11 +88,20 @@ class VersioningManager:
             "strategy": "validity",
             "use_module_name": False,
         }
+        self.default_options = default_options
+        self.reset()
+        self.options.update(options)
+        if transaction_cls is not None:
+            self.transaction_cls = transaction_cls
+        else:
+            self.transaction_cls = TransactionFactory()
+        if user_cls is not None:
+            self.user_cls = user_cls
+
         if plugins is None:
             self.plugins = []
         else:
             self.plugins = plugins
-        self.options.update(options)
 
     @property
     def plugins(self):
@@ -163,6 +166,7 @@ class VersioningManager:
         self.session_connection_map = {}
 
         self.metadata = None
+        self.options = deepcopy(self.default_options)
 
     def create_transaction_model(self):
         """Create Transaction class but only if it doesn't already exist in declarative model registry."""

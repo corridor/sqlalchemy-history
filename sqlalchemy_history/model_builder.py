@@ -235,18 +235,31 @@ class ModelBuilder:
 
         args.update(self.get_inherited_denormalized_columns(table))
 
+        class_suffix = self.version_class_suffix()
         if self.manager.options.get("use_module_name", True):
-            name = "{}{}Version".format(
+            name = "{}{}{}".format(
                 self.model.__module__.title().replace(".", ""),
                 self.model.__name__,
+                class_suffix,
             )
         else:
-            name = f"{self.model.__name__}Version"
+            name = f"{self.model.__name__}{class_suffix}"
         version_cls = type(name, self.base_classes(), args)
         if option(self.model, "base_classes") is None:
             primary_keys = [*list(get_primary_keys(self.model).keys()), "transaction_id", "operation_type"]
             version_cls = generic_repr(*primary_keys)(version_cls)
         return version_cls
+
+    def version_class_suffix(self):
+        """Return the name suffix used for the version class of the current model.
+
+        By default this is ``Version``. When the ``table_name`` option is set,
+        the placeholder is stripped and the remaining template is title-cased so
+        that e.g. ``%s_user_defined`` results in a ``UserDefined`` suffix.
+        """
+        table_name = option(self.model, "table_name")
+        suffix = table_name.replace("%s", "").title().replace("_", "")
+        return suffix or "Version"
 
     def __call__(self, table, tx_class):
         """Build history model and relationships to parent model, transaction log model."""

@@ -16,6 +16,52 @@ class TestVersionModelBuilder(TestCase):
         assert self.Article.__versioning_manager__
 
 
+class TestVersionModelBuilderWithCustomTableName(TestCase):
+    """table_name configured via the class-level ``__versioned__`` dict."""
+
+    def create_models(self):
+        class Article(self.Model):
+            __tablename__ = "article"
+            __versioned__ = {"table_name": "%s_user_defined"}
+
+            id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+            name = sa.Column(sa.Unicode(255), nullable=False)
+
+        self.Article = Article
+
+    def test_version_class_name_uses_table_name_suffix(self):
+        assert self.ArticleVersion.__name__ == "ArticleUserDefined"
+
+    def test_version_table_name(self):
+        assert self.ArticleVersion.__table__.name == "article_user_defined"
+
+
+class TestVersionModelBuilderWithManagerTableName(TestCase):
+    """table_name configured via ``make_versioned(options={"table_name": ...})``."""
+
+    @property
+    def options(self):
+        options = super().options
+        options["table_name"] = "%s_user_defined"
+        return options
+
+    def create_models(self):
+        class Article(self.Model):
+            __tablename__ = "article"
+            __versioned__ = {}
+
+            id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+            name = sa.Column(sa.Unicode(255), nullable=False)
+
+        self.Article = Article
+
+    def test_version_class_name_uses_table_name_suffix(self):
+        assert self.ArticleVersion.__name__ == "ArticleUserDefined"
+
+    def test_version_table_name(self):
+        assert self.ArticleVersion.__table__.name == "article_user_defined"
+
+
 class TestVersionModelBuilderAsync(TestCase):
     @property
     def options(self):
