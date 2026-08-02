@@ -10,6 +10,11 @@ Unreleased
     ``mapper.attrs`` dict-API methods (e.g. ``values``, ``keys``, ``items``).
 -   Remove SQLAlchemy-i18n support
 -   Support async sqlalchemy
+-   Version class names now honor the ``table_name`` option, so e.g.
+    ``table_name='%s_user_defined'`` yields a ``<Model>UserDefined`` class
+    (fixes #116).
+-   ``VersioningManager.reset()`` now restores the default configuration
+    options, preventing options from leaking between manager instances.
 
 2.1.4 (2026-04-13)
 ^^^^^^^^^^

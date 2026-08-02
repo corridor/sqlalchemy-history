@@ -78,7 +78,10 @@ Here is a full list of configuration options:
   If base_classes is not specified version class is built through declarative base and a generic repr is added.
 
 - table_name (default: '%s_version')
-  The name of the history table.
+  The name of the history table. The generated version class name uses the same
+  template (with the ``%s`` placeholder stripped and title-cased), so for
+  example ``table_name='%s_user_defined'`` creates a version class named
+  ``ArticleUserDefined`` instead of ``ArticleVersion``.
 
 - transaction_column_name (default: 'transaction_id')
   The name of the transaction column (used by history tables).
