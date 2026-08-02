@@ -44,11 +44,12 @@ test = [
     "psycopg2-binary",
     "PyMySQL",
     "pyodbc",
-    "oracledb",        # Supports both sync and async
+    "oracledb",           # Supports both sync and async
     "aiosqlite",
     "asyncpg",
     "aioodbc",
     "aiomysql",
+    "importlib-metadata",
 ]
 docs = [
     "mkdocs",
