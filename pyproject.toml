@@ -80,7 +80,6 @@ include = ["sqlalchemy_history", "sqlalchemy_history.*"]
 sqlalchemy_history = ["py.typed"]
 
 [tool.coverage.run]
-dynamic_context = "test_function"
 branch = true
 
 [tool.uv]
