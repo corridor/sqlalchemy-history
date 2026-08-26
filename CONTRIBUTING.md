@@ -7,6 +7,25 @@
 - Add new requirement/issue/questions in issue tracker of repository.
 - Issues should preferably include a minimal reproducible example where relevant.
 
+### Documentation
+
+Documentation content lives in the `docs/` directory and the site is configured
+in `zensical.toml`. Start a local documentation server with live reload by
+running:
+
+```sh
+uv run zensical serve
+```
+
+`uv run` automatically synchronizes the project environment, including the
+documentation dependencies. Open the URL shown in the terminal to preview your
+changes. Before submitting a documentation change, ensure the site builds
+without warnings:
+
+```sh
+uv run zensical build --strict
+```
+
 ### Pull Requests
 
 - Each PR should have a corresponding issue available in issue tracker of repository.
