@@ -16,6 +16,43 @@ Transaction can be queried just like any other sqlalchemy declarative model.
 >>> session.scalars(sa.select(Transaction)).all() # find all transactions
 ```
 
+## Associate transactions with a user
+
+Set `user_cls` to add `user` and `user_id` to the transaction model. A custom
+[plugin](plugins.md) can populate the ID through `transaction_args` when each
+transaction is created:
+
+```python
+from sqlalchemy.orm import Session
+
+from sqlalchemy_history import UnitOfWork, make_versioned
+from sqlalchemy_history.plugins import Plugin
+
+
+class CurrentUserPlugin(Plugin):
+    def transaction_args(self, uow: UnitOfWork, session: Session):
+        user_id = session.info.get("current_user_id")
+        return {"user_id": user_id} if user_id is not None else {}
+
+
+make_versioned(user_cls="User", plugins=[CurrentUserPlugin()])
+```
+
+This example uses `session.info` to pass the ID, but this is not required. Ideally,
+the plugin should get the current user ID from the authentication or user-session
+mechanism used by your application.
+
+If you use `session.info`, store the current user's ID before committing changes.
+Remove it afterward so it is not accidentally used for a later transaction:
+
+```python
+session.info["current_user_id"] = user.id
+try:
+    session.commit()
+finally:
+    session.info.pop("current_user_id", None)
+```
+
 ## UnitOfWork
 
 For each database connection SQLAlchemy-History creates an internal UnitOfWork object.
