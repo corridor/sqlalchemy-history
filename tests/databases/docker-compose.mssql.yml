@@ -3,8 +3,8 @@ services:
         image: mcr.microsoft.com/mssql/server:2017-latest
         container_name: mssql
         environment:
-            MSSQL_SA_PASSWORD: testpassword
-            ACCEPT_EULA: N
+            MSSQL_SA_PASSWORD: MSsql2022
+            ACCEPT_EULA: Y
             # User is `sa`, you can create new users by bashing into it
         ports:
             - "1433:1433"
@@ -12,7 +12,7 @@ services:
         # volumes:
         #   - ${PWD}/data/mssql/:/var/opt/mssql/data
         healthcheck:
-            test: /opt/mssql-tools/bin/sqlcmd -U $DB_USER -P $SA_PASSWORD -Q 'select 1' -b -o /dev/null
+            test: /opt/mssql-tools/bin/sqlcmd -U sa -P MSsql2022 -Q 'select 1' -b -o /dev/null
             interval: 5s
             retries: 5
             start_period: 20s

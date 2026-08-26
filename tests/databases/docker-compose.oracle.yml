@@ -1,15 +1,9 @@
-version: "3.0"
 services:
     cor_oracle:
         image: gvenzl/oracle-xe:21
         container_name: oracle
         environment:
-            ORACLE_DATABASE: testdb
-            APP_USER: testuser
-            APP_USER_PASSWORD: testpassword
-            ORACLE_PASSWORD: "Password"
-            # You can use `SYSTEM or SYS` as user and `specify some password for in ORACLE_PASSWORD`
-            # value to login as root
+            ORACLE_PASSWORD: Oracle2022
         ports:
             - "1521:1521"
         # If you want to persist data for DB for next run use this

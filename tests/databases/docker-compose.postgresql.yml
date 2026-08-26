@@ -1,11 +1,11 @@
 services:
     cor_postgres:
-        image: postgres:11.7
+        image: postgres
         container_name: postgres
         environment:
-            POSTGRES_DB: testdb
-            POSTGRES_USER: testuser
-            POSTGRES_PASSWORD: testpassword
+            POSTGRES_DB: sqlalchemy_history_test
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
             # You can use `postgres` as user and `$POSTGRES_PASSWORD` value to login as root
         ports:
             - "5432:5432"
