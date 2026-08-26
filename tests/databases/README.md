@@ -1,11 +1,11 @@
-This file contains example docker-compose.yml files to start a database in your local docker.
-This is useful to run manual tests on specific databases.
-We use similar images in github-actions to start up database services, so try to keep it similar
-to maintain consistency between manual and CI tests.
+This directory contains Docker Compose files for running the test suite against
+the same database images and connection settings used in GitHub Actions.
 
 ## Working with different databases
 
-To run application with different DB locally we leverage docker to bring different DB(s) up for service.
+Start the desired database, wait for its health check to pass, and run
+`DB=<database> uv run pytest`, where `<database>` is `oracle`, `mssql`, or
+`postgres`.
 
 To ensure you have docker available in your system run below commands first make sure that you have docker-engine
 running in your local or docker service is started in your linux system.
@@ -37,8 +37,8 @@ to run oracle DB use either of below commands
 docker compose -f tests/databases/docker-compose.oracle.yml up -d
 ```
 
-In api_config of test directory or development directory use below shown URI to be able to connect DB
-URI: `oracle://testuser:testpassword@localhost:1521/?service_name=testdb`
+The test suite connects with
+`oracle+oracledb://SYSTEM:Oracle2022@localhost:1521/?service_name=XEPDB1`.
 
 Image Details : https://hub.docker.com/r/gvenzl/oracle-xe
 
@@ -51,8 +51,8 @@ To run MSSQL DB use either of below commands
 docker compose -f tests/databases/docker-compose.mssql.yml up -d
 ```
 
-In api_config of test directory or development directory use below shown URI to be able to connect DB
-URI: `mssql://sa:testpassword@localhost:1433/testdb?driver=ODBC+Driver+17+for+SQL+Server`
+The test suite connects with
+`mssql+pyodbc://sa:MSsql2022@localhost:1433/master?driver=ODBC+Driver+17+for+SQL+Server&TrustServerCertificate=yes`.
 
 Image Details : https://mcr.microsoft.com/en-us/product/mssql/server/about
 
@@ -62,7 +62,7 @@ refer: https://github.com/microsoft/mssql-docker/tree/master/linux/preview/examp
 
 ### Postgres
 
-Backend support postgres(11.7+), for test suite we use postgres:11.7+.
+The PostgreSQL test service tracks the current official `postgres` image.
 to run Postgres DB use either of below commands
 docker command:
 
@@ -70,8 +70,8 @@ docker command:
 docker compose -f tests/databases/docker-compose.postgresql.yml up -d
 ```
 
-In api_config of test directory or development directory use below shown URI to be able to connect DB
-URI: `postgresql://testuser:testpassword@localhost:5432/testdb`
+The test suite connects with
+`postgresql://postgres:postgres@localhost:5432/sqlalchemy_history_test`.
 
 Image Details : https://hub.docker.com/_/postgres/
 

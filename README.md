@@ -1,24 +1,24 @@
 # SQLAlchemy-History
 
-SQLAlchemy-history is a fork of sqlalchemy-continuum.
-An auditing extension for sqlalchemy which keeps a track of the history of your sqlalchemy models
+SQLAlchemy-History is a fork of SQLAlchemy-Continuum. It is an auditing
+extension that tracks the history of SQLAlchemy models.
 
 ## Features
 
-- Supports sqlalchemy 2+ and python 3.9+
+- Supports SQLAlchemy 2+ and Python 3.9+
 - Tracks history for inserts, deletes, and updates
 - Does not store updates which don't change anything
-- Supports alembic migrations
+- Supports Alembic migrations
 - Can revert objects data as well as all object relations at given transaction even if the object was deleted
 - Transactions can be queried afterwards using SQLAlchemy select syntax
 - Query for changed records at given transaction
 - Temporal relationship reflection. Get the relationships of an object in that point in time.
-- Support async sqlalchemy
+- Supports async SQLAlchemy
 
-## QuickStart
+## Quickstart
 
 ```sh
-pip install sqlalchemy-history
+uv pip install sqlalchemy-history
 ```
 
 In order to make your models versioned you need two things:
@@ -151,13 +151,13 @@ asyncio.run(main())
 
 </details>
 
-For more async querying and revert examples, see [Async support](async.md).
+For more async querying and revert examples, see [Async support](docs/async.md).
 
 ## Resources
 
 - [Documentation](https://corridor.github.io/sqlalchemy-history/)
-- [Issue Tracker](http://github.com/corridor/sqlalchemy-history/issues)
-- [Code](http://github.com/corridor/sqlalchemy-history/)
+- [Issue Tracker](https://github.com/corridor/sqlalchemy-history/issues)
+- [Code](https://github.com/corridor/sqlalchemy-history/)
 
 ## More information
 

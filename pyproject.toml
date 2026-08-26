@@ -15,12 +15,17 @@ authors = [
 license = "Apache-2.0 AND BSD-3-Clause"
 license-files = ["LICENSE"]
 requires-python = ">=3.9"
-readme = "docs/README.md"
+readme = "README.md"
 classifiers = [
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Typing :: Typed",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = ["SQLAlchemy>=2", "SQLAlchemy-Utils>=0.30.12", "anyio>3"]

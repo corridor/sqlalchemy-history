@@ -4,7 +4,7 @@ site_author: Corridor
 
 repo_name: sqlalchemy-history
 repo_url: https://github.com/corridor/sqlalchemy-history
-edit_uri: edit/master/docs
+edit_uri: edit/main/docs
 docs_dir: docs
 
 theme:
