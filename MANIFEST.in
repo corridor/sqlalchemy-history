@@ -1,3 +1,0 @@
-include CHANGES.rst LICENSE README.md
-recursive-include tests *.py *.md *.yml
-recursive-include docs *.md
