@@ -28,11 +28,8 @@ def get_versioning_manager(item) -> "VersioningManager":
     Return the associated SQLAlchemy-History VersioningManager for given
     SQLAlchemy declarative model class or object or table.
 
-    :param item: An item from SQLAlchemy
-    :param A: declarative ORM object
-    :param A: declarative ORM class
-    :param An: instance of a SQL table
-    :returns: SQLAlchemy declarative model class or object or table.
+    :param item: A declarative ORM object, declarative ORM class, or SQL table.
+    :returns: The versioning manager associated with ``item``.
 
     """
     # The ORM class or SQL table on which versioning was enabled
@@ -85,9 +82,8 @@ def parent_class(version_cls):
     """
     Return the parent class for given version model class.
 
-    :param model: SQLAlchemy declarative version model class
-    :param version_cls:
-    :returns:
+    :param version_cls: SQLAlchemy declarative version model class.
+    :returns: The corresponding parent model class.
     """
     manager = get_versioning_manager(version_cls)
     try:
@@ -171,11 +167,8 @@ def is_versioned(obj_or_class) -> bool:
     """
     Return whether or not given object is versioned.
 
-    :param obj_or_class:
-    :param SQLAlchemy: declarative model object or SQLAlchemy declarative model
-    :param class:
-    :param seealso: func
-    :returns:
+    :param obj_or_class: SQLAlchemy declarative model object or class.
+    :returns: Whether versioning is enabled for the object or class.
     """
     try:
         return hasattr(obj_or_class, "__versioned__") and get_versioning_manager(obj_or_class).option(
@@ -186,11 +179,10 @@ def is_versioned(obj_or_class) -> bool:
 
 
 def versioned_column_properties(obj_or_class) -> t.Iterator[ColumnProperty]:
-    """
+    """Yield the versioned column properties for a model object or class.
 
-    :param obj: SQLAlchemy declarative model object
-    :param obj_or_class:
-    :returns: declarative model object.
+    :param obj_or_class: SQLAlchemy declarative model object or class.
+    :returns: An iterator of versioned column properties.
 
     """
     manager = get_versioning_manager(obj_or_class)
@@ -272,10 +264,9 @@ def is_internal_column(model, column_name: str) -> bool:
     is considered an internal column (a column whose purpose is mainly
     for SQLA-History's internal use).
 
-    :param version_obj: SQLAlchemy declarative class
-    :param column_name: Name of the column
-    :param model:
-    :returns: Bool
+    :param model: SQLAlchemy declarative model object or class.
+    :param column_name: Name of the column.
+    :returns: Whether the column is managed internally by SQLAlchemy-History.
 
     """
     return column_name in (
