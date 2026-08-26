@@ -61,9 +61,6 @@ test = [
     "termcolor",          # Used in benchmark.py
 ]
 docs = [
-    "mkdocs",
-    "mkdocs-autorefs",
-    "mkdocs-awesome-pages-plugin",
     "mkdocstrings-python",
     "zensical",
 ]

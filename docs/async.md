@@ -1,3 +1,7 @@
+---
+icon: lucide/refresh-cw
+---
+
 # Async support
 
 SQLAlchemy-History supports SQLAlchemy's async ORM as long as versioning is configured

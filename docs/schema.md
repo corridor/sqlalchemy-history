@@ -1,3 +1,7 @@
+---
+icon: lucide/database
+---
+
 # Schema
 
 ## Version tables

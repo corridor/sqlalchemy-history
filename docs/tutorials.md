@@ -1,3 +1,0 @@
-# Tutorial
-
-::: sqlalchemy_history

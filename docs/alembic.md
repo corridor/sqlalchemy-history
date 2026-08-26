@@ -1,3 +1,7 @@
+---
+icon: lucide/route
+---
+
 # Alembic migrations
 
 Each time you make changes to database structure you should also change the associated history tables. When you make changes to your models SQLAlchemy-History automatically alters the history model definitions, hence you can use `alembic revision --autogenerate` just like before. You just need to make sure `make_versioned` function gets called before alembic gathers all your models and `configure_mappers` is called afterwards.

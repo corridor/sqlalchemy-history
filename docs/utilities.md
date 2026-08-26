@@ -1,3 +1,7 @@
+---
+icon: lucide/wrench
+---
+
 # Utilities
 
 ::: sqlalchemy_history.utils
