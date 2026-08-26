@@ -144,7 +144,7 @@ jobs:
             uv.lock
 
       - name: Install the project
-        run: uv sync --locked --dev
+        run: uv sync --locked --no-dev --group lint
 
       - run: uv run --no-sync ruff check
       - run: uv run --no-sync ruff format --check
