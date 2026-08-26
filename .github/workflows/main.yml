@@ -3,7 +3,7 @@ name: "Test"
 on:
   push:
     branches:
-      - master
+      - main
     paths-ignore:
       - "docs/**"
   pull_request:
@@ -59,9 +59,9 @@ jobs:
           - 1433:1433
         env:
           MSSQL_SA_PASSWORD: MSsql2022
-          ACCEPT_EULA: N
+          ACCEPT_EULA: Y
         options: >-
-          --health-cmd "/opt/mssql-tools/bin/sqlcmd -U $DB_USER -P $SA_PASSWORD -Q 'select 1' -b -o /dev/null"
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -U sa -P MSsql2022 -Q 'select 1' -b -o /dev/null"
           --health-interval 5s
           --health-timeout 2s
           --health-retries 3

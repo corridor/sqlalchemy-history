@@ -1,6 +1,16 @@
 name: Documentation
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "sqlalchemy_history/**"
+
+permissions:
+  contents: write
 
 jobs:
   deploy:
@@ -23,7 +33,7 @@ jobs:
           uv sync --locked --no-dev --group docs
 
       - name: Build Site
-        run: uv run mkdocs build
+        run: uv run mkdocs build --strict
 
       - name: deploy site
         run: uv run mkdocs gh-deploy --force
