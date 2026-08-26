@@ -38,6 +38,7 @@ alembic = ["alembic"]
 
 [project.urls]
 Homepage = "https://github.com/corridor/sqlalchemy-history"
+Documentation = "https://corridor.github.io/sqlalchemy-history/"
 Repository = "https://github.com/corridor/sqlalchemy-history"
 Issues = "https://github.com/corridor/sqlalchemy-history/issues"
 Changelog = "https://github.com/corridor/sqlalchemy-history/releases"
