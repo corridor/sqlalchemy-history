@@ -25,6 +25,8 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Typing :: Typed",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
@@ -41,7 +43,7 @@ Issues = "https://github.com/corridor/sqlalchemy-history/issues"
 Changelog = "https://github.com/corridor/sqlalchemy-history/releases"
 
 [dependency-groups]
-dev = ["ruff", "prek"]
+lint = ["ruff", "prek"]
 test = [
     "sqlalchemy-history[asyncio]",
     "pytest",
@@ -64,7 +66,11 @@ docs = [
     "mkdocs-awesome-pages-plugin",
     "mkdocstrings-python",
 ]
-
+dev = [
+    { include-group = "test" },
+    { include-group = "docs" },
+    { include-group = "lint" },
+]
 [tool.setuptools_scm]
 root = "."
 

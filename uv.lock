@@ -2073,8 +2073,29 @@ asyncio = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "aiomysql" },
+    { name = "aioodbc" },
+    { name = "aiosqlite" },
+    { name = "asyncpg" },
+    { name = "importlib-metadata", version = "8.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "importlib-metadata", version = "9.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "mkdocs" },
+    { name = "mkdocs-autorefs" },
+    { name = "mkdocs-awesome-pages-plugin" },
+    { name = "mkdocstrings-python", version = "1.18.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "mkdocstrings-python", version = "2.0.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "oracledb" },
     { name = "prek" },
+    { name = "psycopg2-binary" },
+    { name = "pymysql" },
+    { name = "pyodbc" },
+    { name = "pytest", version = "8.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "pytest", version = "9.1.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "pytest-cov" },
     { name = "ruff" },
+    { name = "sqlalchemy-history", extra = ["asyncio"] },
+    { name = "termcolor", version = "3.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "termcolor", version = "3.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
 ]
 docs = [
     { name = "mkdocs" },
@@ -2082,6 +2103,10 @@ docs = [
     { name = "mkdocs-awesome-pages-plugin" },
     { name = "mkdocstrings-python", version = "1.18.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "mkdocstrings-python", version = "2.0.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+]
+lint = [
+    { name = "prek" },
+    { name = "ruff" },
 ]
 test = [
     { name = "aiomysql" },
@@ -2114,14 +2139,35 @@ provides-extras = ["asyncio", "alembic"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "aiomysql" },
+    { name = "aioodbc" },
+    { name = "aiosqlite" },
+    { name = "asyncpg" },
+    { name = "importlib-metadata" },
+    { name = "mkdocs" },
+    { name = "mkdocs-autorefs" },
+    { name = "mkdocs-awesome-pages-plugin" },
+    { name = "mkdocstrings-python" },
+    { name = "oracledb" },
     { name = "prek" },
+    { name = "psycopg2-binary" },
+    { name = "pymysql" },
+    { name = "pyodbc" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
     { name = "ruff" },
+    { name = "sqlalchemy-history", extras = ["asyncio"] },
+    { name = "termcolor" },
 ]
 docs = [
     { name = "mkdocs" },
     { name = "mkdocs-autorefs" },
     { name = "mkdocs-awesome-pages-plugin" },
     { name = "mkdocstrings-python" },
+]
+lint = [
+    { name = "prek" },
+    { name = "ruff" },
 ]
 test = [
     { name = "aiomysql" },

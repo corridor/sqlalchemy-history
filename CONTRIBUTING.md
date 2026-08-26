@@ -28,7 +28,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 - Install requirements of project into virtual environment.
 
 ```sh
-uv sync --all-groups --all-extras
+uv sync
 ```
 
 - Install Git hooks with `prek`.
