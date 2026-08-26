@@ -6,17 +6,29 @@ Here you can see the full list of changes between each release.
 Unreleased
 ^^^^^^^^^^
 
+2.1.6 (2026-08-26)
+^^^^^^^^^^^^^^^^^^
+
 -   Fix ``versioned_column_properties`` failing on columns whose names shadow
     ``mapper.attrs`` dict-API methods (e.g. ``values``, ``keys``, ``items``).
--   Remove SQLAlchemy-i18n support
--   Support async sqlalchemy
+-   Add async SQLAlchemy support, including async version traversal and revert
+    operations.
 -   Version class names now honor the ``table_name`` option, so e.g.
     ``table_name='%s_user_defined'`` yields a ``<Model>UserDefined`` class
     (fixes #116).
 -   ``VersioningManager.reset()`` now restores the default configuration
     options, preventing options from leaking between manager instances.
+-   Match the default value for ``Transaction.issued_at`` to its timezone-naive
+    column definition.
+-   Add inline type hints and a ``py.typed`` marker for typing-aware tools.
+-   Remove SQLAlchemy-i18n support.
 
-2.1.4 (2026-04-13)
+Internal Improvements:
+-   Add Alembic as an optional dependency.
+-   Align local database containers with the CI test configuration.
+-   Update project dependencies and release workflows.
+
+2.1.5 (2026-04-13)
 ^^^^^^^^^^
 
 -   Drop support for SQLAlchemy 1.4. SQLAlchemy-History now requires SQLAlchemy 2+.
