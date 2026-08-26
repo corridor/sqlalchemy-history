@@ -65,6 +65,7 @@ docs = [
     "mkdocs-autorefs",
     "mkdocs-awesome-pages-plugin",
     "mkdocstrings-python",
+    "zensical",
 ]
 dev = [
     { include-group = "test" },
