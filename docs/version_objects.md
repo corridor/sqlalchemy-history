@@ -1,3 +1,7 @@
+---
+icon: lucide/history
+---
+
 # Version objects
 
 ## Operation types

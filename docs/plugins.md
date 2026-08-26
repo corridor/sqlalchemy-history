@@ -1,3 +1,7 @@
+---
+icon: lucide/plug
+---
+
 # Plugins
 
 ```python

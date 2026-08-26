@@ -1,3 +1,7 @@
+---
+icon: lucide/arrow-left-right
+---
+
 # Transactions
 
 ## Transaction

@@ -1,3 +1,7 @@
+---
+icon: lucide/search
+---
+
 # Queries
 
 You can query history models just like any other sqlalchemy declarative model.
