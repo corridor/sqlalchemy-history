@@ -79,6 +79,49 @@ class TestTableBuilderWithOnUpdate(TestCase):
         assert table.c.last_update.default is None
 
 
+class TestTableBuilderWithIdentity(TestCase):
+    def create_models(self):
+        class Article(self.Model):
+            __tablename__ = "article"
+            __versioned__ = copy(self.options)
+
+            id = sa.Column(sa.Integer, sa.Identity(), primary_key=True, autoincrement=True)
+            name = sa.Column(sa.Unicode(255))
+
+        self.Article = Article
+
+    def test_removes_identity_from_version_column(self):
+        parent_column = self.Article.__table__.c.id
+        version_column = version_class(self.Article).__table__.c.id
+
+        assert parent_column.identity is not None
+        assert parent_column.autoincrement is True
+        assert version_column.identity is None
+        assert version_column.server_default is None
+        assert version_column.autoincrement is False
+
+    def test_version_table_ddl_does_not_emit_identity(self):
+        table = version_class(self.Article).__table__
+        ddl = str(sa.schema.CreateTable(table).compile())
+
+        assert "IDENTITY" not in ddl
+
+    def test_populates_version_column_from_parent_identity(self):
+        article = self.Article(name="First name")
+        self.session.add(article)
+        self.session.commit()
+
+        article.name = "Updated name"
+        self.session.commit()
+
+        version_model = version_class(self.Article)
+        versions = self.session.scalars(sa.select(version_model).order_by(version_model.transaction_id)).all()
+
+        assert article.id is not None
+        assert len(versions) == 2
+        assert [version.id for version in versions] == [article.id, article.id]
+
+
 @pytest.mark.skipif(os.environ.get("DB") == "sqlite", reason="sqlite doesn't have a concept of schema")
 class TestTableBuilderInOtherSchema(TestCase):
     def create_models(self):
