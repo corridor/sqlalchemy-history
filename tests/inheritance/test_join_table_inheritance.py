@@ -178,3 +178,58 @@ class TestDeepJoinedTableInheritance(TestCase):
         assert self.session.execute(sa.text("SELECT COUNT(1) FROM document_version")).scalar() == 1
         assert self.session.execute(sa.text("SELECT COUNT(1) FROM content_version")).scalar() == 1
         assert self.session.execute(sa.text("SELECT COUNT(1) FROM node_version")).scalar() == 1
+
+
+class TestDeepJoinedTableInheritanceWithIdentity(TestCase):
+    def create_models(self):
+        class Node(self.Model):
+            __versioned__ = {}
+            __tablename__ = "node"
+            __mapper_args__ = {
+                "polymorphic_on": "type",
+                "polymorphic_identity": "node",
+                "with_polymorphic": "*",
+            }
+
+            id = sa.Column(sa.Integer, sa.Identity(), primary_key=True)
+            type = sa.Column(sa.String(30), nullable=False)
+
+        class Content(Node):
+            __versioned__ = {}
+            __tablename__ = "content"
+            __mapper_args__ = {"polymorphic_identity": "content"}
+            id = sa.Column(
+                sa.Integer,
+                sa.ForeignKey("node.id"),
+                autoincrement=False,
+                primary_key=True,
+            )
+            description = sa.Column(sa.UnicodeText())
+
+        class Document(Content):
+            __versioned__ = {}
+            __tablename__ = "document"
+            __mapper_args__ = {"polymorphic_identity": "document"}
+            id = sa.Column(
+                sa.Integer,
+                sa.ForeignKey("content.id"),
+                primary_key=True,
+                autoincrement=False,
+            )
+            body = sa.Column(sa.UnicodeText)
+
+        self.Node = Node
+        self.Content = Content
+        self.Document = Document
+
+    def test_insert_with_identity(self):
+        document = self.Document()
+        self.session.add(document)
+        self.session.commit()
+
+        assert self.session.execute(sa.text("SELECT COUNT(1) FROM document_version")).scalar() == 1
+        assert self.session.execute(sa.text("SELECT COUNT(1) FROM content_version")).scalar() == 1
+        assert self.session.execute(sa.text("SELECT COUNT(1) FROM node_version")).scalar() == 1
+        assert self.session.execute(sa.text("SELECT id FROM document_version")).scalar() == document.id
+        assert self.session.execute(sa.text("SELECT id FROM content_version")).scalar() == document.id
+        assert self.session.execute(sa.text("SELECT id FROM node_version")).scalar() == document.id
