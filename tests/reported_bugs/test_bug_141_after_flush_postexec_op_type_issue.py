@@ -8,10 +8,10 @@ from tests import TestCase
 
 class TestBug141(TestCase):
     # ref: https://github.com/corridor/sqlalchemy-history/issues/141
-    def create_models(self):
-        class Author(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Author(decl_base):
             __tablename__ = "author"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True

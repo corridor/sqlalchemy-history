@@ -67,10 +67,10 @@ class TestTransactionWithoutChangesPlugin(TestTransaction):
 class TestAssigningUserClass(TestCase):
     user_cls = "User"
 
-    def create_models(self):
-        class User(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class User(decl_base):
             __tablename__ = "user"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(sa.Unicode(255), primary_key=True)
             name = sa.Column(sa.Unicode(255), nullable=False)
@@ -90,10 +90,10 @@ class TestAssigningUserClass(TestCase):
 class TestAssigningUserClassInOtherSchema(TestCase):
     user_cls = "User"
 
-    def create_models(self):
-        class User(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class User(decl_base):
             __tablename__ = "user"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
             __table_args__ = {"schema": "other"}
 
             id = sa.Column(sa.Unicode(255), primary_key=True)
@@ -101,7 +101,7 @@ class TestAssigningUserClassInOtherSchema(TestCase):
 
         self.User = User
 
-    def create_tables(self, connection):
+    def create_tables(self, connection, decl_base):
         try:
             connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
             connection.execute(sa.text("CREATE SCHEMA other"))
@@ -137,7 +137,7 @@ class TestAssigningUserClassInOtherSchema(TestCase):
                     raise
         finally:
             connection.commit()
-        TestCase.create_tables(self, connection=connection)
+        TestCase.create_tables(self, connection=connection, decl_base=decl_base)
 
     def test_can_build_transaction_model(self):
         # If create_models didn't crash this should be good

@@ -29,8 +29,8 @@ class TestDelete(TestCase):
 
 
 class TestDeleteWithDeferredColumn(TestCase):
-    def create_models(self):
-        class TextItem(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class TextItem(decl_base):
             __tablename__ = "text_item"
             __versioned__ = {}
             id = sa.Column(

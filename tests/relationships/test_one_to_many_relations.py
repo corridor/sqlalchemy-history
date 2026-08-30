@@ -126,8 +126,8 @@ create_test_cases(OneToManyRelationshipsTestCase)
 
 
 class TestOneToManyWithUseListFalse(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {}
 
@@ -138,7 +138,7 @@ class TestOneToManyWithUseListFalse(TestCase):
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
 
-        class Category(self.Model):
+        class Category(decl_base):
             __tablename__ = "category"
             __versioned__ = {}
 
@@ -164,8 +164,8 @@ class TestOneToManyWithUseListFalse(TestCase):
 
 
 class TestOneToManySelfReferential(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {}
 

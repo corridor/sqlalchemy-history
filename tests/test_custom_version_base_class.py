@@ -5,8 +5,8 @@ from tests import TestCase
 
 
 class TestCommonBaseClass(TestCase):
-    def create_models(self):
-        class TextItem(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class TextItem(decl_base):
             __tablename__ = "text_item"
             __versioned__ = {}
 
@@ -14,10 +14,10 @@ class TestCommonBaseClass(TestCase):
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
 
-        class ArticleVersionBase(self.Model):
+        class ArticleVersionBase(decl_base):
             __abstract__ = True
 
-        class Article(self.Model):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {"base_classes": (ArticleVersionBase,)}
             id = sa.Column(

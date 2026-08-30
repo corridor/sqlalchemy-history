@@ -31,7 +31,7 @@ class VersionModelAccessorsTestCase(TestCase):
         assert version.previous.name == "Some article"
         assert getattr(version.previous, tx_column_name(version)) == getattr(version, tx_column_name(version)) - 1
 
-    def test_previous_for_deleted_parent(self, session):
+    def test_previous_for_deleted_parent(self, session, versioning_options):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
@@ -41,12 +41,12 @@ class VersionModelAccessorsTestCase(TestCase):
         session.commit()
         versions = session.scalars(
             sa.select(self.ArticleVersion).order_by(
-                getattr(self.ArticleVersion, self.options["transaction_column_name"])
+                getattr(self.ArticleVersion, versioning_options["transaction_column_name"])
             )
         ).all()
         assert versions[1].previous.name == "Some article"
 
-    def test_previous_chaining(self, session):
+    def test_previous_chaining(self, session, versioning_options):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
@@ -58,7 +58,7 @@ class VersionModelAccessorsTestCase(TestCase):
         session.commit()
         version = session.scalars(
             sa.select(self.ArticleVersion).order_by(
-                getattr(self.ArticleVersion, self.options["transaction_column_name"])
+                getattr(self.ArticleVersion, versioning_options["transaction_column_name"])
             )
         ).all()[-1]
         assert version.previous.previous
@@ -158,7 +158,7 @@ class VersionModelAccessorsTestCase(TestCase):
         assert version.next == versions[1]
         assert version.next.next == versions[2]
 
-    def test_index_for_deleted_parent(self, session):
+    def test_index_for_deleted_parent(self, session, versioning_options):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
@@ -170,7 +170,7 @@ class VersionModelAccessorsTestCase(TestCase):
 
         versions = session.scalars(
             sa.select(self.ArticleVersion).order_by(
-                getattr(self.ArticleVersion, self.options["transaction_column_name"])
+                getattr(self.ArticleVersion, versioning_options["transaction_column_name"])
             )
         ).all()
         assert versions[0].index == 0
@@ -187,10 +187,10 @@ class VersionModelAccessorsTestCase(TestCase):
 
 
 class VersionModelAccessorsWithCompositePkTestCase(TestCase):
-    def create_models(self):
-        class User(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class User(decl_base):
             __tablename__ = "user"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             first_name = sa.Column(sa.Unicode(255), primary_key=True)
             last_name = sa.Column(sa.Unicode(255), primary_key=True)

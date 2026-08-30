@@ -9,10 +9,10 @@ from tests import TestCase
 
 class TestBug27(TestCase):
     # ref: https://github.com/corridor/sqlalchemy-history/issues/27
-    def create_models(self):
+    def create_models(self, decl_base, versioning_options):
         article_author_table = sa.Table(
             "article_author",
-            self.Model.metadata,
+            decl_base.metadata,
             sa.Column("article_id", sa.Integer, sa.ForeignKey("article.id"), primary_key=True, nullable=False),
             sa.Column("author_id", sa.Integer, sa.ForeignKey("author.id"), primary_key=True, nullable=False),
             sa.Column(
@@ -24,9 +24,9 @@ class TestBug27(TestCase):
             ),
         )
 
-        class Article(self.Model):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -34,9 +34,9 @@ class TestBug27(TestCase):
             name = sa.Column(sa.Unicode(255), nullable=False)
             content = sa.Column(sa.UnicodeText)
 
-        class Author(self.Model):
+        class Author(decl_base):
             __tablename__ = "author"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True

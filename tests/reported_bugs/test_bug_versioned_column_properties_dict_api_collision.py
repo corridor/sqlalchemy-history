@@ -11,10 +11,10 @@ class TestVersionedColumnPropertiesDictAPICollision(TestCase):
     # names that shadow dict-API methods on ``mapper.attrs`` (e.g. ``values``,
     # ``keys``, ``items``). Attribute access used to return a bound method
     # instead of the column property, which made inserts on such models fail.
-    def create_models(self):
-        class Measurement(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Measurement(decl_base):
             __tablename__ = "measurement"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer,
