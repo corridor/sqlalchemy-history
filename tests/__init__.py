@@ -102,37 +102,37 @@ class TestCase:
         versioning_manager.user_cls = self.user_cls
 
     @pytest.fixture
-    def setup_engine(self, setup_versioning, pytestconfig):
-        self.engine = create_engine(get_dns_from_driver(pytestconfig.getvalue("db")))
-        yield
-        self.engine.dispose()
+    def engine(self, setup_versioning, pytestconfig):
+        engine = create_engine(get_dns_from_driver(pytestconfig.getvalue("db")))
+        yield engine
+        engine.dispose()
 
     @pytest.fixture
-    def setup_models(self, setup_engine):
+    def setup_models(self, engine):
         self.create_models()
         configure_mappers()
 
     @pytest.fixture
-    def setup_connection(self, setup_models):
-        self.connection = self.engine.connect()
-        yield
-        self.connection.close()
+    def connection(self, setup_models, engine):
+        connection = engine.connect()
+        yield connection
+        connection.close()
 
     @pytest.fixture
-    def setup_tables(self, setup_connection):
+    def setup_tables(self, connection):
         if hasattr(self, "Article"):
             with contextlib.suppress(ClassNotVersioned):
                 self.ArticleVersion = version_class(self.Article)
         if hasattr(self, "Tag"):
             with contextlib.suppress(ClassNotVersioned):
                 self.TagVersion = version_class(self.Tag)
-        self.create_tables()
+        self.create_tables(connection=connection)
         yield
-        self.drop_tables()
+        self.drop_tables(connection=connection)
 
     @pytest.fixture(autouse=True)
-    def setup_session(self, setup_tables):
-        Session = sessionmaker(bind=self.connection)
+    def setup_session(self, setup_tables, connection):
+        Session = sessionmaker(bind=connection)
         self.session = Session(autoflush=False, future=True)
         yield
         self.session.rollback()
@@ -149,13 +149,13 @@ class TestCase:
         assert not uow_leaks
         assert not session_map_leaks
 
-    def create_tables(self):
-        with self.connection.begin():
-            self.Model.metadata.create_all(self.connection)
+    def create_tables(self, connection):
+        with connection.begin():
+            self.Model.metadata.create_all(connection)
 
-    def drop_tables(self):
-        with self.connection.begin():
-            self.Model.metadata.drop_all(self.connection)
+    def drop_tables(self, connection):
+        with connection.begin():
+            self.Model.metadata.drop_all(connection)
 
     def create_models(self):
         class Article(self.Model):
