@@ -13,11 +13,11 @@ from tests import TestCase, create_test_cases
 class UpdateEndTransactionID(TestCase):
     versioning_strategy = "validity"
 
-    def create_models(self):
-        super().create_models()
+    def create_models(self, decl_base, versioning_options):
+        super().create_models(decl_base=decl_base, versioning_options=versioning_options)
         article_label_table = sa.Table(
             "article_label",
-            self.Model.metadata,
+            decl_base.metadata,
             sa.Column("article_id", sa.Integer, sa.ForeignKey("article.id"), primary_key=True, nullable=False),
             sa.Column("label_id", sa.Integer, sa.ForeignKey("label.id"), primary_key=True, nullable=False),
             sa.Column(
@@ -29,7 +29,7 @@ class UpdateEndTransactionID(TestCase):
             ),
         )
 
-        class Label(self.Model):
+        class Label(decl_base):
             __tablename__ = "label"
             __versioned__ = {}
 

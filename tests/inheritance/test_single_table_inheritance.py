@@ -7,10 +7,10 @@ from tests import TestCase, create_test_cases
 
 
 class SingleTableInheritanceTestCase(TestCase):
-    def create_models(self):
-        class TextItem(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class TextItem(decl_base):
             __tablename__ = "text_item"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
@@ -94,8 +94,8 @@ create_test_cases(SingleTableInheritanceTestCase)
 
 
 class TestCaseStatementPolymorphicOn(TestCase):
-    def create_models(self):
-        class Writer(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Writer(decl_base):
             __tablename__ = "writer"
             __versioned__ = {}
 
@@ -143,8 +143,8 @@ class TestCaseStatementPolymorphicOn(TestCase):
 
 
 class TestColumnPropertyPolymorphicOn(TestCase):
-    def create_models(self):
-        class Employee(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Employee(decl_base):
             __tablename__ = "employee"
             __versioned__ = {}
 
@@ -201,8 +201,8 @@ class TestColumnPropertyPolymorphicOn(TestCase):
 
 
 class TestComplexCaseStatementPolymorphicOn(TestCase):
-    def create_models(self):
-        class Writer(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Writer(decl_base):
             __tablename__ = "complex_writer"
             __versioned__ = {}
 

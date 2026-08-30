@@ -7,19 +7,19 @@ from tests import TestCase
 
 
 class TestRevertOneToOneRelationship(TestCase):
-    def create_models(self):
-        class Category(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Category(decl_base):
             __tablename__ = "category"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 
-        class Article(self.Model):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True

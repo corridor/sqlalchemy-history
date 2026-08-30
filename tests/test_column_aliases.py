@@ -5,8 +5,8 @@ from tests import TestCase, create_test_cases
 
 
 class ColumnAliasesBaseTestCase(TestCase):
-    def create_models(self):
-        class TextItem(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class TextItem(decl_base):
             __tablename__ = "text_item"
             __versioned__ = {}
 
@@ -44,7 +44,7 @@ class ColumnAliasesTestCase(ColumnAliasesBaseTestCase):
         item.versions[0].revert()
         session.commit()
 
-    def test_previous_for_deleted_parent(self, session):
+    def test_previous_for_deleted_parent(self, session, versioning_options):
         item = self.TextItem()
         item.name = "Some item"
         item.content = "Some content"
@@ -55,7 +55,7 @@ class ColumnAliasesTestCase(ColumnAliasesBaseTestCase):
         TextItemVersion = version_class(self.TextItem)
 
         versions = session.scalars(
-            sa.select(TextItemVersion).order_by(getattr(TextItemVersion, self.options["transaction_column_name"]))
+            sa.select(TextItemVersion).order_by(getattr(TextItemVersion, versioning_options["transaction_column_name"]))
         ).all()
         assert versions[1].previous.name == "Some item"
 

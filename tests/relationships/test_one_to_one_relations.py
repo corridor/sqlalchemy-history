@@ -7,19 +7,19 @@ from tests import TestCase, create_test_cases
 
 
 class OneToOneRelationshipsTestCase(TestCase):
-    def create_models(self):
-        class User(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class User(decl_base):
             __tablename__ = "user"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 
-        class Article(self.Model):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True

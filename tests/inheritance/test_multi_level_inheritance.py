@@ -5,8 +5,8 @@ from tests import TestCase
 
 
 class TestCommonBaseClass(TestCase):
-    def create_models(self):
-        class BaseModel(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class BaseModel(decl_base):
             __tablename__ = "base_model"
             __versioned__ = {}
 

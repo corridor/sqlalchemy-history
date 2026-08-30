@@ -32,18 +32,18 @@ class AsyncVersionModelAccessorsTestCase(AsyncTestCase):
         assert previous.name == "Some article"
         assert getattr(previous, tx_column_name(version)) == getattr(version, tx_column_name(version)) - 1
 
-    async def test_previous_for_deleted_parent(self, async_session):
+    async def test_previous_for_deleted_parent(self, async_session, versioning_options):
         article = self.Article(name="Some article", content="Some content")
         async_session.add(article)
         await async_session.commit()
         await async_session.delete(article)
         await async_session.commit()
 
-        versions = await self.ordered_versions(async_session, self.ArticleVersion)
+        versions = await self.ordered_versions(async_session, versioning_options, self.ArticleVersion)
 
         assert (await versions[1].aprevious).name == "Some article"
 
-    async def test_previous_chaining(self, async_session):
+    async def test_previous_chaining(self, async_session, versioning_options):
         article = self.Article(name="Some article", content="Some content")
         async_session.add(article)
         await async_session.commit()
@@ -52,7 +52,7 @@ class AsyncVersionModelAccessorsTestCase(AsyncTestCase):
         await async_session.delete(article)
         await async_session.commit()
 
-        version = (await self.ordered_versions(async_session, self.ArticleVersion))[-1]
+        version = (await self.ordered_versions(async_session, versioning_options, self.ArticleVersion))[-1]
 
         assert await (await version.aprevious).aprevious
 
@@ -143,7 +143,7 @@ class AsyncVersionModelAccessorsTestCase(AsyncTestCase):
         assert await version.anext == versions[1]
         assert await (await version.anext).anext == versions[2]
 
-    async def test_index_for_deleted_parent(self, async_session):
+    async def test_index_for_deleted_parent(self, async_session, versioning_options):
         article = self.Article(name="Some article", content="Some content")
         async_session.add(article)
         await async_session.commit()
@@ -151,7 +151,7 @@ class AsyncVersionModelAccessorsTestCase(AsyncTestCase):
         await async_session.delete(article)
         await async_session.commit()
 
-        versions = await self.ordered_versions(async_session, self.ArticleVersion)
+        versions = await self.ordered_versions(async_session, versioning_options, self.ArticleVersion)
 
         assert await versions[0].aindex == 0
         assert await versions[1].aindex == 1
@@ -167,10 +167,10 @@ class AsyncVersionModelAccessorsTestCase(AsyncTestCase):
 
 
 class AsyncVersionModelAccessorsWithCompositePkTestCase(AsyncTestCase):
-    def create_models(self):
-        class User(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class User(decl_base):
             __tablename__ = "user"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             first_name = sa.Column(sa.Unicode(255), primary_key=True)
             last_name = sa.Column(sa.Unicode(255), primary_key=True)

@@ -5,8 +5,8 @@ from tests import TestCase
 
 
 class TestRevertDeepRelations(TestCase):
-    def create_models(self):
-        class Category(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Category(decl_base):
             __tablename__ = "category"
             __versioned__ = {}
 
@@ -15,7 +15,7 @@ class TestRevertDeepRelations(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
 
-        class Article(self.Model):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {}
 
@@ -26,7 +26,7 @@ class TestRevertDeepRelations(TestCase):
             category_id = sa.Column(sa.Integer, sa.ForeignKey(Category.id))
             category = relationship(Category, backref="articles")
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
             __versioned__ = {}
 

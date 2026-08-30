@@ -160,8 +160,8 @@ class TestRevertWithCustomTransactionColumn(RevertTestCase):
 
 
 class TestRevertWithColumnExclusion(RevertTestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {"exclude": ["description"]}
 
@@ -174,7 +174,7 @@ class TestRevertWithColumnExclusion(RevertTestCase):
 
         self.Article = Article
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
             __versioned__ = {}
 

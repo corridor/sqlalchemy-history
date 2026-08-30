@@ -7,8 +7,8 @@ from tests import TestCase
 
 
 class TestAssociationProxy(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {}
 
@@ -21,7 +21,7 @@ class TestAssociationProxy(TestCase):
 
             upanaam = association_proxy("tags", "name")
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
             __versioned__ = {}
 

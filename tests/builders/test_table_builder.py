@@ -52,13 +52,11 @@ class TestTableBuilder(TestCase):
 
 
 class TestTableBuilderWithOnUpdate(TestCase):
-    def create_models(self):
-        options = copy(self.options)
-        options["include"] = [
-            "last_update",
-        ]
+    def create_models(self, decl_base, versioning_options):
+        options = copy(versioning_options)
+        options["include"] = ["last_update"]
 
-        class Article(self.Model):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = options
 
@@ -80,10 +78,10 @@ class TestTableBuilderWithOnUpdate(TestCase):
 
 @pytest.mark.skip_db("sqlite", reason="sqlite doesn't have a concept of schema")
 class TestTableBuilderInOtherSchema(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
             __table_args__ = {"schema": "other"}
 
             id = sa.Column(
@@ -94,7 +92,7 @@ class TestTableBuilderInOtherSchema(TestCase):
 
         self.Article = Article
 
-    def create_tables(self, connection):
+    def create_tables(self, connection, decl_base):
         try:
             connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
             connection.execute(sa.text("CREATE SCHEMA other"))
@@ -113,7 +111,7 @@ class TestTableBuilderInOtherSchema(TestCase):
                     raise
         finally:
             connection.commit()
-        TestCase.create_tables(self, connection=connection)
+        TestCase.create_tables(self, connection=connection, decl_base=decl_base)
 
     def test_created_tables_retain_schema(self):
         table = version_class(self.Article).__table__
@@ -122,10 +120,10 @@ class TestTableBuilderInOtherSchema(TestCase):
 
 
 class TestEnumNaming(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True

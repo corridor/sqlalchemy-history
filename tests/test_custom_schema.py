@@ -1,18 +1,23 @@
 import pytest
 import sqlalchemy as sa
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import DeclarativeBase, relationship
 
 from tests import TestCase
 
 
 @pytest.mark.skip_db("sqlite", reason="sqlite doesn't have a concept of schema")
 class TestCustomSchema(TestCase):
-    def create_models(self):
-        self.Model = declarative_base(metadata=sa.MetaData(schema="sqlahistory"))
+    @pytest.fixture
+    def decl_base(self):
+        class Base(DeclarativeBase):
+            metadata = sa.MetaData(schema="sqlahistory")
 
-        class Article(self.Model):
+        return Base
+
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -21,7 +26,7 @@ class TestCustomSchema(TestCase):
 
         article_tag = sa.Table(
             "article_tag",
-            self.Model.metadata,
+            decl_base.metadata,
             sa.Column(
                 "article_id",
                 sa.Integer,
@@ -31,9 +36,9 @@ class TestCustomSchema(TestCase):
             sa.Column("tag_id", sa.Integer, sa.ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True),
         )
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -45,7 +50,7 @@ class TestCustomSchema(TestCase):
         self.Article = Article
         self.Tag = Tag
 
-    def create_tables(self, connection):
+    def create_tables(self, connection, decl_base):
         try:
             connection.execute(sa.text("DROP SCHEMA IF EXISTS sqlahistory"))
             connection.execute(sa.text("CREATE SCHEMA sqlahistory"))
@@ -64,7 +69,7 @@ class TestCustomSchema(TestCase):
                     raise
         finally:
             connection.commit()
-        TestCase.create_tables(self, connection=connection)
+        TestCase.create_tables(self, connection=connection, decl_base=decl_base)
 
     def test_version_relations(self, session):
         article = self.Article()

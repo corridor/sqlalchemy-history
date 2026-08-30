@@ -1,3 +1,4 @@
+import pytest
 import sqlalchemy as sa
 from sqlalchemy.orm import MappedColumn
 
@@ -19,8 +20,8 @@ class TestVersionModelBuilder(TestCase):
 class TestVersionModelBuilderWithCustomTableName(TestCase):
     """table_name configured via the class-level ``__versioned__`` dict."""
 
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {"table_name": "%s_user_defined"}
 
@@ -39,14 +40,12 @@ class TestVersionModelBuilderWithCustomTableName(TestCase):
 class TestVersionModelBuilderWithManagerTableName(TestCase):
     """table_name configured via ``make_versioned(options={"table_name": ...})``."""
 
-    @property
-    def options(self):
-        options = super().options
-        options["table_name"] = "%s_user_defined"
-        return options
+    @pytest.fixture
+    def versioning_options(self, decl_base):
+        return {**super().get_default_versioning_options(decl_base), "table_name": "%s_user_defined"}
 
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {}
 
@@ -63,11 +62,9 @@ class TestVersionModelBuilderWithManagerTableName(TestCase):
 
 
 class TestVersionModelBuilderAsync(TestCase):
-    @property
-    def options(self):
-        options = super().options
-        options["support_async"] = True
-        return options
+    @pytest.fixture
+    def versioning_options(self, decl_base):
+        return {**super().get_default_versioning_options(decl_base), "support_async": True}
 
     def test_versions_relationship_is_write_only_with_async_support(self):
         assert sa.inspect(self.Article).relationships.versions.lazy == "write_only"
@@ -84,8 +81,8 @@ class TestVersionModelBuilderAsync(TestCase):
 
 
 class TestGenericReprModelBuilder(TestCase):
-    @property
-    def options(self):
+    @pytest.fixture
+    def versioning_options(self, decl_base):
         return {
             "create_models": self.should_create_models,
             "base_classes": None,
@@ -104,15 +101,15 @@ class TestGenericReprModelBuilder(TestCase):
 
 
 class TestNoGenericReprModelBuilder(TestCase):
-    @property
-    def options(self):
+    @pytest.fixture
+    def versioning_options(self, decl_base):
         class ReprMixin:
             def __repr__(self):
                 return f"Class_{self.__class__.__name__}(id={self.id})"
 
         return {
             "create_models": self.should_create_models,
-            "base_classes": (self.Model, ReprMixin),
+            "base_classes": (decl_base, ReprMixin),
             "strategy": self.versioning_strategy,
             "support_async": False,
             "transaction_column_name": self.transaction_column_name,

@@ -30,11 +30,10 @@ class AsyncTestCase:
     should_create_models = True
     async_database_url = "sqlite+aiosqlite:///:memory:"
 
-    @property
-    def options(self):
+    def get_default_versioning_options(self, decl_base):
         return {
             "create_models": self.should_create_models,
-            "base_classes": (self.Model,),
+            "base_classes": (decl_base,),
             "strategy": self.versioning_strategy,
             "support_async": True,
             "transaction_column_name": self.transaction_column_name,
@@ -42,17 +41,19 @@ class AsyncTestCase:
         }
 
     @pytest.fixture
-    async def setup_declarative_base(self):
+    def versioning_options(self, decl_base):
+        return self.get_default_versioning_options(decl_base)
+
+    @pytest.fixture
+    async def decl_base(self):
         class Base(AsyncAttrs, DeclarativeBase):
             pass
 
-        self.Model = Base
-        yield
-        del self.Model
+        return Base
 
     @pytest.fixture
-    async def setup_versioning(self, setup_declarative_base):
-        make_versioned(options=self.options, plugins=self.plugins)
+    async def setup_versioning(self, versioning_options):
+        make_versioned(options=versioning_options, plugins=self.plugins)
         versioning_manager.transaction_cls = self.transaction_cls
         versioning_manager.user_cls = self.user_cls
 
@@ -63,34 +64,34 @@ class AsyncTestCase:
         await engine.dispose()
 
     @pytest.fixture
-    async def setup_models(self, async_engine):
-        self.create_models()
+    async def setup_models(self, async_engine, decl_base, versioning_options):
+        self.create_models(decl_base=decl_base, versioning_options=versioning_options)
         configure_mappers()
 
     @pytest.fixture
-    async def setup_tables(self, setup_models, async_engine):
+    async def setup_tables(self, setup_models, async_engine, decl_base):
         if hasattr(self, "Article"):
             with contextlib.suppress(ClassNotVersioned):
                 self.ArticleVersion = version_class(self.Article)
         if hasattr(self, "Tag"):
             with contextlib.suppress(ClassNotVersioned):
                 self.TagVersion = version_class(self.Tag)
-        await self.create_tables(async_engine)
+        await self.create_tables(async_engine, decl_base)
         yield
-        await self.drop_tables(async_engine)
+        await self.drop_tables(async_engine, decl_base)
 
-    async def create_tables(self, async_engine):
+    async def create_tables(self, async_engine, decl_base):
         async with async_engine.begin() as conn:
-            await conn.run_sync(self.Model.metadata.create_all)
+            await conn.run_sync(decl_base.metadata.create_all)
 
-    async def drop_tables(self, async_engine):
+    async def drop_tables(self, async_engine, decl_base):
         async with async_engine.begin() as conn:
-            await conn.run_sync(self.Model.metadata.drop_all)
+            await conn.run_sync(decl_base.metadata.drop_all)
 
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -101,9 +102,9 @@ class AsyncTestCase:
 
             fulltext_content = column_property(name + content + description)
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -139,9 +140,9 @@ class AsyncTestCase:
     async def versions(self, session, parent):
         return (await session.scalars(parent.versions.select())).all()
 
-    async def ordered_versions(self, session, version_model):
+    async def ordered_versions(self, session, versioning_options, version_model):
         return (
             await session.scalars(
-                sa.select(version_model).order_by(getattr(version_model, self.options["transaction_column_name"]))
+                sa.select(version_model).order_by(getattr(version_model, versioning_options["transaction_column_name"]))
             )
         ).all()
