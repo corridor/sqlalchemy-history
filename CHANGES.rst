@@ -6,7 +6,8 @@ Here you can see the full list of changes between each release.
 Unreleased
 ^^^^^^^^^^
 
--   Fix version-table generation for parent columns that use ``sa.Identity()``
+-   Fix version-table generation for parent columns that use ``sa.Identity()``.
+-   Support SQL expressions such as ``sa.case()`` in ``polymorphic_on`` mappings.
 
 2.1.6 (2026-08-26)
 ^^^^^^^^^^^^^^^^^^
