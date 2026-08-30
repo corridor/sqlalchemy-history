@@ -1,5 +1,6 @@
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.exc import DatabaseError
 from sqlalchemy.orm import DeclarativeBase, relationship
 
 from tests import TestCase
@@ -54,7 +55,7 @@ class TestCustomSchema(TestCase):
         try:
             connection.execute(sa.text("DROP SCHEMA IF EXISTS sqlahistory"))
             connection.execute(sa.text("CREATE SCHEMA sqlahistory"))
-        except sa.exc.DatabaseError:
+        except DatabaseError:
             try:
                 # Create a User for Oracle DataBase as it does not have concept of schema
                 # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa: E501
@@ -62,7 +63,7 @@ class TestCustomSchema(TestCase):
                 # need to give privilege to create table to this new user
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
                 connection.execute(sa.text("GRANT UNLIMITED TABLESPACE TO sqlahistory"))
-            except sa.exc.DatabaseError as dbe:  # pragma: no cover
+            except DatabaseError as dbe:  # pragma: no cover
                 if "ORA-01920: user name 'SQLAHISTORY' conflicts with another user or role name" not in dbe.__str__():
                     # NOTE: prior to oracle 23c we don't have concept of if not exists
                     #       so we just try to create if fails we continue
