@@ -42,8 +42,8 @@ class TestInsert(TestCase):
 
 
 class TestInsertWithDeferredColumn(TestCase):
-    def create_models(self):
-        class TextItem(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class TextItem(decl_base):
             __tablename__ = "text_item"
             __versioned__ = {}
             id = sa.Column(
@@ -61,15 +61,15 @@ class TestInsertWithDeferredColumn(TestCase):
 
 
 class TestInsertNonVersionedObject(TestCase):
-    def create_models(self):
-        class TextItem(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class TextItem(decl_base):
             __tablename__ = "text_item"
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = deferred(sa.Column(sa.Unicode(255)))
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
             __versioned__ = {}
             id = sa.Column(

@@ -10,12 +10,12 @@ from tests import QueryPool, TestCase
 class ActivityTestCase(TestCase):
     plugins = [ActivityPlugin()]
 
-    def create_models(self):
-        TestCase.create_models(self)
+    def create_models(self, decl_base, versioning_options):
+        TestCase.create_models(self, decl_base=decl_base, versioning_options=versioning_options)
 
-        class User(self.Model):
+        class User(decl_base):
             __tablename__ = "user"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -45,12 +45,12 @@ class ActivityTestCase(TestCase):
     reason="sqla-utils generic relations has issue with sqla 2.x",
 )
 class TestActivityNotId(ActivityTestCase):
-    def create_models(self):
-        TestCase.create_models(self)
+    def create_models(self, decl_base, versioning_options):
+        TestCase.create_models(self, decl_base=decl_base, versioning_options=versioning_options)
 
-        class NotIdModel(self.Model):
+        class NotIdModel(decl_base):
             __tablename__ = "not_id"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             pk = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True

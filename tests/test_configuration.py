@@ -15,10 +15,10 @@ from tests import TestCase
 
 
 class TestVersionedModelWithoutVersioning(TestCase):
-    def create_models(self):
-        TestCase.create_models(self)
+    def create_models(self, decl_base, versioning_options):
+        TestCase.create_models(self, decl_base=decl_base, versioning_options=versioning_options)
 
-        class TextItem(self.Model):
+        class TextItem(decl_base):
             __tablename__ = "text_item"
             __versioned__ = {"versioning": False}
 
@@ -46,10 +46,13 @@ class TestVersionedModelWithoutVersioning(TestCase):
 
 
 class TestWithUnknownUserClass:
-    def test_raises_improperly_configured_error(self):
-        self.Model = declarative_base()
+    @pytest.fixture
+    def decl_base(self):
+        return declarative_base()
 
-        class TextItem(self.Model):
+    def test_raises_improperly_configured_error(self, decl_base):
+
+        class TextItem(decl_base):
             __tablename__ = "text_item"
             __versioned__ = {}
 
@@ -60,7 +63,7 @@ class TestWithUnknownUserClass:
         self.TextItem = TextItem
 
         versioning_manager.user_cls = "User"
-        versioning_manager.declarative_base = self.Model
+        versioning_manager.declarative_base = decl_base
 
         factory = TransactionFactory()
         with pytest.raises(ImproperlyConfigured):
@@ -70,8 +73,8 @@ class TestWithUnknownUserClass:
 class TestWithCreateModelsAsFalse(TestCase):
     should_create_models = False
 
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {}
 
@@ -82,7 +85,7 @@ class TestWithCreateModelsAsFalse(TestCase):
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
 
-        class Category(self.Model):
+        class Category(decl_base):
             __tablename__ = "category"
             __versioned__ = {}
 
@@ -103,8 +106,8 @@ class TestWithCreateModelsAsFalse(TestCase):
 
 
 class TestWithoutAnyVersionedModels(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
 
             id = sa.Column(

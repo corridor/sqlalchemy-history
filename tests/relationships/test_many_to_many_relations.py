@@ -9,10 +9,10 @@ from tests import TestCase, create_test_cases
 
 
 class ManyToManyRelationshipsTestCase(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -21,7 +21,7 @@ class ManyToManyRelationshipsTestCase(TestCase):
 
         article_tag = sa.Table(
             "article_tag",
-            self.Model.metadata,
+            decl_base.metadata,
             sa.Column(
                 "article_id",
                 sa.Integer,
@@ -38,9 +38,9 @@ class ManyToManyRelationshipsTestCase(TestCase):
             ),
         )
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -215,10 +215,10 @@ create_test_cases(ManyToManyRelationshipsTestCase)
 
 
 class TestManyToManyRelationshipWithViewOnly(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -227,7 +227,7 @@ class TestManyToManyRelationshipWithViewOnly(TestCase):
 
         article_tag = sa.Table(
             "article_tag",
-            self.Model.metadata,
+            decl_base.metadata,
             sa.Column(
                 "article_id",
                 sa.Integer,
@@ -237,9 +237,9 @@ class TestManyToManyRelationshipWithViewOnly(TestCase):
             sa.Column("tag_id", sa.Integer, sa.ForeignKey("tag.id"), primary_key=True),
         )
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -257,8 +257,8 @@ class TestManyToManyRelationshipWithViewOnly(TestCase):
 
 
 class TestManyToManySelfReferential(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {}
 
@@ -269,7 +269,7 @@ class TestManyToManySelfReferential(TestCase):
 
         article_references = sa.Table(
             "article_references",
-            self.Model.metadata,
+            decl_base.metadata,
             sa.Column(
                 "referring_id",
                 sa.Integer,
@@ -343,8 +343,8 @@ class TestManyToManySelfReferential(TestCase):
 
 @pytest.mark.skip_db("sqlite", reason="sqlite doesn't have a concept of schema")
 class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {}
             __table_args__ = {"schema": "other"}
@@ -356,7 +356,7 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
 
         article_references = sa.Table(
             "article_references",
-            self.Model.metadata,
+            decl_base.metadata,
             sa.Column(
                 "referring_id",
                 sa.Integer,
@@ -378,7 +378,7 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
         self.Article = Article
         self.referenced_articles_table = article_references
 
-    def create_tables(self, connection):
+    def create_tables(self, connection, decl_base):
         try:
             connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
             connection.execute(sa.text("CREATE SCHEMA other"))
@@ -398,15 +398,15 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
         finally:
             connection.commit()
 
-        TestManyToManySelfReferential.create_tables(self, connection=connection)
+        TestManyToManySelfReferential.create_tables(self, connection=connection, decl_base=decl_base)
 
 
 @pytest.mark.skip_db("sqlite", reason="sqlite doesn't have a concept of schema")
 class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
             __table_args__ = {"schema": "other"}
 
             id = sa.Column(
@@ -416,7 +416,7 @@ class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTe
 
         article_tag = sa.Table(
             "article_tag",
-            self.Model.metadata,
+            decl_base.metadata,
             sa.Column(
                 "article_id",
                 sa.Integer,
@@ -427,9 +427,9 @@ class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTe
             schema="other",
         )
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
             __table_args__ = {"schema": "other"}
 
             id = sa.Column(
@@ -442,7 +442,7 @@ class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTe
         self.Article = Article
         self.Tag = Tag
 
-    def create_tables(self, connection):
+    def create_tables(self, connection, decl_base):
         try:
             connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
             connection.execute(sa.text("CREATE SCHEMA other"))
@@ -461,7 +461,7 @@ class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTe
                     raise
         finally:
             connection.commit()
-        ManyToManyRelationshipsTestCase.create_tables(self, connection=connection)
+        ManyToManyRelationshipsTestCase.create_tables(self, connection=connection, decl_base=decl_base)
 
 
 create_test_cases(TestManyToManyRelationshipsInOtherSchemaTestCase)

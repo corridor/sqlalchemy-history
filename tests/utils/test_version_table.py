@@ -10,12 +10,12 @@ from tests import TestCase
 
 
 class TestVersionTableDefault(TestCase):
-    def create_models(self):
-        super().create_models()
+    def create_models(self, decl_base, versioning_options):
+        super().create_models(decl_base=decl_base, versioning_options=versioning_options)
 
         article_author_table = sa.Table(
             "article_author",
-            self.Model.metadata,
+            decl_base.metadata,
             sa.Column("article_id", sa.Integer, sa.ForeignKey("article.id"), primary_key=True, nullable=False),
             sa.Column("author_id", sa.Integer, sa.ForeignKey("author.id"), primary_key=True, nullable=False),
             sa.Column(
@@ -29,20 +29,20 @@ class TestVersionTableDefault(TestCase):
 
         user_activity_table = sa.Table(
             "user_activity",
-            self.Model.metadata,
+            decl_base.metadata,
             sa.Column("user_id", sa.INTEGER, sa.ForeignKey("user.id"), nullable=False),
             sa.Column("login_time", sa.DateTime, nullable=False),
             sa.Column("logout_time", sa.DateTime, nullable=False),
         )
 
-        class Author(self.Model):
+        class Author(decl_base):
             __tablename__ = "author"
             __versioned__ = {"table_name": "%s_custom"}
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
             name = sa.Column(sa.Unicode(255))
             articles = relationship("Article", secondary=article_author_table, backref="author")
 
-        class User(self.Model):
+        class User(decl_base):
             __tablename__ = "user"
 
             id = sa.Column(sa.Integer, autoincrement=True, primary_key=True)
@@ -75,11 +75,11 @@ class TestVersionTableDefault(TestCase):
 
 
 class TestVersionTableUserDefined(TestVersionTableDefault):
-    @property
-    def options(self):
+    @pytest.fixture
+    def versioning_options(self, decl_base):
         return {
             "create_models": self.should_create_models,
-            "base_classes": (self.Model,),
+            "base_classes": (decl_base,),
             "strategy": self.versioning_strategy,
             "transaction_column_name": self.transaction_column_name,
             "end_transaction_column_name": self.end_transaction_column_name,

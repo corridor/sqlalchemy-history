@@ -8,11 +8,11 @@ import pytest
 import sqlalchemy as sa
 from sqlalchemy import create_engine, make_url
 from sqlalchemy.orm import (
+    DeclarativeBase,
     Session,
     close_all_sessions,
     column_property,
     configure_mappers,
-    declarative_base,
     relationship,
     sessionmaker,
 )
@@ -79,11 +79,10 @@ class TestCase:
     user_cls = None
     should_create_models = True
 
-    @property
-    def options(self):
+    def get_default_versioning_options(self, decl_base):
         return {
             "create_models": self.should_create_models,
-            "base_classes": (self.Model,),
+            "base_classes": (decl_base,),
             "strategy": self.versioning_strategy,
             "support_async": False,
             "transaction_column_name": self.transaction_column_name,
@@ -91,14 +90,19 @@ class TestCase:
         }
 
     @pytest.fixture
-    def setup_declarative_base(self):
-        self.Model = declarative_base()
-        yield
-        del self.Model
+    def versioning_options(self, decl_base):
+        return self.get_default_versioning_options(decl_base)
 
     @pytest.fixture
-    def setup_versioning(self, setup_declarative_base):
-        make_versioned(options=self.options, plugins=self.plugins)
+    def decl_base(self):
+        class Base(DeclarativeBase):
+            pass
+
+        return Base
+
+    @pytest.fixture
+    def setup_versioning(self, versioning_options):
+        make_versioned(options=versioning_options, plugins=self.plugins)
         versioning_manager.transaction_cls = self.transaction_cls
         versioning_manager.user_cls = self.user_cls
 
@@ -109,8 +113,8 @@ class TestCase:
         engine.dispose()
 
     @pytest.fixture
-    def setup_models(self, engine):
-        self.create_models()
+    def setup_models(self, engine, decl_base, versioning_options):
+        self.create_models(decl_base=decl_base, versioning_options=versioning_options)
         configure_mappers()
 
     @pytest.fixture
@@ -120,16 +124,16 @@ class TestCase:
         connection.close()
 
     @pytest.fixture
-    def setup_tables(self, connection):
+    def setup_tables(self, connection, decl_base):
         if hasattr(self, "Article"):
             with contextlib.suppress(ClassNotVersioned):
                 self.ArticleVersion = version_class(self.Article)
         if hasattr(self, "Tag"):
             with contextlib.suppress(ClassNotVersioned):
                 self.TagVersion = version_class(self.Tag)
-        self.create_tables(connection=connection)
+        self.create_tables(connection=connection, decl_base=decl_base)
         yield
-        self.drop_tables(connection=connection)
+        self.drop_tables(connection=connection, decl_base=decl_base)
 
     @pytest.fixture(autouse=True)
     def session(self, setup_tables, connection) -> t.Iterator[Session]:
@@ -150,18 +154,18 @@ class TestCase:
         assert not uow_leaks
         assert not session_map_leaks
 
-    def create_tables(self, connection):
+    def create_tables(self, connection, decl_base):
         with connection.begin():
-            self.Model.metadata.create_all(connection)
+            decl_base.metadata.create_all(connection)
 
-    def drop_tables(self, connection):
+    def drop_tables(self, connection, decl_base):
         with connection.begin():
-            self.Model.metadata.drop_all(connection)
+            decl_base.metadata.drop_all(connection)
 
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -173,9 +177,9 @@ class TestCase:
             # Dynamic column cotaining all text content data
             fulltext_content = column_property(name + content + description)
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
