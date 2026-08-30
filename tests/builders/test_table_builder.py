@@ -1,11 +1,16 @@
+import datetime
 from copy import copy
-from datetime import datetime
 
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.exc import DatabaseError
 
 from sqlalchemy_history import version_class
 from tests import TestCase
+
+
+def utcnow():
+    return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
 
 
 class TestTableBuilder(TestCase):
@@ -63,7 +68,7 @@ class TestTableBuilderWithOnUpdate(TestCase):
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
-            last_update = sa.Column(sa.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+            last_update = sa.Column(sa.DateTime, default=utcnow, onupdate=utcnow, nullable=False)
 
         self.Article = Article
 
@@ -87,7 +92,7 @@ class TestTableBuilderInOtherSchema(TestCase):
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
-            last_update = sa.Column(sa.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+            last_update = sa.Column(sa.DateTime, default=utcnow, onupdate=utcnow, nullable=False)
             enum_col = sa.Column(sa.Enum("TYPE_A", "TYPE_B", name="test_enum"))
 
         self.Article = Article
@@ -96,7 +101,7 @@ class TestTableBuilderInOtherSchema(TestCase):
         try:
             connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
             connection.execute(sa.text("CREATE SCHEMA other"))
-        except sa.exc.DatabaseError:
+        except DatabaseError:
             try:
                 # Create a User for Oracle DataBase as it does not have concept of schema
                 # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa: E501
@@ -104,7 +109,7 @@ class TestTableBuilderInOtherSchema(TestCase):
                 # need to give privilege to create table to this new user
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
                 connection.execute(sa.text("GRANT UNLIMITED TABLESPACE TO other"))
-            except sa.exc.DatabaseError as dbe:  # pragma: no cover
+            except DatabaseError as dbe:  # pragma: no cover
                 if "ORA-01920: user name 'OTHER' conflicts with another user or role name" not in dbe.__str__():
                     # NOTE: prior to oracle 23c we don't have concept of if not exists
                     #       so we just try to create if fails we continue
