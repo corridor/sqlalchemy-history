@@ -184,7 +184,9 @@ class Builder:
         """
         for cls in version_classes:
             for prop in sa.inspect(cls).iterate_properties:
-                if isinstance(prop, ConcreteInheritedProperty):
+                # SQL expression discriminators (in the case of polymorphic_on) create synthetic mapper properties
+                # without corresponding instrumented class attributes.
+                if isinstance(prop, ConcreteInheritedProperty) or not hasattr(cls, prop.key):
                     continue
                 attr = getattr(cls, prop.key)
                 attr.impl.active_history = True
