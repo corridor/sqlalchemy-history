@@ -34,50 +34,50 @@ class TestPropertyModificationsTracking(TestCase):
         UserVersion = version_class(self.User)
         assert "id_mod" not in UserVersion.__table__.c
 
-    def test_mod_properties_with_insert(self):
+    def test_mod_properties_with_insert(self, session):
         user = self.User(name="John")
-        self.session.add(user)
-        self.session.commit()
+        session.add(user)
+        session.commit()
 
         assert user.versions.all()[-1].name_mod
 
-    def test_mod_properties_with_update(self):
+    def test_mod_properties_with_update(self, session):
         user = self.User(name="John")
-        self.session.add(user)
-        self.session.commit()
+        session.add(user)
+        session.commit()
         user.age = 14
-        self.session.commit()
+        session.commit()
         assert user.versions.all()[-1].age_mod
         assert not user.versions.all()[-1].name_mod
 
-    def test_mod_properties_with_delete(self):
+    def test_mod_properties_with_delete(self, session):
         user = self.User(name="John")
-        self.session.add(user)
-        self.session.commit()
-        self.session.delete(user)
-        self.session.commit()
+        session.add(user)
+        session.commit()
+        session.delete(user)
+        session.commit()
         UserVersion = version_class(self.User)
-        version = self.session.scalars(sa.select(UserVersion).order_by(sa.desc(UserVersion.transaction_id))).first()
+        version = session.scalars(sa.select(UserVersion).order_by(sa.desc(UserVersion.transaction_id))).first()
         assert version.age_mod
         assert version.name_mod
 
-    def test_consequtive_insert_and_update(self):
+    def test_consequtive_insert_and_update(self, session):
         user = self.User(name="John")
-        self.session.add(user)
-        self.session.flush()
+        session.add(user)
+        session.flush()
         user.age = 15
-        self.session.commit()
+        session.commit()
         assert user.versions.all()[-1].age_mod
         assert user.versions.all()[-1].name_mod
 
-    def test_consequtive_update_and_update(self):
+    def test_consequtive_update_and_update(self, session):
         user = self.User(name="John")
-        self.session.add(user)
-        self.session.commit()
+        session.add(user)
+        session.commit()
         user.name = "Jack"
-        self.session.flush()
+        session.flush()
         user.age = 15
-        self.session.commit()
+        session.commit()
         assert user.versions.all()[-1].age_mod
         assert user.versions.all()[-1].name_mod
 
@@ -85,28 +85,28 @@ class TestPropertyModificationsTracking(TestCase):
 class TestChangeSetWithPropertyModPlugin(TestCase):
     plugins = [PropertyModTrackerPlugin()]
 
-    def test_changeset_for_insert(self):
+    def test_changeset_for_insert(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert article.versions[0].changeset == {
             "content": [None, "Some content"],
             "name": [None, "Some article"],
             "id": [None, 1],
         }
 
-    def test_changeset_for_update(self):
+    def test_changeset_for_update(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         article.name = "Updated name"
         article.content = "Updated content"
-        self.session.commit()
+        session.commit()
 
         assert article.versions[1].changeset == {
             "content": ["Some content", "Updated content"],
@@ -164,17 +164,17 @@ class TestWithAssociationTables(TestCase):
 class TestModTrackingWithRelationships(TestCase):
     plugins = [PropertyModTrackerPlugin()]
 
-    def test_with_insert(self):
+    def test_with_insert(self, session):
         tag = self.Tag(article=self.Article(name="Some article"))
-        self.session.add(tag)
-        self.session.commit()
+        session.add(tag)
+        session.commit()
         assert tag.versions.all()[-1]
 
-    def test_with_update(self):
+    def test_with_update(self, session):
         tag = self.Tag(article=self.Article(name="Some article"))
-        self.session.add(tag)
-        self.session.commit()
+        session.add(tag)
+        session.commit()
         tag.article = None
-        self.session.commit()
+        session.commit()
 
         assert tag.versions.all()[-1].article_id_mod

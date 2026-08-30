@@ -39,7 +39,7 @@ class TestConreteTableInheritance(TestCase):
         self.BlogPost = BlogPost
 
     @pytest.fixture(autouse=True)
-    def setup_method_for_concerete_inheritance(self, setup_session):
+    def setup_method_for_concerete_inheritance(self, session):
         self.TextItemVersion = version_class(self.TextItem)
         self.ArticleVersion = version_class(self.Article)
         self.BlogPostVersion = version_class(self.BlogPost)
@@ -60,27 +60,27 @@ class TestConreteTableInheritance(TestCase):
         assert self.BlogPostVersion.__table__.name == "blog_post_version"
 
     @pytest.mark.skipif(condition=True, reason="concrete property is not supported yet")
-    def test_each_object_has_distinct_version_class(self):  # pragma: no cover
+    def test_each_object_has_distinct_version_class(self, session):  # pragma: no cover
         article = self.Article(name="a")
         blogpost = self.BlogPost(title="b")
         textitem = self.TextItem(discriminator="blog_post")
 
-        self.session.add(article)
-        self.session.add(blogpost)
-        self.session.add(textitem)
-        self.session.commit()
+        session.add(article)
+        session.add(blogpost)
+        session.add(textitem)
+        session.commit()
 
         assert type(textitem.versions[0]) is self.TextItemVersion
         assert type(article.versions[0]) is self.ArticleVersion
         assert type(blogpost.versions[0]) is self.BlogPostVersion
 
-    def test_transaction_changed_entities(self):
+    def test_transaction_changed_entities(self, session):
         article = self.Article()
         article.name = "Text 1"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         Transaction = versioning_manager.transaction_cls
-        transaction = self.session.scalars(
+        transaction = session.scalars(
             sa.select(Transaction).order_by(sa.sql.expression.desc(Transaction.issued_at))
         ).first()
         assert transaction.entity_names == ["Article"]

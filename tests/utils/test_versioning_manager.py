@@ -78,6 +78,6 @@ class TestVersioningManager(TestCase):
         with pytest.raises(TableNotVersioned):
             get_versioning_manager(self.Tag.__table__)
 
-    def test_versioning_manager_uow(self):
+    def test_versioning_manager_uow(self, session):
         with pytest.raises(KeyError):
-            versioning_manager.get_uow(self.session.connection())
+            versioning_manager.get_uow(session.connection())

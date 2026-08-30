@@ -5,96 +5,96 @@ from tests import TestCase, create_test_cases
 
 
 class OneToManyRelationshipsTestCase(TestCase):
-    def test_single_insert(self):
+    def test_single_insert(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         article.tags.append(self.Tag(name="some tag"))
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert article.versions[0].tags
 
-    def test_insert_in_a_separate_transaction(self):
+    def test_insert_in_a_separate_transaction(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         tag = self.Tag(name="some tag")
-        self.session.add(tag)
+        session.add(tag)
         tag.article = article
-        self.session.commit()
+        session.commit()
         assert article.versions.count() == 1
 
-    def test_relationships_for_history_objects(self):
+    def test_relationships_for_history_objects(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         article.tags.append(self.Tag(name="some tag"))
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         version = article.versions.all()[0]
         assert version.name == "Some article"
         assert version.content == "Some content"
         version = article.tags[0].versions.all()[0]
         assert version.name == "some tag"
 
-    def test_consecutive_inserts_and_removes(self):
+    def test_consecutive_inserts_and_removes(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         tag = self.Tag(name="some tag")
         article.tags.append(tag)
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         article.tags.remove(tag)
-        self.session.commit()
+        session.commit()
         assert article.versions.count() == 1
         article.tags.append(self.Tag(name="Some other tag"))
         article.name = "Updated article"
-        self.session.commit()
+        session.commit()
 
         assert article.versions.count() == 2
         assert len(article.versions[0].tags) == 1
         assert len(article.versions[1].tags) == 1
         assert article.versions[1].tags[0].name == "Some other tag"
 
-    def test_multiple_inserts_in_consecutive_transactions(self):
+    def test_multiple_inserts_in_consecutive_transactions(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         tag = self.Tag(name="some tag")
         article.tags.append(tag)
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         article.tags.append(self.Tag(name="other tag"))
         article.name = "Updated article"
-        self.session.commit()
+        session.commit()
         assert len(article.versions[0].tags) == 1
         assert len(article.versions[1].tags) == 2
 
-    def test_children_inserts_with_varying_versions(self):
+    def test_children_inserts_with_varying_versions(self, session):
         # one article with one tag
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         tag = self.Tag(name="some tag")
         article.tags.append(tag)
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         # update the article and the tag, and add a 2nd tag
         article.name = "Updated article"
         tag.name = "updated tag"
         tag2 = self.Tag(name="other tag")
-        self.session.add(tag2)
+        session.add(tag2)
         tag2.article = article
-        self.session.commit()
+        session.commit()
 
         # update the article and the tag again
         article.name = "Updated again article"
         tag.name = "updated again tag"
-        self.session.commit()
+        session.commit()
 
         assert len(article.versions[0].tags) == 1
         assert article.versions[0].tags[0] is tag.versions[0]
@@ -107,17 +107,17 @@ class OneToManyRelationshipsTestCase(TestCase):
         assert tag.versions[2] in article.versions[2].tags
         assert tag2.versions[0] in article.versions[2].tags
 
-    def test_delete(self):
+    def test_delete(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         tag = self.Tag(name="some tag")
         article.tags.append(tag)
-        self.session.add(article)
-        self.session.commit()
-        self.session.delete(tag)
+        session.add(article)
+        session.commit()
+        session.delete(tag)
         article.name = "Updated article"
-        self.session.commit()
+        session.commit()
         assert len(article.versions[0].tags) == 1
         assert len(article.versions[1].tags) == 0
 
@@ -152,14 +152,14 @@ class TestOneToManyWithUseListFalse(TestCase):
         self.Article = Article
         self.Category = Category
 
-    def test_single_insert(self):
+    def test_single_insert(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         category = self.Category(name="some category")
         article.category = category
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert article.versions[0].category == category.versions[0]
 
 
@@ -181,33 +181,33 @@ class TestOneToManySelfReferential(TestCase):
 
         self.Article = Article
 
-    def test_single_insert(self):
+    def test_single_insert(self, session):
         parent_article = self.Article(name="Some article")
         child_article1 = self.Article(name="Child article1", parent_article=parent_article)
-        self.session.add(parent_article)
-        self.session.commit()
+        session.add(parent_article)
+        session.commit()
 
         assert len(parent_article.versions[0].child_articles) == 1
         assert child_article1.versions[0] in parent_article.versions[0].child_articles
         assert child_article1.versions[0].parent_article is parent_article.versions[0]
 
-    def test_multiple_inserts_over_multiple_transactions(self):
+    def test_multiple_inserts_over_multiple_transactions(self, session):
         parent_article = self.Article(name="Some article")
         child_article1 = self.Article(name="Child article1", parent_article=parent_article)
-        self.session.add(parent_article)
-        self.session.commit()
+        session.add(parent_article)
+        session.commit()
 
         # update articles, add a 2nd child
         parent_article.name = "Updated article"
         child_article1.name = "Updated child article1"
         child_article2 = self.Article(name="Child article2")
-        self.session.add(child_article2)
+        session.add(child_article2)
         child_article2.parent_article = parent_article
-        self.session.commit()
+        session.commit()
         # update the parent and 1st child
         parent_article.name = "Updated article x2"
         child_article1.name = "Updated child article1 x2"
-        self.session.commit()
+        session.commit()
 
         assert len(parent_article.versions[1].child_articles) == 2
         assert child_article1.versions[1] in parent_article.versions[1].child_articles

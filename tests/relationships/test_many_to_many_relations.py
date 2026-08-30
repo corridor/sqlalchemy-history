@@ -52,88 +52,88 @@ class ManyToManyRelationshipsTestCase(TestCase):
         self.Article = Article
         self.Tag = Tag
 
-    def test_version_relations(self):
+    def test_version_relations(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert not article.versions[0].tags
 
-    def test_single_insert(self):
+    def test_single_insert(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         tag = self.Tag(name="some tag")
         article.tags.append(tag)
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert len(article.versions[0].tags) == 1
 
-    def test_unrelated_change(self):
+    def test_unrelated_change(self, session):
         tag1 = self.Tag(name="some tag")
         tag2 = self.Tag(name="some tag2")
 
-        self.session.add(tag1)
-        self.session.add(tag2)
-        self.session.commit()
+        session.add(tag1)
+        session.add(tag2)
+        session.commit()
 
         article1 = self.Article(
             name="Some article",
         )
         article1.name = "Some article"
-        self.session.add(article1)
+        session.add(article1)
         article1.tags.append(tag1)
 
-        self.session.commit()
+        session.commit()
 
         article2 = self.Article()
         article2.name = "Some article2"
-        self.session.add(article2)
+        session.add(article2)
         article2.tags.append(tag1)
 
-        self.session.commit()
+        session.commit()
 
         article1.name = "Some other name"
-        self.session.commit()
+        session.commit()
 
         assert len(article1.versions[1].tags) == 1
 
-    def test_multi_insert(self):
+    def test_multi_insert(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         tag = self.Tag(name="some tag")
         article.tags.append(tag)
         article.tags.append(self.Tag(name="another tag"))
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert len(article.versions[0].tags) == 2
 
-    def test_collection_with_multiple_entries(self):
+    def test_collection_with_multiple_entries(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
+        session.add(article)
         article.tags = [self.Tag(name="some tag"), self.Tag(name="another tag")]
-        self.session.commit()
+        session.commit()
         assert len(article.versions[0].tags) == 2
 
-    def test_delete_single_association(self):
+    def test_delete_single_association(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         tag = self.Tag(name="some tag")
         article.tags.append(tag)
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         article.tags.remove(tag)
         article.name = "Updated name"
-        self.session.commit()
+        session.commit()
         tags = article.versions[1].tags
         assert len(tags) == 0
 
-    def test_delete_multiple_associations(self):
+    def test_delete_multiple_associations(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
@@ -141,63 +141,63 @@ class ManyToManyRelationshipsTestCase(TestCase):
         tag2 = self.Tag(name="another tag")
         article.tags.append(tag)
         article.tags.append(tag2)
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         article.tags.remove(tag)
         article.tags.remove(tag2)
         article.name = "Updated name"
-        self.session.commit()
+        session.commit()
         assert len(article.versions[1].tags) == 0
 
-    def test_remove_node_but_not_the_link(self):
+    def test_remove_node_but_not_the_link(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         tag = self.Tag(name="some tag")
         article.tags.append(tag)
-        self.session.add(article)
-        self.session.commit()
-        self.session.delete(tag)
+        session.add(article)
+        session.commit()
+        session.delete(tag)
         article.name = "Updated name"
-        self.session.commit()
+        session.commit()
         tags = article.versions[1].tags
         assert len(tags) == 0
 
-    def test_multiple_parent_objects_added_within_same_transaction(self):
+    def test_multiple_parent_objects_added_within_same_transaction(self, session):
         article = self.Article(name="Some article")
         tag = self.Tag(name="some tag")
         article.tags.append(tag)
-        self.session.add(article)
+        session.add(article)
         article2 = self.Article(name="Some article")
         tag2 = self.Tag(name="some tag")
         article2.tags.append(tag2)
-        self.session.add(article2)
-        self.session.commit()
+        session.add(article2)
+        session.commit()
         article.tags.remove(tag)
-        self.session.commit()
-        self.session.refresh(article)
+        session.commit()
+        session.refresh(article)
         tags = article.versions[0].tags
         assert tags == [tag.versions[0]]
 
-    def test_relations_with_varying_transactions(self):
+    def test_relations_with_varying_transactions(self, session):
         # one article with one tag
         article = self.Article(name="Some article")
         tag1 = self.Tag(name="some tag")
         article.tags.append(tag1)
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         # update article and tag, add a 2nd tag
         tag2 = self.Tag(name="some other tag")
         article.tags.append(tag2)
         tag1.name = "updated tag1"
         article.name = "updated article"
-        self.session.commit()
+        session.commit()
 
         # update article and first tag only
         tag1.name = "updated tag1 x2"
         article.name = "updated article x2"
-        self.session.commit()
+        session.commit()
 
         assert len(article.versions[0].tags) == 1
         assert article.versions[0].tags[0] is tag1.versions[0]
@@ -290,12 +290,12 @@ class TestManyToManySelfReferential(TestCase):
         self.Article = Article
         self.referenced_articles_table = article_references
 
-    def test_single_insert(self):
+    def test_single_insert(self, session):
         article = self.Article(name="article")
         reference1 = self.Article(name="referred article 1")
         article.references.append(reference1)
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         assert len(article.versions[0].references) == 1
         assert reference1.versions[0] in article.versions[0].references
@@ -303,25 +303,25 @@ class TestManyToManySelfReferential(TestCase):
         assert len(reference1.versions[0].cited_by) == 1
         assert article.versions[0] in reference1.versions[0].cited_by
 
-    def test_multiple_inserts_over_multiple_transactions(self):
+    def test_multiple_inserts_over_multiple_transactions(self, session):
         # create 1 article with 1 reference
         article = self.Article(name="article")
         reference1 = self.Article(name="reference 1")
         article.references.append(reference1)
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         # update existing, add a 2nd reference
         article.name = "Updated article"
         reference1.name = "Updated reference 1"
         reference2 = self.Article(name="reference 2")
         article.references.append(reference2)
-        self.session.commit()
+        session.commit()
 
         # update only the article and reference 1
         article.name = "Updated article x2"
         reference1.name = "Updated reference 1 x2"
-        self.session.commit()
+        session.commit()
 
         assert len(article.versions[1].references) == 2
         assert reference1.versions[1] in article.versions[1].references

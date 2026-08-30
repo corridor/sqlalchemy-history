@@ -8,6 +8,7 @@ import pytest
 import sqlalchemy as sa
 from sqlalchemy import create_engine, make_url
 from sqlalchemy.orm import (
+    Session,
     close_all_sessions,
     column_property,
     configure_mappers,
@@ -131,11 +132,11 @@ class TestCase:
         self.drop_tables(connection=connection)
 
     @pytest.fixture(autouse=True)
-    def setup_session(self, setup_tables, connection):
-        Session = sessionmaker(bind=connection)
-        self.session = Session(autoflush=False, future=True)
-        yield
-        self.session.rollback()
+    def session(self, setup_tables, connection) -> t.Iterator[Session]:
+        session_factory = sessionmaker(bind=connection)
+        session = session_factory(autoflush=False, future=True)
+        yield session
+        session.rollback()
         uow_leaks = versioning_manager.units_of_work
         session_map_leaks = versioning_manager.session_connection_map
 
@@ -144,7 +145,7 @@ class TestCase:
         versioning_manager.reset()
 
         close_all_sessions()
-        self.session.expunge_all()
+        session.expunge_all()
 
         assert not uow_leaks
         assert not session_map_leaks

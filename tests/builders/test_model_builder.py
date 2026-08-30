@@ -72,12 +72,12 @@ class TestVersionModelBuilderAsync(TestCase):
     def test_versions_relationship_is_write_only_with_async_support(self):
         assert sa.inspect(self.Article).relationships.versions.lazy == "write_only"
 
-    def test_versions_can_be_loaded_with_select(self):
+    def test_versions_can_be_loaded_with_select(self, session):
         article = self.Article(name="testing")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
-        versions = self.session.scalars(article.versions.select()).all()
+        versions = session.scalars(article.versions.select()).all()
 
         assert len(versions) == 1
         assert versions[0].name == "testing"
@@ -95,11 +95,11 @@ class TestGenericReprModelBuilder(TestCase):
             "end_transaction_column_name": self.end_transaction_column_name,
         }
 
-    def test_version_cls_repr(self):
+    def test_version_cls_repr(self, session):
         # If no base classes specified only then generic_repr should be set
         article = self.Article(name="testing")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert repr(article.versions[0]) == "ArticleVersion(id=1, transaction_id=1, operation_type=0)"
 
 
@@ -119,11 +119,11 @@ class TestNoGenericReprModelBuilder(TestCase):
             "end_transaction_column_name": self.end_transaction_column_name,
         }
 
-    def test_version_cls_repr(self):
+    def test_version_cls_repr(self, session):
         # If no base classes specified only then generic_repr should be set
         article = self.Article(name="testing")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert repr(article.versions[0]) == "Class_ArticleVersion(id=1)"
 
 

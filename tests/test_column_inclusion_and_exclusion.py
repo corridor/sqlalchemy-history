@@ -11,19 +11,19 @@ class ColumnExclusionTestCase(TestCase):
         manager = cls._sa_class_manager
         assert "content" not in manager
 
-    def test_versioning_with_column_exclusion(self):
+    def test_versioning_with_column_exclusion(self, session):
         item = self.TextItem(name="Some textitem", content="Some content")
-        self.session.add(item)
-        self.session.commit()
+        session.add(item)
+        session.commit()
 
         assert item.versions[0].name == "Some textitem"
 
-    def test_does_not_create_record_if_only_excluded_column_updated(self):
+    def test_does_not_create_record_if_only_excluded_column_updated(self, session):
         item = self.TextItem(name="Some textitem")
-        self.session.add(item)
-        self.session.commit()
+        session.add(item)
+        session.commit()
         item.content = "Some content"
-        self.session.commit()
+        session.commit()
         assert item.versions.count() == 1
 
 
@@ -92,17 +92,17 @@ class TestColumnExclusionWithRelationship(TestCase):
         manager = cls._sa_class_manager
         assert "content" not in manager
 
-    def test_versioning_with_column_exclusion(self):
+    def test_versioning_with_column_exclusion(self, session):
         item = self.TextItem(name="Some textitem", content=[self.Word(word="bird")])
-        self.session.add(item)
-        self.session.commit()
+        session.add(item)
+        session.commit()
 
         assert item.versions[0].name == "Some textitem"
 
-    def test_does_not_create_record_if_only_excluded_column_updated(self):
+    def test_does_not_create_record_if_only_excluded_column_updated(self, session):
         item = self.TextItem(name="Some textitem")
-        self.session.add(item)
-        self.session.commit()
+        session.add(item)
+        session.commit()
         item.content.append(self.Word(word="Some content"))
-        self.session.commit()
+        session.commit()
         assert item.versions.count() == 1

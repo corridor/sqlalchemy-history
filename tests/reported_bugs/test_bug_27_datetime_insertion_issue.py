@@ -49,13 +49,13 @@ class TestBug27(TestCase):
         self.Author = Author
         self.article_author_table = article_author_table
 
-    def test_inserting_entries(self):
+    def test_inserting_entries(self, session):
         article = self.Article(name="Article 1")
         author = self.Author(name="Author 1", articles=[article])
-        self.session.add(article)
-        self.session.add(author)
-        self.session.commit()
+        session.add(article)
+        session.add(author)
+        session.commit()
 
-        obj = self.session.execute(sa.select(self.article_author_table)).all()
+        obj = session.execute(sa.select(self.article_author_table)).all()
         assert len(obj) == 1
         assert isinstance(obj[0][-1], datetime.datetime)  # last col is a datetime!

@@ -7,13 +7,13 @@ from tests import TestCase
 
 
 class TestReverter(TestCase):
-    def test_raises_exception_for_unknown_relations(self):
+    def test_raises_exception_for_unknown_relations(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
+        session.add(article)
 
-        self.session.commit()
+        session.commit()
         version = article.versions[0]
 
         with pytest.raises(ReverterException):
@@ -21,128 +21,128 @@ class TestReverter(TestCase):
 
 
 class RevertTestCase(TestCase):
-    def add_article(self):
+    def add_article(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         return article
 
-    def test_simple_revert(self):
-        article = self.add_article()
+    def test_simple_revert(self, session):
+        article = self.add_article(session)
         article.name = "Updated name"
         article.content = "Updated content"
-        self.session.commit()
-        self.session.refresh(article)
+        session.commit()
+        session.refresh(article)
         article.versions[0].revert()
         assert article.name == "Some article"
         assert article.content == "Some content"
 
-    def test_revert_deleted_model(self):
-        article = self.add_article()
+    def test_revert_deleted_model(self, session):
+        article = self.add_article(session)
         old_article_id = article.id
         version = article.versions[0]
-        self.session.delete(article)
-        self.session.commit()
+        session.delete(article)
+        session.commit()
         version.revert()
         assert article.id == old_article_id
         assert article.name == "Some article"
         assert article.content == "Some content"
 
-    def test_revert_deletion(self):
-        article = self.add_article()
+    def test_revert_deletion(self, session):
+        article = self.add_article(session)
         old_article_id = article.id
         version = article.versions[0]
-        self.session.delete(article)
-        self.session.commit()
+        session.delete(article)
+        session.commit()
         version.revert()
-        self.session.commit()
-        assert self.session.scalar(sa.select(sa.func.count()).select_from(self.Article)) == 1
-        article = self.session.get(self.Article, old_article_id)
+        session.commit()
+        assert session.scalar(sa.select(sa.func.count()).select_from(self.Article)) == 1
+        article = session.get(self.Article, old_article_id)
 
         assert version.next.next
 
         version.next.revert()
-        self.session.commit()
-        assert not self.session.get(self.Article, old_article_id)
+        session.commit()
+        assert not session.get(self.Article, old_article_id)
 
-    def test_revert_version_with_one_to_many_relation(self):
+    def test_revert_version_with_one_to_many_relation(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         article.tags.append(self.Tag(name="some tag"))
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         article.name = "Updated name"
         article.content = "Updated content"
         article.tags = []
-        self.session.commit()
-        self.session.refresh(article)
+        session.commit()
+        session.refresh(article)
         assert article.tags == []
         assert len(article.versions[0].tags) == 1
         assert article.versions[0].tags[0].article
         article.versions[0].revert(relations=["tags"])
-        self.session.commit()
+        session.commit()
 
         assert article.name == "Some article"
         assert article.content == "Some content"
         assert len(article.tags) == 1
         assert article.tags[0].name == "some tag"
 
-    def test_with_one_to_many_relation_delete_newly_added(self):
+    def test_with_one_to_many_relation_delete_newly_added(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         article.tags.append(self.Tag(name="some tag"))
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         article.name = "Updated name"
         article.content = "Updated content"
         article.tags.append(self.Tag(name="some other tag"))
-        self.session.add(article)
-        self.session.commit()
-        self.session.refresh(article)
+        session.add(article)
+        session.commit()
+        session.refresh(article)
         assert len(article.tags) == 2
         assert len(article.versions[0].tags) == 1
         assert article.versions[0].tags[0].article
         article.versions[0].revert(relations=["tags"])
-        self.session.commit()
+        session.commit()
 
         assert article.name == "Some article"
         assert article.content == "Some content"
         assert len(article.tags) == 1
         assert article.tags[0].name == "some tag"
 
-    def test_with_one_to_many_relation_resurrect_deleted(self):
+    def test_with_one_to_many_relation_resurrect_deleted(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         tag = self.Tag(name="some other tag")
         article.tags.append(self.Tag(name="some tag"))
         article.tags.append(tag)
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         article.name = "Updated name"
         article.tags.remove(tag)
-        self.session.add(article)
-        self.session.commit()
-        self.session.refresh(article)
+        session.add(article)
+        session.commit()
+        session.refresh(article)
         assert len(article.tags) == 1
         assert len(article.versions[0].tags) == 2
         article.versions[0].revert(relations=["tags"])
-        self.session.commit()
+        session.commit()
         assert len(article.tags) == 2
         assert article.tags[0].name == "some tag"
 
     @pytest.mark.filterwarnings("error::sqlalchemy.exc.SAWarning")
-    def test_revert_with_nested_transaction_warning(self):
+    def test_revert_with_nested_transaction_warning(self, session):
         article = self.Article(name="Some article")
-        self.session.add(article)
-        self.session.commit()
-        self.session.begin_nested()
+        session.add(article)
+        session.commit()
+        session.begin_nested()
         article.name = "Updated name"
-        self.session.commit()
+        session.commit()
         assert article.versions.count() == 2
         assert article.versions.all()[-1].name == "Updated name"
 

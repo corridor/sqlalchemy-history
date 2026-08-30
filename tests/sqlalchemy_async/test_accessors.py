@@ -8,160 +8,160 @@ from tests.sqlalchemy_async import AsyncTestCase
 
 
 class AsyncVersionModelAccessorsTestCase(AsyncTestCase):
-    async def test_previous_for_first_version(self):
+    async def test_previous_for_first_version(self, async_session):
         article = self.Article(name="Some article", content="Some content")
-        self.session.add(article)
-        await self.session.commit()
+        async_session.add(article)
+        await async_session.commit()
 
-        version = (await self.versions(article))[0]
+        version = (await self.versions(async_session, article))[0]
         previous_version = await version.aprevious
         assert not previous_version
 
-    async def test_previous_for_live_parent(self):
+    async def test_previous_for_live_parent(self, async_session):
         article = self.Article(name="Some article", content="Some content")
-        self.session.add(article)
-        await self.session.commit()
+        async_session.add(article)
+        await async_session.commit()
 
         article.name = "Updated name"
         article.content = "Updated content"
-        await self.session.commit()
-        version = (await self.versions(article))[1]
+        await async_session.commit()
+        version = (await self.versions(async_session, article))[1]
 
         previous = await version.aprevious
 
         assert previous.name == "Some article"
         assert getattr(previous, tx_column_name(version)) == getattr(version, tx_column_name(version)) - 1
 
-    async def test_previous_for_deleted_parent(self):
+    async def test_previous_for_deleted_parent(self, async_session):
         article = self.Article(name="Some article", content="Some content")
-        self.session.add(article)
-        await self.session.commit()
-        await self.session.delete(article)
-        await self.session.commit()
+        async_session.add(article)
+        await async_session.commit()
+        await async_session.delete(article)
+        await async_session.commit()
 
-        versions = await self.ordered_versions(self.ArticleVersion)
+        versions = await self.ordered_versions(async_session, self.ArticleVersion)
 
         assert (await versions[1].aprevious).name == "Some article"
 
-    async def test_previous_chaining(self):
+    async def test_previous_chaining(self, async_session):
         article = self.Article(name="Some article", content="Some content")
-        self.session.add(article)
-        await self.session.commit()
+        async_session.add(article)
+        await async_session.commit()
         article.name = "Updated article"
-        await self.session.commit()
-        await self.session.delete(article)
-        await self.session.commit()
+        await async_session.commit()
+        await async_session.delete(article)
+        await async_session.commit()
 
-        version = (await self.ordered_versions(self.ArticleVersion))[-1]
+        version = (await self.ordered_versions(async_session, self.ArticleVersion))[-1]
 
         assert await (await version.aprevious).aprevious
 
-    async def test_previous_two_versions(self):
+    async def test_previous_two_versions(self, async_session):
         article = self.Article(name="Some article", content="Some content")
-        self.session.add(article)
-        await self.session.commit()
+        async_session.add(article)
+        await async_session.commit()
         article2 = self.Article(name="Second article", content="Second article")
-        self.session.add(article2)
-        await self.session.commit()
+        async_session.add(article2)
+        await async_session.commit()
 
         article.name = "Updated article"
-        await self.session.commit()
+        await async_session.commit()
         article.name = "Updated article 2"
-        await self.session.commit()
+        await async_session.commit()
 
-        versions = await self.versions(article)
+        versions = await self.versions(async_session, article)
 
         assert await versions[2].aprevious
         assert await versions[1].aprevious
         assert (await versions[2].aprevious) == versions[1]
         assert (await versions[1].aprevious) == versions[0]
 
-    async def test_next_two_versions(self):
+    async def test_next_two_versions(self, async_session):
         article = self.Article(name="Some article", content="Some content")
-        self.session.add(article)
-        await self.session.commit()
+        async_session.add(article)
+        await async_session.commit()
         article2 = self.Article(name="Second article", content="Second article")
-        self.session.add(article2)
-        await self.session.commit()
+        async_session.add(article2)
+        await async_session.commit()
 
         article.name = "Updated article"
-        await self.session.commit()
+        await async_session.commit()
         article.name = "Updated article 2"
-        await self.session.commit()
+        await async_session.commit()
 
-        versions = await self.versions(article)
+        versions = await self.versions(async_session, article)
 
         assert await versions[0].anext
         assert await versions[1].anext
         assert await versions[0].anext == versions[1]
         assert await versions[1].anext == versions[2]
 
-    async def test_next_for_last_version(self):
+    async def test_next_for_last_version(self, async_session):
         article = self.Article(name="Some article", content="Some content")
-        self.session.add(article)
-        await self.session.commit()
+        async_session.add(article)
+        await async_session.commit()
 
-        version = (await self.versions(article))[0]
+        version = (await self.versions(async_session, article))[0]
 
         assert not await version.anext
 
-    async def test_next_for_live_parent(self):
+    async def test_next_for_live_parent(self, async_session):
         article = self.Article(name="Some article", content="Some content")
-        self.session.add(article)
-        await self.session.commit()
+        async_session.add(article)
+        await async_session.commit()
 
         article.name = "Updated name"
         article.content = "Updated content"
-        await self.session.commit()
-        version = (await self.versions(article))[0]
+        await async_session.commit()
+        version = (await self.versions(async_session, article))[0]
 
         assert (await version.anext).name == "Updated name"
 
-    async def test_next_for_deleted_parent(self):
+    async def test_next_for_deleted_parent(self, async_session):
         article = self.Article(name="Some article", content="Some content")
-        self.session.add(article)
-        await self.session.commit()
-        version = (await self.versions(article))[0]
-        await self.session.delete(article)
-        await self.session.commit()
-        await self.session.refresh(version)
+        async_session.add(article)
+        await async_session.commit()
+        version = (await self.versions(async_session, article))[0]
+        await async_session.delete(article)
+        await async_session.commit()
+        await async_session.refresh(version)
 
         assert await version.anext
 
-    async def test_chaining_next(self):
+    async def test_chaining_next(self, async_session):
         article = self.Article(name="Some article", content="Some content")
-        self.session.add(article)
-        await self.session.commit()
+        async_session.add(article)
+        await async_session.commit()
         article.name = "Updated article"
-        await self.session.commit()
+        await async_session.commit()
         article.content = "Updated content"
-        await self.session.commit()
+        await async_session.commit()
 
-        versions = await self.versions(article)
+        versions = await self.versions(async_session, article)
         version = versions[0]
 
         assert await version.anext == versions[1]
         assert await (await version.anext).anext == versions[2]
 
-    async def test_index_for_deleted_parent(self):
+    async def test_index_for_deleted_parent(self, async_session):
         article = self.Article(name="Some article", content="Some content")
-        self.session.add(article)
-        await self.session.commit()
+        async_session.add(article)
+        await async_session.commit()
 
-        await self.session.delete(article)
-        await self.session.commit()
+        await async_session.delete(article)
+        await async_session.commit()
 
-        versions = await self.ordered_versions(self.ArticleVersion)
+        versions = await self.ordered_versions(async_session, self.ArticleVersion)
 
         assert await versions[0].aindex == 0
         assert await versions[1].aindex == 1
 
-    async def test_index_for_live_parent(self):
+    async def test_index_for_live_parent(self, async_session):
         article = self.Article(name="Some article", content="Some content")
-        self.session.add(article)
-        await self.session.commit()
+        async_session.add(article)
+        await async_session.commit()
 
-        version = (await self.versions(article))[0]
+        version = (await self.versions(async_session, article))[0]
 
         assert await version.aindex == 0
 
@@ -178,40 +178,40 @@ class AsyncVersionModelAccessorsWithCompositePkTestCase(AsyncTestCase):
 
         self.User = User
 
-    async def test_previous_two_versions(self):
+    async def test_previous_two_versions(self, async_session):
         user = self.User(first_name="Some user", last_name="Some last_name")
-        self.session.add(user)
-        await self.session.commit()
+        async_session.add(user)
+        await async_session.commit()
         user2 = self.User(first_name="Second user", last_name="Second user")
-        self.session.add(user2)
-        await self.session.commit()
+        async_session.add(user2)
+        await async_session.commit()
 
         user.email = "Updated email"
-        await self.session.commit()
+        await async_session.commit()
         user.email = "Updated email 2"
-        await self.session.commit()
+        await async_session.commit()
 
-        versions = await self.versions(user)
+        versions = await self.versions(async_session, user)
 
         assert await versions[2].aprevious
         assert await versions[1].aprevious
         assert await versions[2].aprevious == versions[1]
         assert await versions[1].aprevious == versions[0]
 
-    async def test_next_two_versions(self):
+    async def test_next_two_versions(self, async_session):
         user = self.User(first_name="Some user", last_name="Some last_name")
-        self.session.add(user)
-        await self.session.commit()
+        async_session.add(user)
+        await async_session.commit()
         user2 = self.User(first_name="Second user", last_name="Second user")
-        self.session.add(user2)
-        await self.session.commit()
+        async_session.add(user2)
+        await async_session.commit()
 
         user.email = "Updated user"
-        await self.session.commit()
+        await async_session.commit()
         user.email = "Updated user 2"
-        await self.session.commit()
+        await async_session.commit()
 
-        versions = await self.versions(user)
+        versions = await self.versions(async_session, user)
 
         assert await versions[0].anext
         assert await versions[1].anext

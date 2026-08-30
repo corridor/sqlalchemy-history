@@ -24,14 +24,15 @@ class TestSchemaTools(TestCase):
 
         self.Article = Article
 
-    def _insert(self, values):
+    def _insert(self, session, values):
         table = version_class(self.Article).__table__
         stmt = table.insert().values(values)
-        self.session.execute(stmt)
+        session.execute(stmt)
 
-    def test_something(self):
+    def test_something(self, session):
         table = version_class(self.Article).__table__
         self._insert(
+            session,
             {
                 "id": 1,
                 "transaction_id": 1,
@@ -39,9 +40,10 @@ class TestSchemaTools(TestCase):
                 "name": "Article 1",
                 "name_mod": False,
                 "operation_type": 1,
-            }
+            },
         )
         self._insert(
+            session,
             {
                 "id": 1,
                 "transaction_id": 2,
@@ -49,9 +51,10 @@ class TestSchemaTools(TestCase):
                 "name": "Article 1",
                 "name_mod": False,
                 "operation_type": 2,
-            }
+            },
         )
         self._insert(
+            session,
             {
                 "id": 2,
                 "transaction_id": 3,
@@ -59,9 +62,10 @@ class TestSchemaTools(TestCase):
                 "name": "Article 2",
                 "name_mod": False,
                 "operation_type": 1,
-            }
+            },
         )
         self._insert(
+            session,
             {
                 "id": 1,
                 "transaction_id": 4,
@@ -69,9 +73,10 @@ class TestSchemaTools(TestCase):
                 "name": "Article 1 updated",
                 "name_mod": False,
                 "operation_type": 2,
-            }
+            },
         )
         self._insert(
+            session,
             {
                 "id": 2,
                 "transaction_id": 5,
@@ -79,11 +84,11 @@ class TestSchemaTools(TestCase):
                 "name": "Article 2",
                 "name_mod": False,
                 "operation_type": 2,
-            }
+            },
         )
 
-        update_property_mod_flags(table, ["name"], conn=self.session)
-        rows = self.session.execute(sa.text("SELECT * FROM article_version ORDER BY transaction_id")).fetchall()
+        update_property_mod_flags(table, ["name"], conn=session)
+        rows = session.execute(sa.text("SELECT * FROM article_version ORDER BY transaction_id")).fetchall()
         assert rows[0].transaction_id == 1
         assert rows[0].name_mod
         assert rows[1].transaction_id == 2

@@ -29,10 +29,10 @@ setting_variants = {
 
 
 class TxColumnNameTestCaseWithValidity(TestCase):
-    def test_end_tx_attr(self):
+    def test_end_tx_attr(self, session):
         article = self.Article(name="tc1")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert end_tx_attr(article.versions[0]).name == self.options["end_transaction_column_name"]
 
 

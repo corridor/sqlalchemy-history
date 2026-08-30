@@ -50,17 +50,17 @@ class TestAssociationProxy(TestCase):
         assert issubclass(type(self.Article.upanaam), AssociationProxyInstance)
         assert isinstance(version_class(self.Article).upanaam, property)
 
-    def test_association_proxy_retrieval(self):
+    def test_association_proxy_retrieval(self, session):
         tag = self.Tag(name="tag1")
         article = self.Article(name="article1", tags=[tag])
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         tag2 = self.Tag(name="tag2")
-        self.session.add(tag2)
+        session.add(tag2)
         article.tags += [tag2]
         article.name = "updated"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert article.versions.count() == 2
         assert len(article.versions.all()[0].tags) == 1
         assert len(article.versions.all()[1].tags) == 2

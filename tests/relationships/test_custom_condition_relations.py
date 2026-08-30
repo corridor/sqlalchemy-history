@@ -45,14 +45,14 @@ class CustomConditionRelationsTestCase(TestCase):
         self.Article = Article
         self.Tag = Tag
 
-    def test_relationship_condition_reflection(self):
+    def test_relationship_condition_reflection(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         article.primary_tags.append(self.Tag(name="tag #1", category="primary"))
         article.secondary_tags.append(self.Tag(name="tag #2", category="secondary"))
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert article.versions[0].primary_tags
         assert article.versions[0].secondary_tags
 
