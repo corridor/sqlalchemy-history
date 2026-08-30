@@ -1,5 +1,4 @@
 import contextlib
-import os
 from copy import copy
 
 import pytest
@@ -57,15 +56,8 @@ class AsyncTestCase:
         versioning_manager.user_cls = self.user_cls
 
     @pytest.fixture
-    async def setup_engine(self, setup_versioning, anyio_backend):
-        if "DB" not in os.environ:  # pragma: no cover
-            # NOTE: We set DB environment variable explicitly if someone has not provided as this value
-            #       is used to skip other test cases and if one doesn't specifiy this value tests starts
-            #       breaking. We don't cover this in coverage as our CI always
-            #       specifies DB variable
-            os.environ["DB"] = "sqlite"
-        self.driver = os.environ.get("DB")
-        self.engine = create_async_engine(get_dns_from_driver(self.driver, mode="async"))
+    async def setup_engine(self, setup_versioning, anyio_backend, pytestconfig):
+        self.engine = create_async_engine(get_dns_from_driver(pytestconfig.getvalue("db"), mode="async"))
         yield
         await self.engine.dispose()
 
