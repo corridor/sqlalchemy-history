@@ -4,8 +4,7 @@ the same database images and connection settings used in GitHub Actions.
 ## Working with different databases
 
 Start the desired database, wait for its health check to pass, and run
-`DB=<database> uv run pytest`, where `<database>` is `oracle`, `mssql`, or
-`postgres`.
+`uv run pytest --db=<database>`, where `<database>` is `sqlite` (default), `postgres`, `mysql`, `mssql` or `oracle`.
 
 To ensure you have docker available in your system run below commands first make sure that you have docker-engine
 running in your local or docker service is started in your linux system.

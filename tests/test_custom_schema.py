@@ -1,5 +1,3 @@
-import os
-
 import pytest
 import sqlalchemy as sa
 from sqlalchemy.orm import declarative_base, relationship
@@ -7,10 +5,7 @@ from sqlalchemy.orm import declarative_base, relationship
 from tests import TestCase
 
 
-@pytest.mark.skipif(
-    os.environ.get("DB") == "sqlite",
-    reason="sqlite doesn't have a concept of schema",
-)
+@pytest.mark.skip_db("sqlite", reason="sqlite doesn't have a concept of schema")
 class TestCustomSchema(TestCase):
     def create_models(self):
         self.Model = declarative_base(metadata=sa.MetaData(schema="sqlahistory"))

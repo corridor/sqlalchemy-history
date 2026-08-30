@@ -1,5 +1,4 @@
 import datetime
-import os
 import time
 
 import pytest
@@ -83,8 +82,9 @@ class TestAssigningUserClass(TestCase):
         assert isinstance(attr.property.columns[0].type, sa.Unicode)
 
 
-@pytest.mark.skipif(
-    os.environ.get("DB") in ["sqlite", "oracle"],
+@pytest.mark.skip_db(
+    "sqlite",
+    "oracle",
     reason="sqlite doesn't have a concept of schema for oracle refer below mentioned fixme!",
 )
 class TestAssigningUserClassInOtherSchema(TestCase):

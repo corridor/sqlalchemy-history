@@ -72,7 +72,7 @@ git checkout -b add-issue-num
 
 ```sh
 # Run tests locally
-DB=sqlite uv run pytest
+uv run pytest --db=sqlite
 
 # Run local hooks and formatting checks
 uv run prek run --all-files

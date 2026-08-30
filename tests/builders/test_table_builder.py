@@ -1,4 +1,3 @@
-import os
 from copy import copy
 from datetime import datetime
 
@@ -122,7 +121,7 @@ class TestTableBuilderWithIdentity(TestCase):
         assert [version.id for version in versions] == [article.id, article.id]
 
 
-@pytest.mark.skipif(os.environ.get("DB") == "sqlite", reason="sqlite doesn't have a concept of schema")
+@pytest.mark.skip_db("sqlite", reason="sqlite doesn't have a concept of schema")
 class TestTableBuilderInOtherSchema(TestCase):
     def create_models(self):
         class Article(self.Model):

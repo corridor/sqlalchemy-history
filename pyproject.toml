@@ -84,3 +84,8 @@ branch = true
 
 [tool.uv]
 exclude-newer = "1 week" # Cooldown period for new vulnerabilities
+
+[tool.pytest.ini_options]
+markers = [
+    "skip_db(*databases: str, reason: str): skip the test for the selected --db backend",
+]
