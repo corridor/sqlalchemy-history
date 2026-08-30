@@ -35,19 +35,19 @@ class TestValidityStrategy(TestCase):
         assert table.c.end_transaction_id.nullable
         assert not table.c.end_transaction_id.primary_key
 
-    def test_end_transaction_id_none_for_newly_inserted_record(self):
+    def test_end_transaction_id_none_for_newly_inserted_record(self, session):
         article = self.Article(name="Something")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert article.versions.all()[-1].end_transaction_id is None
 
-    def test_updated_end_transaction_id_of_previous_version(self):
+    def test_updated_end_transaction_id_of_previous_version(self, session):
         article = self.Article(name="Something")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         article.name = "Some other thing"
-        self.session.commit()
+        session.commit()
         assert article.versions.all()[-2].end_transaction_id == article.versions.all()[-1].transaction_id
 
 
@@ -96,7 +96,7 @@ class TestJoinTableInheritanceWithValidityVersioning(TestCase):
         self.BlogPost = BlogPost
 
     @pytest.fixture(autouse=True)
-    def setup_method_for_table_inhritance(self, setup_session):
+    def setup_method_for_table_inhritance(self, session):
         self.TextItemVersion = version_class(self.TextItem)
         self.ArticleVersion = version_class(self.Article)
         self.BlogPostVersion = version_class(self.BlogPost)

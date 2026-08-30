@@ -66,10 +66,10 @@ class TestCustomSchema(TestCase):
             connection.commit()
         TestCase.create_tables(self, connection=connection)
 
-    def test_version_relations(self):
+    def test_version_relations(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert article.versions[0].tags == []

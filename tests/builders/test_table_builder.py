@@ -9,15 +9,15 @@ from tests import TestCase
 
 
 class TestTableBuilder(TestCase):
-    def test_assigns_foreign_keys_for_versions(self):
+    def test_assigns_foreign_keys_for_versions(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         article.tags.append(self.Tag(name="some tag"))
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         cls = version_class(self.Tag)
-        version = self.session.scalars(sa.select(cls)).first()
+        version = session.scalars(sa.select(cls)).first()
         assert version.name == "some tag"
         assert version.id == 1
         assert version.article_id == 1

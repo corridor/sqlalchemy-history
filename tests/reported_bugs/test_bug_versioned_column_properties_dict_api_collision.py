@@ -28,13 +28,13 @@ class TestVersionedColumnPropertiesDictAPICollision(TestCase):
 
         self.Measurement = Measurement
 
-    def test_insert_with_shadowing_column_names(self):
+    def test_insert_with_shadowing_column_names(self, session):
         measurement = self.Measurement(values=42, keys="k", items="i")
-        self.session.add(measurement)
-        self.session.commit()
+        session.add(measurement)
+        session.commit()
 
         MeasurementVersion = version_class(self.Measurement)
-        version = self.session.scalars(sa.select(MeasurementVersion)).one()
+        version = session.scalars(sa.select(MeasurementVersion)).one()
         assert version.values == 42
         assert version.keys == "k"
         assert version.items == "i"

@@ -37,23 +37,23 @@ class AssociationTableRelationshipsTestCase(TestCase):
 
         self.Author = Author
 
-    def test_version_relations(self):
+    def test_version_relations(self, session):
         article = self.Article()
         name = "Some article"
         article.name = name
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert article.versions[0].name == name
 
         au = self.Author(name="Some author")
-        self.session.add(au)
-        self.session.commit()
+        session.add(au)
+        session.commit()
 
         pa = self.PublishedArticle(article_id=article.id, author_id=au.id)
-        self.session.add(pa)
+        session.add(pa)
 
-        self.session.commit()
+        session.commit()
 
 
 create_test_cases(AssociationTableRelationshipsTestCase)

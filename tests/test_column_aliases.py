@@ -29,32 +29,32 @@ class TestVersionTableWithColumnAliases(ColumnAliasesBaseTestCase):
 
 
 class ColumnAliasesTestCase(ColumnAliasesBaseTestCase):
-    def test_insert(self):
+    def test_insert(self, session):
         item = self.TextItem(name="Something")
-        self.session.add(item)
-        self.session.commit()
+        session.add(item)
+        session.commit()
         assert item.versions[0].name == "Something"
 
-    def test_revert(self):
+    def test_revert(self, session):
         item = self.TextItem(name="Something")
-        self.session.add(item)
-        self.session.commit()
+        session.add(item)
+        session.commit()
         item.name = "Some other thing"
-        self.session.commit()
+        session.commit()
         item.versions[0].revert()
-        self.session.commit()
+        session.commit()
 
-    def test_previous_for_deleted_parent(self):
+    def test_previous_for_deleted_parent(self, session):
         item = self.TextItem()
         item.name = "Some item"
         item.content = "Some content"
-        self.session.add(item)
-        self.session.commit()
-        self.session.delete(item)
-        self.session.commit()
+        session.add(item)
+        session.commit()
+        session.delete(item)
+        session.commit()
         TextItemVersion = version_class(self.TextItem)
 
-        versions = self.session.scalars(
+        versions = session.scalars(
             sa.select(TextItemVersion).order_by(getattr(TextItemVersion, self.options["transaction_column_name"]))
         ).all()
         assert versions[1].previous.name == "Some item"
