@@ -40,7 +40,7 @@ class SingleTableInheritanceTestCase(TestCase):
         self.BlogPost = BlogPost
 
     @pytest.fixture(autouse=True)
-    def setup_method_for_single_inheritance_objects(self, setup_session):
+    def setup_method_for_single_inheritance_objects(self, session):
         self.TextItemVersion = version_class(self.TextItem)
         self.ArticleVersion = version_class(self.Article)
         self.BlogPostVersion = version_class(self.BlogPost)
@@ -60,27 +60,27 @@ class SingleTableInheritanceTestCase(TestCase):
         assert self.ArticleVersion.__table__.name == "text_item_version"
         assert self.BlogPostVersion.__table__.name == "text_item_version"
 
-    def test_each_object_has_distinct_version_class(self):
+    def test_each_object_has_distinct_version_class(self, session):
         article = self.Article()
         blogpost = self.BlogPost()
         textitem = self.TextItem()
 
-        self.session.add(article)
-        self.session.add(blogpost)
-        self.session.add(textitem)
-        self.session.commit()
+        session.add(article)
+        session.add(blogpost)
+        session.add(textitem)
+        session.commit()
 
         assert type(textitem.versions[0]) is self.TextItemVersion
         assert type(article.versions[0]) is self.ArticleVersion
         assert type(blogpost.versions[0]) is self.BlogPostVersion
 
-    def test_transaction_changed_entities(self):
+    def test_transaction_changed_entities(self, session):
         article = self.Article()
         article.name = "Text 1"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         Transaction = versioning_manager.transaction_cls
-        transaction = self.session.scalars(
+        transaction = session.scalars(
             sa.select(Transaction).order_by(sa.sql.expression.desc(Transaction.issued_at))
         ).first()
         assert transaction.entity_names == ["Article"]
@@ -129,14 +129,14 @@ class TestCaseStatementPolymorphicOn(TestCase):
         assert discriminator_columns
         assert {column.table for column in discriminator_columns} == {writer_version.__table__}
 
-    def test_loads_matching_version_subclass(self):
+    def test_loads_matching_version_subclass(self, session):
         writer = self.Bard(name="Some poet", type="poet")
-        self.session.add(writer)
-        self.session.commit()
+        session.add(writer)
+        session.commit()
 
         writer_version = version_class(self.Writer)
         bard_version = version_class(self.Bard)
-        version = self.session.scalars(sa.select(writer_version)).one()
+        version = session.scalars(sa.select(writer_version)).one()
 
         assert isinstance(version, bard_version)
         assert version.type == "poet"
@@ -175,21 +175,21 @@ class TestColumnPropertyPolymorphicOn(TestCase):
         self.Engineer = Engineer
         self.Manager = Manager
 
-    def test_adapts_column_property_expression_and_loads_version_subclasses(self):
+    def test_adapts_column_property_expression_and_loads_version_subclasses(self, session):
         employees = [
             self.Engineer(discriminator="EN"),
             self.Manager(discriminator="MA"),
             self.Employee(discriminator="OTHER"),
         ]
-        self.session.add_all(employees)
-        self.session.commit()
+        session.add_all(employees)
+        session.commit()
 
         employee_version = version_class(self.Employee)
         discriminator = sa.inspect(employee_version).polymorphic_on
         discriminator_columns = {
             element for element in sa.sql.visitors.iterate(discriminator) if isinstance(element, sa.Column)
         }
-        versions = self.session.scalars(sa.select(employee_version).order_by(employee_version.id)).all()
+        versions = session.scalars(sa.select(employee_version).order_by(employee_version.id)).all()
 
         assert {column.key for column in discriminator_columns} == {"discriminator"}
         assert {column.table for column in discriminator_columns} == {employee_version.__table__}
@@ -249,17 +249,17 @@ class TestComplexCaseStatementPolymorphicOn(TestCase):
         assert {column.key for column in discriminator_columns} == {"category", "kind", "score", "active"}
         assert {column.table for column in discriminator_columns} == {writer_version.__table__}
 
-    def test_loads_subclasses_from_nested_case_branches(self):
+    def test_loads_subclasses_from_nested_case_branches(self, session):
         writers = [
             self.Bard(category="creative", kind="poet", score=90, active=True),
             self.TechnicalWriter(category="technical", kind="manual", score=50, active=True),
             self.Writer(category="creative", kind="novelist", score=70, active=True),
         ]
-        self.session.add_all(writers)
-        self.session.commit()
+        session.add_all(writers)
+        session.commit()
 
         writer_version = version_class(self.Writer)
-        versions = self.session.scalars(sa.select(writer_version).order_by(writer_version.id)).all()
+        versions = session.scalars(sa.select(writer_version).order_by(writer_version.id)).all()
 
         assert [type(version) for version in versions] == [
             version_class(self.Bard),

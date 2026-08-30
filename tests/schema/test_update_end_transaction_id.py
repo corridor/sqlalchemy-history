@@ -43,56 +43,61 @@ class UpdateEndTransactionID(TestCase):
         self.article_label_table = article_label_table
         self.Label = Label
 
-    def _insert(self, values):
+    def _insert(self, session, values):
         table = version_class(self.Article).__table__
         stmt = table.insert().values(values)
-        self.session.execute(stmt)
+        session.execute(stmt)
 
-    def test_update_end_transaction_id(self):
+    def test_update_end_transaction_id(self, session):
         table = version_class(self.Article).__table__
         self._insert(
+            session,
             {
                 "id": 1,
                 "transaction_id": 1,
                 "name": "Article 1",
                 "operation_type": 1,
-            }
+            },
         )
         self._insert(
+            session,
             {
                 "id": 1,
                 "transaction_id": 2,
                 "name": "Article 1 updated",
                 "operation_type": 2,
-            }
+            },
         )
         self._insert(
+            session,
             {
                 "id": 2,
                 "transaction_id": 3,
                 "name": "Article 2",
                 "operation_type": 1,
-            }
+            },
         )
         self._insert(
+            session,
             {
                 "id": 1,
                 "transaction_id": 4,
                 "name": "Article 1 updated (again)",
                 "operation_type": 2,
-            }
+            },
         )
         self._insert(
+            session,
             {
                 "id": 2,
                 "transaction_id": 5,
                 "name": "Article 2 updated",
                 "operation_type": 2,
-            }
+            },
         )
         if self.versioning_strategy == "validity":
-            update_end_tx_column(table, conn=self.session)
-            rows = self.session.execute(sa.text("SELECT * FROM article_version ORDER BY transaction_id")).fetchall()
+            update_end_tx_column(table, conn=session)
+            rows = session.execute(sa.text("SELECT * FROM article_version ORDER BY transaction_id")).fetchall()
             assert rows[0].transaction_id == 1
             assert rows[0].end_transaction_id == 2
             assert rows[1].transaction_id == 2
@@ -104,25 +109,25 @@ class UpdateEndTransactionID(TestCase):
             assert rows[4].transaction_id == 5
             assert rows[4].end_transaction_id is None
         elif self.versioning_strategy == "subquery":
-            rows = self.session.execute(sa.text("SELECT * FROM article_version ORDER BY transaction_id")).fetchall()
+            rows = session.execute(sa.text("SELECT * FROM article_version ORDER BY transaction_id")).fetchall()
             assert not hasattr(rows[0], "end_transaction_id")
 
-    def test_assoc_update_end_transaction_id(self):
+    def test_assoc_update_end_transaction_id(self, session):
         article_label_table_version = version_table(self.article_label_table)
 
         label = self.Label(name="first label")
         label2 = self.Label(name="second label")
         article = self.Article(name="Some article", content="Some content", labels=[label])
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         article.labels = [label2]
-        self.session.commit()
+        session.commit()
         article.labels = [label, label2]
-        self.session.commit()
+        session.commit()
 
         article.labels = [label]
-        self.session.commit()
-        rows = self.session.execute(
+        session.commit()
+        rows = session.execute(
             sa.select(article_label_table_version).order_by(article_label_table_version.c.transaction_id)
         ).all()
         if self.versioning_strategy == "validity":

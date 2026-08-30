@@ -11,29 +11,29 @@ from tests import TestCase
 
 class TestTransaction(TestCase):
     @pytest.fixture(autouse=True)
-    def setup_method_for_transaction(self, setup_session):
+    def setup_method_for_transaction(self, session):
         self.article = self.Article()
         self.article.name = "Some article"
         self.article.content = "Some content"
         self.article.tags.append(self.Tag(name="Some tag"))
-        self.session.add(self.article)
-        self.session.commit()
+        session.add(self.article)
+        session.commit()
         yield
-        self.session.expunge(self.article)
+        session.expunge(self.article)
         del self.article
 
     def test_relationships(self):
         assert self.article.versions[0].transaction
 
-    def test_only_saves_transaction_if_actual_modifications(self):
+    def test_only_saves_transaction_if_actual_modifications(self, session):
         self.article.name = "Some article"
-        self.session.commit()
+        session.commit()
         self.article.name = "Some article"
-        self.session.commit()
-        assert self.session.scalar(sa.select(sa.func.count()).select_from(versioning_manager.transaction_cls)) == 1
+        session.commit()
+        assert session.scalar(sa.select(sa.func.count()).select_from(versioning_manager.transaction_cls)) == 1
 
-    def test_repr(self):
-        transaction = self.session.scalars(sa.select(versioning_manager.transaction_cls)).first()
+    def test_repr(self, session):
+        transaction = session.scalars(sa.select(versioning_manager.transaction_cls)).first()
         assert f"<Transaction id={transaction.id}, issued_at={transaction.issued_at!r}>" == repr(transaction)
 
     def test_changed_entities(self):
@@ -44,16 +44,16 @@ class TestTransaction(TestCase):
             self.TagVersion: [self.article.tags[0].versions[0]],
         }
 
-    def test_transaction_issued_at(self):
+    def test_transaction_issued_at(self, session):
         time.sleep(1)
         self.article.name = "Some article 2"
-        self.session.add(self.article)
-        self.session.commit()
+        session.add(self.article)
+        session.commit()
         assert self.article.versions[0].transaction.issued_at != self.article.versions[1].transaction.issued_at
 
-    def test_transaction_issued_at_is_naive(self):
-        uow = versioning_manager.unit_of_work(self.session)
-        tx = uow.create_transaction(self.session)
+    def test_transaction_issued_at_is_naive(self, session):
+        uow = versioning_manager.unit_of_work(session)
+        tx = uow.create_transaction(session)
 
         assert isinstance(tx.issued_at, datetime.datetime)
         assert tx.issued_at.tzinfo is None

@@ -40,9 +40,9 @@ class TestVersionedModelWithoutVersioning(TestCase):
         with pytest.raises(TableNotVersioned):
             version_table(self.TextItem.__table__)
 
-    def test_does_add_objects_to_unit_of_work(self):
-        self.session.add(self.TextItem())
-        self.session.commit()
+    def test_does_add_objects_to_unit_of_work(self, session):
+        session.add(self.TextItem())
+        session.commit()
 
 
 class TestWithUnknownUserClass:
@@ -116,8 +116,8 @@ class TestWithoutAnyVersionedModels(TestCase):
 
         self.Article = Article
 
-    def test_insert(self):
+    def test_insert(self, session):
         article = self.Article(name="Some article")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert not hasattr(article, "versions")

@@ -1,9 +1,10 @@
 import contextlib
+import typing as t
 from copy import copy
 
 import pytest
 import sqlalchemy as sa
-from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, close_all_sessions, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession, async_sessionmaker, close_all_sessions, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, column_property, configure_mappers, relationship
 
 from sqlalchemy_history import (
@@ -115,11 +116,11 @@ class AsyncTestCase:
         self.Tag = Tag
 
     @pytest.fixture(autouse=True)
-    async def setup_session(self, setup_tables, async_engine):
-        SessionLocal = async_sessionmaker(bind=async_engine, autoflush=False, expire_on_commit=False)
-        self.session = SessionLocal()
-        yield
-        await self.session.rollback()
+    async def async_session(self, setup_tables, async_engine) -> t.AsyncIterator[AsyncSession]:
+        session_factory = async_sessionmaker(bind=async_engine, autoflush=False, expire_on_commit=False)
+        session = session_factory()
+        yield session
+        await session.rollback()
         uow_leaks = versioning_manager.units_of_work
         session_map_leaks = versioning_manager.session_connection_map
 
@@ -128,19 +129,19 @@ class AsyncTestCase:
         versioning_manager.reset()
 
         await close_all_sessions()
-        self.session.expunge_all()
+        session.expunge_all()
 
         assert not uow_leaks
         assert not session_map_leaks
 
     # Helper functions
 
-    async def versions(self, parent):
-        return (await self.session.scalars(parent.versions.select())).all()
+    async def versions(self, session, parent):
+        return (await session.scalars(parent.versions.select())).all()
 
-    async def ordered_versions(self, version_model):
+    async def ordered_versions(self, session, version_model):
         return (
-            await self.session.scalars(
+            await session.scalars(
                 sa.select(version_model).order_by(getattr(version_model, self.options["transaction_column_name"]))
             )
         ).all()

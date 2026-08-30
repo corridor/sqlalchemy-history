@@ -6,28 +6,28 @@ from tests import TestCase
 
 
 class ChangeSetBaseTestCase(TestCase):
-    def test_changeset_for_insert(self):
+    def test_changeset_for_insert(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert article.versions[0].changeset == {
             "content": [None, "Some content"],
             "name": [None, "Some article"],
             "id": [None, 1],
         }
 
-    def test_changeset_for_update(self):
+    def test_changeset_for_update(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         article.name = "Updated name"
         article.content = "Updated content"
-        self.session.commit()
+        session.commit()
 
         assert article.versions[1].changeset == {
             "content": ["Some content", "Updated content"],
@@ -36,14 +36,14 @@ class ChangeSetBaseTestCase(TestCase):
 
 
 class ChangeSetTestCase(ChangeSetBaseTestCase):
-    def test_changeset_for_history_that_does_not_have_first_insert(self):
+    def test_changeset_for_history_that_does_not_have_first_insert(self, session):
         tx_log_class = get_versioning_manager(self.Article).transaction_cls
         tx_log = tx_log_class(issued_at=sa.func.now())
 
-        self.session.add(tx_log)
-        self.session.commit()
+        session.add(tx_log)
+        session.commit()
 
-        self.session.execute(
+        session.execute(
             sa.text(
                 f"""INSERT INTO article_version
             (id, {self.transaction_column_name}, name, content, operation_type)
@@ -53,7 +53,7 @@ class ChangeSetTestCase(ChangeSetBaseTestCase):
             )
         )
 
-        assert self.session.scalars(sa.select(self.ArticleVersion)).first().changeset == {
+        assert session.scalars(sa.select(self.ArticleVersion)).first().changeset == {
             "content": [None, "some content"],
             "id": [None, 1],
             "name": [None, "something"],

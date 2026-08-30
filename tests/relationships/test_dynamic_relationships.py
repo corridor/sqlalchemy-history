@@ -34,12 +34,12 @@ class TestDynamicOneToManyRelationships(TestCase):
         self.Article = Article
         self.Tag = Tag
 
-    def test_reflects_dynamic_relationships_as_dynamic(self):
+    def test_reflects_dynamic_relationships_as_dynamic(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         with pytest.deprecated_call(match='The lazy="dynamic" strategy is now legacy'):
             assert article.versions[0].tags
@@ -82,11 +82,11 @@ class TestDynamicManyToManyRelationships(TestCase):
         self.Article = Article
         self.Tag = Tag
 
-    def test_version_relations(self):
+    def test_version_relations(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         with pytest.deprecated_call(match='The lazy="dynamic" strategy is now legacy'):
             assert article.versions[0].tags
