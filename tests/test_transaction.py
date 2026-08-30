@@ -101,18 +101,18 @@ class TestAssigningUserClassInOtherSchema(TestCase):
 
         self.User = User
 
-    def create_tables(self):
+    def create_tables(self, connection):
         try:
-            self.connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
-            self.connection.execute(sa.text("CREATE SCHEMA other"))
+            connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
+            connection.execute(sa.text("CREATE SCHEMA other"))
         except sa.exc.DatabaseError:  # pragma: no cover
             try:
                 # Create a User for Oracle DataBase as it does not have concept of schema
                 # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa: E501
-                self.connection.execute(sa.text("CREATE USER other identified by other"))
+                connection.execute(sa.text("CREATE USER other identified by other"))
                 # need to give privilege to create table to this new user
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
-                self.connection.execute(sa.text("grant all privileges TO other"))
+                connection.execute(sa.text("grant all privileges TO other"))
                 # FIXME: (cx_Oracle.DatabaseError) ORA-01031: insufficient privileges
                 #        it seems system doesn't have privilege to conenct to other
                 #        now when transaction tries to refer other.user is says insufficient table
@@ -136,8 +136,8 @@ class TestAssigningUserClassInOtherSchema(TestCase):
                     #       so we just try to create if fails we continue
                     raise
         finally:
-            self.connection.commit()
-        TestCase.create_tables(self)
+            connection.commit()
+        TestCase.create_tables(self, connection=connection)
 
     def test_can_build_transaction_model(self):
         # If create_models didn't crash this should be good

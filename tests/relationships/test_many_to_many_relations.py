@@ -378,27 +378,27 @@ class TestManyToManySelfReferentialInOtherSchema(TestManyToManySelfReferential):
         self.Article = Article
         self.referenced_articles_table = article_references
 
-    def create_tables(self):
+    def create_tables(self, connection):
         try:
-            self.connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
-            self.connection.execute(sa.text("CREATE SCHEMA other"))
+            connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
+            connection.execute(sa.text("CREATE SCHEMA other"))
         except sa.exc.DatabaseError:  # pragma: no cover
             try:
                 # Create a User for Oracle DataBase as it does not have concept of schema
                 # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa: E501
-                self.connection.execute(sa.text("CREATE USER other identified by other"))
+                connection.execute(sa.text("CREATE USER other identified by other"))
                 # need to give privilege to create table to this new user
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
-                self.connection.execute(sa.text("GRANT UNLIMITED TABLESPACE TO other"))
+                connection.execute(sa.text("GRANT UNLIMITED TABLESPACE TO other"))
             except sa.exc.DatabaseError as dbe:
                 if "ORA-01920: user name 'OTHER' conflicts with another user or role name" not in dbe.__str__():
                     # NOTE: prior to oracle 23c we don't have concept of if not exists
                     #       so we just try to create if fails we continue
                     raise
         finally:
-            self.connection.commit()
+            connection.commit()
 
-        TestManyToManySelfReferential.create_tables(self)
+        TestManyToManySelfReferential.create_tables(self, connection=connection)
 
 
 @pytest.mark.skip_db("sqlite", reason="sqlite doesn't have a concept of schema")
@@ -442,26 +442,26 @@ class TestManyToManyRelationshipsInOtherSchemaTestCase(ManyToManyRelationshipsTe
         self.Article = Article
         self.Tag = Tag
 
-    def create_tables(self):
+    def create_tables(self, connection):
         try:
-            self.connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
-            self.connection.execute(sa.text("CREATE SCHEMA other"))
+            connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
+            connection.execute(sa.text("CREATE SCHEMA other"))
         except sa.exc.DatabaseError:
             try:
                 # Create a User for Oracle DataBase as it does not have concept of schema
                 # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa: E501
-                self.connection.execute(sa.text("CREATE USER other identified by other"))
+                connection.execute(sa.text("CREATE USER other identified by other"))
                 # need to give privilege to create table to this new user
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
-                self.connection.execute(sa.text("GRANT UNLIMITED TABLESPACE TO other"))  # pragma: no cover
+                connection.execute(sa.text("GRANT UNLIMITED TABLESPACE TO other"))  # pragma: no cover
             except sa.exc.DatabaseError as dbe:  # pragma: no cover
                 if "ORA-01920: user name 'OTHER' conflicts with another user or role name" not in dbe.__str__():
                     # NOTE: prior to oracle 23c we don't have concept of if not exists
                     #       so we just try to create if fails we continue
                     raise
         finally:
-            self.connection.commit()
-        ManyToManyRelationshipsTestCase.create_tables(self)
+            connection.commit()
+        ManyToManyRelationshipsTestCase.create_tables(self, connection=connection)
 
 
 create_test_cases(TestManyToManyRelationshipsInOtherSchemaTestCase)

@@ -56,34 +56,34 @@ class AsyncTestCase:
         versioning_manager.user_cls = self.user_cls
 
     @pytest.fixture
-    async def setup_engine(self, setup_versioning, anyio_backend, pytestconfig):
-        self.engine = create_async_engine(get_dns_from_driver(pytestconfig.getvalue("db"), mode="async"))
-        yield
-        await self.engine.dispose()
+    async def async_engine(self, setup_versioning, anyio_backend, pytestconfig):
+        engine = create_async_engine(get_dns_from_driver(pytestconfig.getvalue("db"), mode="async"))
+        yield engine
+        await engine.dispose()
 
     @pytest.fixture
-    async def setup_models(self, setup_engine):
+    async def setup_models(self, async_engine):
         self.create_models()
         configure_mappers()
 
     @pytest.fixture
-    async def setup_tables(self, setup_models):
+    async def setup_tables(self, setup_models, async_engine):
         if hasattr(self, "Article"):
             with contextlib.suppress(ClassNotVersioned):
                 self.ArticleVersion = version_class(self.Article)
         if hasattr(self, "Tag"):
             with contextlib.suppress(ClassNotVersioned):
                 self.TagVersion = version_class(self.Tag)
-        await self.create_tables()
+        await self.create_tables(async_engine)
         yield
-        await self.drop_tables()
+        await self.drop_tables(async_engine)
 
-    async def create_tables(self):
-        async with self.engine.begin() as conn:
+    async def create_tables(self, async_engine):
+        async with async_engine.begin() as conn:
             await conn.run_sync(self.Model.metadata.create_all)
 
-    async def drop_tables(self):
-        async with self.engine.begin() as conn:
+    async def drop_tables(self, async_engine):
+        async with async_engine.begin() as conn:
             await conn.run_sync(self.Model.metadata.drop_all)
 
     def create_models(self):
@@ -115,8 +115,8 @@ class AsyncTestCase:
         self.Tag = Tag
 
     @pytest.fixture(autouse=True)
-    async def setup_session(self, setup_tables):
-        SessionLocal = async_sessionmaker(bind=self.engine, autoflush=False, expire_on_commit=False)
+    async def setup_session(self, setup_tables, async_engine):
+        SessionLocal = async_sessionmaker(bind=async_engine, autoflush=False, expire_on_commit=False)
         self.session = SessionLocal()
         yield
         await self.session.rollback()
