@@ -73,10 +73,30 @@ class TestCase:
         versioning_manager.transaction_cls = self.transaction_cls
         versioning_manager.user_cls = self.user_cls
 
-    @pytest.fixture
-    def setup_models(self, setup_versioning, engine, decl_base, versioning_options):
+    @pytest.fixture(autouse=True)
+    def setup_models(self, setup_versioning, decl_base, versioning_options):
         self.create_models(decl_base=decl_base, versioning_options=versioning_options)
         configure_mappers()
+
+        if hasattr(self, "Article"):
+            with contextlib.suppress(ClassNotVersioned):
+                self.ArticleVersion = version_class(self.Article)
+        if hasattr(self, "Tag"):
+            with contextlib.suppress(ClassNotVersioned):
+                self.TagVersion = version_class(self.Tag)
+
+        yield
+
+        uow_leaks = versioning_manager.units_of_work
+        session_map_leaks = versioning_manager.session_connection_map
+
+        remove_versioning()
+        QueryPool.queries = []
+        versioning_manager.reset()
+        close_all_sessions()
+
+        assert not uow_leaks
+        assert not session_map_leaks
 
     @pytest.fixture
     def connection(self, setup_models, engine):
@@ -86,34 +106,18 @@ class TestCase:
 
     @pytest.fixture
     def setup_tables(self, connection, decl_base):
-        if hasattr(self, "Article"):
-            with contextlib.suppress(ClassNotVersioned):
-                self.ArticleVersion = version_class(self.Article)
-        if hasattr(self, "Tag"):
-            with contextlib.suppress(ClassNotVersioned):
-                self.TagVersion = version_class(self.Tag)
         self.create_tables(connection=connection, decl_base=decl_base)
         yield
         self.drop_tables(connection=connection, decl_base=decl_base)
 
-    @pytest.fixture(autouse=True)
+    @pytest.fixture
     def session(self, setup_tables, connection) -> t.Iterator[Session]:
         session_factory = sessionmaker(bind=connection)
         session = session_factory(autoflush=False, future=True)
         yield session
         session.rollback()
-        uow_leaks = versioning_manager.units_of_work
-        session_map_leaks = versioning_manager.session_connection_map
-
-        remove_versioning()
-        QueryPool.queries = []
-        versioning_manager.reset()
-
-        close_all_sessions()
         session.expunge_all()
-
-        assert not uow_leaks
-        assert not session_map_leaks
+        session.close()
 
     def create_tables(self, connection, decl_base):
         with connection.begin():
