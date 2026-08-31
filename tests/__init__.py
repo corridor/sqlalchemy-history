@@ -40,7 +40,6 @@ class TestCase:
     versioning_strategy = "subquery"
     transaction_column_name = "transaction_id"
     end_transaction_column_name = "end_transaction_id"
-    composite_pk = False
     plugins = [TransactionChangesPlugin(), TransactionMetaPlugin()]
     transaction_cls = TransactionFactory()
     user_cls = None
