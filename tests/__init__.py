@@ -6,7 +6,6 @@ from copy import copy
 
 import pytest
 import sqlalchemy as sa
-from sqlalchemy import create_engine, make_url
 from sqlalchemy.orm import (
     DeclarativeBase,
     Session,
@@ -35,38 +34,6 @@ class QueryPool:
 @sa.event.listens_for(sa.engine.Engine, "before_cursor_execute")
 def log_sql(conn, cursor, statement, parameters, context, executemany):
     QueryPool.queries.append(statement)
-
-
-def get_dns_from_driver(driver, *, mode: t.Literal["sync", "async"] = "sync"):  # pragma: no cover
-    BASE_URLS = {
-        "postgres": make_url("postgresql://postgres:postgres@localhost/sqlalchemy_history_test"),
-        "mysql": make_url("mysql+pymysql://root@localhost/sqlalchemy_history_test"),
-        "sqlite": make_url("sqlite:///:memory:"),
-        "mssql": make_url(
-            "mssql+pyodbc://sa:MSsql2022@localhost:1433/master?driver=ODBC+Driver+17+for+SQL+Server&TrustServerCertificate=yes"
-        ),
-        "oracle": make_url("oracle+oracledb://SYSTEM:Oracle2022@localhost:1521/?service_name=XEPDB1"),
-    }
-    DRIVERS: dict[t.Literal["sync", "async"], dict[str, str]] = {
-        "sync": {
-            "postgres": "postgresql",
-            "mysql": "mysql+pymysql",
-            "sqlite": "sqlite",
-            "mssql": "mssql+pyodbc",
-            "oracle": "oracle+oracledb",
-        },
-        "async": {
-            "postgres": "postgresql+asyncpg",
-            "mysql": "mysql+aiomysql",
-            "sqlite": "sqlite+aiosqlite",
-            "mssql": "mssql+aioodbc",
-            "oracle": "oracle+oracledb",
-        },
-    }
-    try:
-        return BASE_URLS[driver].set(drivername=DRIVERS[mode][driver])
-    except KeyError as exc:
-        raise RuntimeError(f"Unknown driver given: {driver!r}") from exc
 
 
 class TestCase:
@@ -107,13 +74,7 @@ class TestCase:
         versioning_manager.user_cls = self.user_cls
 
     @pytest.fixture
-    def engine(self, setup_versioning, pytestconfig):
-        engine = create_engine(get_dns_from_driver(pytestconfig.getvalue("db")))
-        yield engine
-        engine.dispose()
-
-    @pytest.fixture
-    def setup_models(self, engine, decl_base, versioning_options):
+    def setup_models(self, setup_versioning, engine, decl_base, versioning_options):
         self.create_models(decl_base=decl_base, versioning_options=versioning_options)
         configure_mappers()
 
