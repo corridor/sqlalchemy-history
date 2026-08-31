@@ -57,19 +57,33 @@ class AsyncTestCase:
         versioning_manager.transaction_cls = self.transaction_cls
         versioning_manager.user_cls = self.user_cls
 
-    @pytest.fixture
-    async def setup_models(self, setup_versioning, async_engine, decl_base, versioning_options):
+    @pytest.fixture(autouse=True)
+    async def setup_models(self, setup_versioning, decl_base, versioning_options):
         self.create_models(decl_base=decl_base, versioning_options=versioning_options)
         configure_mappers()
 
-    @pytest.fixture
-    async def setup_tables(self, setup_models, async_engine, decl_base):
         if hasattr(self, "Article"):
             with contextlib.suppress(ClassNotVersioned):
                 self.ArticleVersion = version_class(self.Article)
         if hasattr(self, "Tag"):
             with contextlib.suppress(ClassNotVersioned):
                 self.TagVersion = version_class(self.Tag)
+
+        yield
+
+        uow_leaks = versioning_manager.units_of_work
+        session_map_leaks = versioning_manager.session_connection_map
+
+        remove_versioning()
+        QueryPool.queries = []
+        versioning_manager.reset()
+        await close_all_sessions()
+
+        assert not uow_leaks
+        assert not session_map_leaks
+
+    @pytest.fixture
+    async def setup_tables(self, setup_models, async_engine, decl_base):
         await self.create_tables(async_engine, decl_base)
         yield
         await self.drop_tables(async_engine, decl_base)
@@ -110,24 +124,14 @@ class AsyncTestCase:
         self.Article = Article
         self.Tag = Tag
 
-    @pytest.fixture(autouse=True)
+    @pytest.fixture
     async def async_session(self, setup_tables, async_engine) -> t.AsyncIterator[AsyncSession]:
         session_factory = async_sessionmaker(bind=async_engine, autoflush=False, expire_on_commit=False)
         session = session_factory()
         yield session
         await session.rollback()
-        uow_leaks = versioning_manager.units_of_work
-        session_map_leaks = versioning_manager.session_connection_map
-
-        remove_versioning()
-        QueryPool.queries = []
-        versioning_manager.reset()
-
-        await close_all_sessions()
         session.expunge_all()
-
-        assert not uow_leaks
-        assert not session_map_leaks
+        await session.close()
 
     # Helper functions
 

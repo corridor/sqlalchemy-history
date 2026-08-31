@@ -21,7 +21,7 @@ class TestSessions(TestCase):
         assert article.versions.all()[-1].transaction_id
         assert article2.versions.all()[-1].transaction_id > article.versions.all()[-1].transaction_id
 
-    def test_connection_binded_to_engine(self, engine):
+    def test_connection_binded_to_engine(self, setup_tables, engine):
         session2 = Session(bind=engine)
         article = self.Article(name="Session1 article")
         session2.add(article)
@@ -52,7 +52,7 @@ class TestUnitOfWork(TestCase):
 
 
 class TestExternalTransactionSession(TestCase):
-    def test_session_with_external_transaction(self, engine):
+    def test_session_with_external_transaction(self, setup_tables, engine):
         conn = engine.connect()
         t = conn.begin()
         session = Session(bind=conn)

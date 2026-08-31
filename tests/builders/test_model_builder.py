@@ -124,7 +124,7 @@ class TestNoGenericReprModelBuilder(TestCase):
         assert repr(article.versions[0]) == "Class_ArticleVersion(id=1)"
 
 
-class TestCopyMapperArgs(TestCase):
+class TestCopyMapperArgs:
     def test_copy_mapper_args_with_mapped_column_polymorphic_on(self):
         # Test that copy_mapper_args handles MappedColumn for polymorphic_on
         class MockModel:
