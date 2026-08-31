@@ -7,10 +7,10 @@ from tests import TestCase
 
 
 class TestWriteOnlyOneToManyRelationships(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -19,9 +19,9 @@ class TestWriteOnlyOneToManyRelationships(TestCase):
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -33,12 +33,12 @@ class TestWriteOnlyOneToManyRelationships(TestCase):
         self.Article = Article
         self.Tag = Tag
 
-    def test_reflects_write_only_relationships_as_write_only(self):
+    def test_reflects_write_only_relationships_as_write_only(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         # Verify the relationship is write_only and has select() method
         version = article.versions[0]
@@ -49,24 +49,24 @@ class TestWriteOnlyOneToManyRelationships(TestCase):
         assert isinstance(select_stmt, sa.sql.Select)
 
         # Execute the select to verify it's lazy and can be queried
-        result = self.session.execute(select_stmt).scalars().all()
+        result = session.execute(select_stmt).scalars().all()
         assert isinstance(result, list)
 
-    def test_write_only_relationship_with_tags(self):
+    def test_write_only_relationship_with_tags(self, session):
         article = self.Article()
         article.name = "Article with tags"
         article.content = "Content here"
-        self.session.add(article)
+        session.add(article)
 
         tag1 = self.Tag(name="Python", article=article)
         tag2 = self.Tag(name="SQLAlchemy", article=article)
-        self.session.add_all([tag1, tag2])
-        self.session.commit()
+        session.add_all([tag1, tag2])
+        session.commit()
 
         # Verify the version relationship is lazy
         version = article.versions[0]
         select_stmt = version.tags.select()
-        tags = self.session.execute(select_stmt).scalars().all()
+        tags = session.execute(select_stmt).scalars().all()
 
         # Tags should be retrievable via select()
         assert len(tags) == 2
@@ -75,10 +75,10 @@ class TestWriteOnlyOneToManyRelationships(TestCase):
 
 
 class TestWriteOnlyManyToManyRelationships(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -87,7 +87,7 @@ class TestWriteOnlyManyToManyRelationships(TestCase):
 
         article_tag = sa.Table(
             "article_tag",
-            self.Model.metadata,
+            decl_base.metadata,
             sa.Column(
                 "article_id",
                 sa.Integer,
@@ -97,9 +97,9 @@ class TestWriteOnlyManyToManyRelationships(TestCase):
             sa.Column("tag_id", sa.Integer, sa.ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True),
         )
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -111,11 +111,11 @@ class TestWriteOnlyManyToManyRelationships(TestCase):
         self.Article = Article
         self.Tag = Tag
 
-    def test_version_relations(self):
+    def test_version_relations(self, session):
         article = self.Article()
         article.name = "Some article"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         # Verify the relationship is write_only and has select() method
         version = article.versions[0]
@@ -125,25 +125,25 @@ class TestWriteOnlyManyToManyRelationships(TestCase):
         select_stmt = version.tags.select()
         assert isinstance(select_stmt, sa.sql.Select)
 
-    def test_write_only_many_to_many_with_data(self):
+    def test_write_only_many_to_many_with_data(self, session):
         article = self.Article()
         article.name = "Article about Python"
-        self.session.add(article)
+        session.add(article)
 
         tag1 = self.Tag(name="Python")
         tag2 = self.Tag(name="Programming")
-        self.session.add_all([tag1, tag2])
-        self.session.flush()
+        session.add_all([tag1, tag2])
+        session.flush()
 
         # Add tags to article using add() method
         article.tags.add(tag1)
         article.tags.add(tag2)
-        self.session.commit()
+        session.commit()
 
         # Verify the version relationship is write_only
         version = article.versions[0]
         select_stmt = version.tags.select()
-        tags = self.session.execute(select_stmt).scalars().all()
+        tags = session.execute(select_stmt).scalars().all()
 
         # Tags should be retrievable via select()
         assert len(tags) == 2

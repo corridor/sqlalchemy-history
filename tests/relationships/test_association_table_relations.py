@@ -6,10 +6,10 @@ from tests import TestCase, create_test_cases
 
 
 class AssociationTableRelationshipsTestCase(TestCase):
-    def create_models(self):
-        super().create_models()
+    def create_models(self, decl_base, versioning_options):
+        super().create_models(decl_base=decl_base, versioning_options=versioning_options)
 
-        class PublishedArticle(self.Model):
+        class PublishedArticle(decl_base):
             __tablename__ = "published_article"
             __table_args__ = (PrimaryKeyConstraint("article_id", "author_id"), {"keep_existing": True})
 
@@ -25,9 +25,9 @@ class AssociationTableRelationshipsTestCase(TestCase):
             PublishedArticle.__tablename__, PublishedArticle.metadata, extend_existing=True
         )
 
-        class Author(self.Model):
+        class Author(decl_base):
             __tablename__ = "author"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -37,23 +37,23 @@ class AssociationTableRelationshipsTestCase(TestCase):
 
         self.Author = Author
 
-    def test_version_relations(self):
+    def test_version_relations(self, session):
         article = self.Article()
         name = "Some article"
         article.name = name
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert article.versions[0].name == name
 
         au = self.Author(name="Some author")
-        self.session.add(au)
-        self.session.commit()
+        session.add(au)
+        session.commit()
 
         pa = self.PublishedArticle(article_id=article.id, author_id=au.id)
-        self.session.add(pa)
+        session.add(pa)
 
-        self.session.commit()
+        session.commit()
 
 
 create_test_cases(AssociationTableRelationshipsTestCase)

@@ -5,8 +5,8 @@ from tests import TestCase
 
 
 class TestRevertDeepRelations(TestCase):
-    def create_models(self):
-        class Category(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Category(decl_base):
             __tablename__ = "category"
             __versioned__ = {}
 
@@ -15,7 +15,7 @@ class TestRevertDeepRelations(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
 
-        class Article(self.Model):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {}
 
@@ -26,7 +26,7 @@ class TestRevertDeepRelations(TestCase):
             category_id = sa.Column(sa.Integer, sa.ForeignKey(Category.id))
             category = relationship(Category, backref="articles")
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
             __versioned__ = {}
 
@@ -41,7 +41,7 @@ class TestRevertDeepRelations(TestCase):
         self.Article = Article
         self.Tag = Tag
 
-    def test_revert_deep_relationships(self):
+    def test_revert_deep_relationships(self, session):
         category = self.Category()
         category.name = "Some category"
 
@@ -51,18 +51,18 @@ class TestRevertDeepRelations(TestCase):
         category.articles.append(article)
         tag = self.Tag(name="some tag")
         article.tags.append(tag)
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert len(article.versions[0].tags) == 1
         article.tags.remove(tag)
         category.articles.remove(article)
-        self.session.commit()
-        self.session.refresh(article)
+        session.commit()
+        session.refresh(article)
         assert article.tags == []
         category.versions[0].revert(relations=["articles", "articles.tags"])
-        self.session.commit()
+        session.commit()
 
-        self.session.refresh(category)
+        session.refresh(category)
         article = category.articles[0]
 
         assert article.name == "Some article"

@@ -1,18 +1,17 @@
 import contextlib
 import inspect
 import itertools as it
-import os
 import typing as t
 from copy import copy
 
 import pytest
 import sqlalchemy as sa
-from sqlalchemy import create_engine, make_url
 from sqlalchemy.orm import (
+    DeclarativeBase,
+    Session,
     close_all_sessions,
     column_property,
     configure_mappers,
-    declarative_base,
     relationship,
     sessionmaker,
 )
@@ -37,38 +36,6 @@ def log_sql(conn, cursor, statement, parameters, context, executemany):
     QueryPool.queries.append(statement)
 
 
-def get_dns_from_driver(driver, *, mode: t.Literal["sync", "async"] = "sync"):  # pragma: no cover
-    BASE_URLS = {
-        "postgres": make_url("postgresql://postgres:postgres@localhost/sqlalchemy_history_test"),
-        "mysql": make_url("mysql+pymysql://root@localhost/sqlalchemy_history_test"),
-        "sqlite": make_url("sqlite:///:memory:"),
-        "mssql": make_url(
-            "mssql+pyodbc://sa:MSsql2022@localhost:1433/master?driver=ODBC+Driver+17+for+SQL+Server&TrustServerCertificate=yes"
-        ),
-        "oracle": make_url("oracle+oracledb://SYSTEM:Oracle2022@localhost:1521/?service_name=XEPDB1"),
-    }
-    DRIVERS: dict[t.Literal["sync", "async"], dict[str, str]] = {
-        "sync": {
-            "postgres": "postgresql",
-            "mysql": "mysql+pymysql",
-            "sqlite": "sqlite",
-            "mssql": "mssql+pyodbc",
-            "oracle": "oracle+oracledb",
-        },
-        "async": {
-            "postgres": "postgresql+asyncpg",
-            "mysql": "mysql+aiomysql",
-            "sqlite": "sqlite+aiosqlite",
-            "mssql": "mssql+aioodbc",
-            "oracle": "oracle+oracledb",
-        },
-    }
-    try:
-        return BASE_URLS[driver].set(drivername=DRIVERS[mode][driver])
-    except KeyError as exc:
-        raise RuntimeError(f"Unknown driver given: {driver!r}") from exc
-
-
 class TestCase:
     versioning_strategy = "subquery"
     transaction_column_name = "transaction_id"
@@ -79,96 +46,123 @@ class TestCase:
     user_cls = None
     should_create_models = True
 
-    @property
-    def options(self):
+    @classmethod
+    def get_default_versioning_options(cls, decl_base):
         return {
-            "create_models": self.should_create_models,
-            "base_classes": (self.Model,),
-            "strategy": self.versioning_strategy,
+            "create_models": cls.should_create_models,
+            "base_classes": (decl_base,),
+            "strategy": cls.versioning_strategy,
             "support_async": False,
-            "transaction_column_name": self.transaction_column_name,
-            "end_transaction_column_name": self.end_transaction_column_name,
+            "transaction_column_name": cls.transaction_column_name,
+            "end_transaction_column_name": cls.end_transaction_column_name,
         }
 
-    @pytest.fixture
-    def setup_declarative_base(self):
-        self.Model = declarative_base()
-        yield
-        del self.Model
+    @pytest.fixture(scope="class")
+    @classmethod
+    def versioning_options(cls, decl_base):
+        return cls.get_default_versioning_options(decl_base)
 
-    @pytest.fixture
-    def setup_versioning(self, setup_declarative_base):
-        make_versioned(options=self.options, plugins=self.plugins)
-        versioning_manager.transaction_cls = self.transaction_cls
-        versioning_manager.user_cls = self.user_cls
+    @pytest.fixture(scope="class")
+    @classmethod
+    def decl_base(cls):
+        class Base(DeclarativeBase):
+            pass
 
-    @pytest.fixture
-    def setup_engine(self, setup_versioning):
-        if "DB" not in os.environ:  # pragma: no cover
-            # NOTE: We set DB environment variable explicitly if someone has not provided as this value
-            #       is used to skip other test cases and if one doesn't specifiy this value tests starts
-            #       breaking. We don't cover this in coverage as our CI always
-            #       specifies DB variable
-            os.environ["DB"] = "sqlite"
-        self.driver = os.environ.get("DB")
-        self.engine = create_engine(get_dns_from_driver(self.driver))
-        yield
-        self.engine.dispose()
+        return Base
 
-    @pytest.fixture
-    def setup_models(self, setup_engine):
-        self.create_models()
+    @pytest.fixture(scope="class")
+    @classmethod
+    def setup_versioning(cls, versioning_options):
+        make_versioned(options=versioning_options, plugins=cls.plugins)
+        versioning_manager.transaction_cls = cls.transaction_cls
+        versioning_manager.user_cls = cls.user_cls
+
+    @pytest.fixture(scope="class", autouse=True)
+    @classmethod
+    def setup_models(cls, setup_versioning, decl_base, versioning_options):
+        model_owner = cls()
+        model_owner.create_models(decl_base=decl_base, versioning_options=versioning_options)
+        for name, value in vars(model_owner).items():
+            setattr(cls, name, value)
         configure_mappers()
 
-    @pytest.fixture
-    def setup_connection(self, setup_models):
-        self.connection = self.engine.connect()
-        yield
-        self.connection.close()
+        if hasattr(cls, "Article"):
+            with contextlib.suppress(ClassNotVersioned):
+                cls.ArticleVersion = version_class(cls.Article)
+        if hasattr(cls, "Tag"):
+            with contextlib.suppress(ClassNotVersioned):
+                cls.TagVersion = version_class(cls.Tag)
 
-    @pytest.fixture
-    def setup_tables(self, setup_connection):
-        if hasattr(self, "Article"):
-            with contextlib.suppress(ClassNotVersioned):
-                self.ArticleVersion = version_class(self.Article)
-        if hasattr(self, "Tag"):
-            with contextlib.suppress(ClassNotVersioned):
-                self.TagVersion = version_class(self.Tag)
-        self.create_tables()
         yield
-        self.drop_tables()
+
+        remove_versioning()
+        versioning_manager.reset()
 
     @pytest.fixture(autouse=True)
-    def setup_session(self, setup_tables):
-        Session = sessionmaker(bind=self.connection)
-        self.session = Session(autoflush=False, future=True)
+    def cleanup_test_state(self, setup_models):
         yield
-        self.session.rollback()
+
         uow_leaks = versioning_manager.units_of_work
         session_map_leaks = versioning_manager.session_connection_map
 
-        remove_versioning()
         QueryPool.queries = []
-        versioning_manager.reset()
-
         close_all_sessions()
-        self.session.expunge_all()
 
         assert not uow_leaks
         assert not session_map_leaks
 
-    def create_tables(self):
-        with self.connection.begin():
-            self.Model.metadata.create_all(self.connection)
+    @pytest.fixture
+    def connection(self, setup_tables, engine):
+        connection = engine.connect()
+        transaction = connection.begin()
+        yield connection
+        if transaction.is_active:
+            transaction.rollback()
+        connection.close()
 
-    def drop_tables(self):
-        with self.connection.begin():
-            self.Model.metadata.drop_all(self.connection)
+    @pytest.fixture(scope="class", autouse=True)
+    @classmethod
+    def setup_tables(cls, request, setup_models, engine, decl_base):
+        # Keep classes containing only mapper-level tests from touching the database.
+        test_items = (item for item in request.session.items if item.cls is request.cls)
+        if not any(
+            "session" in item.fixturenames
+            or "connection" in item.fixturenames
+            or "setup_tables" in inspect.signature(item.obj).parameters
+            for item in test_items
+        ):
+            yield
+            return
 
-    def create_models(self):
-        class Article(self.Model):
+        table_owner = cls()
+        connection = engine.connect()
+        table_owner.create_tables(connection=connection, decl_base=decl_base)
+        yield
+        table_owner.drop_tables(connection=connection, decl_base=decl_base)
+        connection.close()
+
+    @pytest.fixture
+    def session(self, setup_tables, connection) -> t.Iterator[Session]:
+        # Test commits must not commit the fixture-owned isolation transaction.
+        session_factory = sessionmaker(bind=connection, join_transaction_mode="rollback_only")
+        session = session_factory(autoflush=False, future=True)
+        yield session
+        session.rollback()
+        session.expunge_all()
+        session.close()
+
+    def create_tables(self, connection, decl_base):
+        with connection.begin():
+            decl_base.metadata.create_all(connection)
+
+    def drop_tables(self, connection, decl_base):
+        with connection.begin():
+            decl_base.metadata.drop_all(connection)
+
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -180,9 +174,9 @@ class TestCase:
             # Dynamic column cotaining all text content data
             fulltext_content = column_property(name + content + description)
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True

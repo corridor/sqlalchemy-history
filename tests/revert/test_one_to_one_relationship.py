@@ -7,19 +7,19 @@ from tests import TestCase
 
 
 class TestRevertOneToOneRelationship(TestCase):
-    def create_models(self):
-        class Category(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Category(decl_base):
             __tablename__ = "category"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 
-        class Article(self.Model):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -33,21 +33,21 @@ class TestRevertOneToOneRelationship(TestCase):
         self.Article = Article
         self.Category = Category
 
-    def test_revert_relationship(self):
+    def test_revert_relationship(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         category = self.Category(name="some category")
         article.category = category
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert article.versions[0].category == category.versions[0]
         article.category = None
-        self.session.commit()
-        self.session.refresh(article)
+        session.commit()
+        session.refresh(article)
         assert article.category is None
         article.versions[0].revert(relations=["category"])
-        self.session.commit()
+        session.commit()
 
         assert article.category == category
         assert article.category.name == "some category"

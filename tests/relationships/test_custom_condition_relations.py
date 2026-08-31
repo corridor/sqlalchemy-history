@@ -5,10 +5,10 @@ from tests import TestCase, create_test_cases
 
 
 class CustomConditionRelationsTestCase(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -17,9 +17,9 @@ class CustomConditionRelationsTestCase(TestCase):
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -45,14 +45,14 @@ class CustomConditionRelationsTestCase(TestCase):
         self.Article = Article
         self.Tag = Tag
 
-    def test_relationship_condition_reflection(self):
+    def test_relationship_condition_reflection(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         article.primary_tags.append(self.Tag(name="tag #1", category="primary"))
         article.secondary_tags.append(self.Tag(name="tag #2", category="secondary"))
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert article.versions[0].primary_tags
         assert article.versions[0].secondary_tags
 

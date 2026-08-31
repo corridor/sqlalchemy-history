@@ -7,19 +7,19 @@ from tests import TestCase, create_test_cases
 
 
 class OneToOneRelationshipsTestCase(TestCase):
-    def create_models(self):
-        class User(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class User(decl_base):
             __tablename__ = "user"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             name = sa.Column(sa.Unicode(255))
 
-        class Article(self.Model):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -33,61 +33,61 @@ class OneToOneRelationshipsTestCase(TestCase):
         self.Article = Article
         self.User = User
 
-    def test_single_insert(self):
+    def test_single_insert(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         user = self.User(name="Some user")
         article.author = user
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         assert article.versions[0].author
 
-    def test_multiple_relation_versions(self):
+    def test_multiple_relation_versions(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         user = self.User(name="Some user")
         article.author = user
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         user.name = "Someone else"
-        self.session.commit()
+        session.commit()
 
         assert article.versions[0].author == user.versions[0]
 
-    def test_multiple_consecutive_inserts_and_removes(self):
+    def test_multiple_consecutive_inserts_and_removes(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         user = self.User(name="Some user")
         article.author = user
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         user.name = "Someone else"
-        self.session.commit()
+        session.commit()
 
         article.name = "Updated article"
 
         article2 = self.Article(name="Article 2")
-        self.session.add(article2)
+        session.add(article2)
         article2.author = user
-        self.session.commit()
+        session.commit()
 
         assert article2.versions[0].author == user.versions[1]
 
-    def test_replace(self):
+    def test_replace(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
         user = self.User(name="Some user")
         article.author = user
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         other_user = self.User(name="Some other user")
         article.author = other_user
-        self.session.commit()
+        session.commit()
 
         assert article.versions[1].author == other_user.versions[0]
 

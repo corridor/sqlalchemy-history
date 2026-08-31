@@ -1,9 +1,9 @@
 import datetime
-import os
 import time
 
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.exc import DatabaseError
 
 from sqlalchemy_history import versioning_manager
 from sqlalchemy_history.plugins import TransactionMetaPlugin
@@ -12,29 +12,29 @@ from tests import TestCase
 
 class TestTransaction(TestCase):
     @pytest.fixture(autouse=True)
-    def setup_method_for_transaction(self, setup_session):
+    def setup_method_for_transaction(self, session):
         self.article = self.Article()
         self.article.name = "Some article"
         self.article.content = "Some content"
         self.article.tags.append(self.Tag(name="Some tag"))
-        self.session.add(self.article)
-        self.session.commit()
+        session.add(self.article)
+        session.commit()
         yield
-        self.session.expunge(self.article)
+        session.expunge(self.article)
         del self.article
 
     def test_relationships(self):
         assert self.article.versions[0].transaction
 
-    def test_only_saves_transaction_if_actual_modifications(self):
+    def test_only_saves_transaction_if_actual_modifications(self, session):
         self.article.name = "Some article"
-        self.session.commit()
+        session.commit()
         self.article.name = "Some article"
-        self.session.commit()
-        assert self.session.scalar(sa.select(sa.func.count()).select_from(versioning_manager.transaction_cls)) == 1
+        session.commit()
+        assert session.scalar(sa.select(sa.func.count()).select_from(versioning_manager.transaction_cls)) == 1
 
-    def test_repr(self):
-        transaction = self.session.scalars(sa.select(versioning_manager.transaction_cls)).first()
+    def test_repr(self, session):
+        transaction = session.scalars(sa.select(versioning_manager.transaction_cls)).first()
         assert f"<Transaction id={transaction.id}, issued_at={transaction.issued_at!r}>" == repr(transaction)
 
     def test_changed_entities(self):
@@ -45,16 +45,16 @@ class TestTransaction(TestCase):
             self.TagVersion: [self.article.tags[0].versions[0]],
         }
 
-    def test_transaction_issued_at(self):
+    def test_transaction_issued_at(self, session):
         time.sleep(1)
         self.article.name = "Some article 2"
-        self.session.add(self.article)
-        self.session.commit()
+        session.add(self.article)
+        session.commit()
         assert self.article.versions[0].transaction.issued_at != self.article.versions[1].transaction.issued_at
 
-    def test_transaction_issued_at_is_naive(self):
-        uow = versioning_manager.unit_of_work(self.session)
-        tx = uow.create_transaction(self.session)
+    def test_transaction_issued_at_is_naive(self, session):
+        uow = versioning_manager.unit_of_work(session)
+        tx = uow.create_transaction(session)
 
         assert isinstance(tx.issued_at, datetime.datetime)
         assert tx.issued_at.tzinfo is None
@@ -68,10 +68,10 @@ class TestTransactionWithoutChangesPlugin(TestTransaction):
 class TestAssigningUserClass(TestCase):
     user_cls = "User"
 
-    def create_models(self):
-        class User(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class User(decl_base):
             __tablename__ = "user"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(sa.Unicode(255), primary_key=True)
             name = sa.Column(sa.Unicode(255), nullable=False)
@@ -83,17 +83,18 @@ class TestAssigningUserClass(TestCase):
         assert isinstance(attr.property.columns[0].type, sa.Unicode)
 
 
-@pytest.mark.skipif(
-    os.environ.get("DB") in ["sqlite", "oracle"],
+@pytest.mark.skip_db(
+    "sqlite",
+    "oracle",
     reason="sqlite doesn't have a concept of schema for oracle refer below mentioned fixme!",
 )
 class TestAssigningUserClassInOtherSchema(TestCase):
     user_cls = "User"
 
-    def create_models(self):
-        class User(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class User(decl_base):
             __tablename__ = "user"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
             __table_args__ = {"schema": "other"}
 
             id = sa.Column(sa.Unicode(255), primary_key=True)
@@ -101,18 +102,18 @@ class TestAssigningUserClassInOtherSchema(TestCase):
 
         self.User = User
 
-    def create_tables(self):
+    def create_tables(self, connection, decl_base):
         try:
-            self.connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
-            self.connection.execute(sa.text("CREATE SCHEMA other"))
-        except sa.exc.DatabaseError:  # pragma: no cover
+            connection.execute(sa.text("DROP SCHEMA IF EXISTS other"))
+            connection.execute(sa.text("CREATE SCHEMA other"))
+        except DatabaseError:  # pragma: no cover
             try:
                 # Create a User for Oracle DataBase as it does not have concept of schema
                 # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa: E501
-                self.connection.execute(sa.text("CREATE USER other identified by other"))
+                connection.execute(sa.text("CREATE USER other identified by other"))
                 # need to give privilege to create table to this new user
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
-                self.connection.execute(sa.text("grant all privileges TO other"))
+                connection.execute(sa.text("grant all privileges TO other"))
                 # FIXME: (cx_Oracle.DatabaseError) ORA-01031: insufficient privileges
                 #        it seems system doesn't have privilege to conenct to other
                 #        now when transaction tries to refer other.user is says insufficient table
@@ -130,14 +131,14 @@ class TestAssigningUserClassInOtherSchema(TestCase):
                 # E       )
                 # E
                 # E       ]
-            except sa.exc.DatabaseError as dbe:
+            except DatabaseError as dbe:
                 if "ORA-01920: user name 'OTHER' conflicts with another user or role name" not in dbe.__str__():
                     # NOTE: prior to oracle 23c we don't have concept of if not exists
                     #       so we just try to create if fails we continue
                     raise
         finally:
-            self.connection.commit()
-        TestCase.create_tables(self)
+            connection.commit()
+        TestCase.create_tables(self, connection=connection, decl_base=decl_base)
 
     def test_can_build_transaction_model(self):
         # If create_models didn't crash this should be good

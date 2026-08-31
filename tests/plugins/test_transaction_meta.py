@@ -9,33 +9,33 @@ class TestTransaction(TestCase):
     plugins = [TransactionMetaPlugin()]
 
     @pytest.fixture(autouse=True)
-    def setup_method_for_meta_plugin_data(self, setup_session):
+    def setup_method_for_meta_plugin_data(self, session):
         self.article = self.Article()
         self.article.name = "Some article"
         self.article.content = "Some content"
         self.article.tags.append(self.Tag(name="Some tag"))
-        self.session.add(self.article)
-        self.session.commit()
+        session.add(self.article)
+        session.commit()
         yield
-        self.session.expunge(self.article)
+        session.expunge(self.article)
         del self.article
 
-    def test_has_meta_attribute(self):
+    def test_has_meta_attribute(self, session):
         tx = self.article.versions[0].transaction
         assert tx.meta == {}
 
         tx.meta = {"some key": "some value"}
-        self.session.commit()
-        self.session.refresh(tx)
+        session.commit()
+        session.refresh(tx)
         assert tx.meta == {"some key": "some value"}
 
-    def test_assign_meta_to_transaction(self):
+    def test_assign_meta_to_transaction(self, session):
         self.article.name = "Some update article"
         meta = {"some_key": "some_value"}
-        uow = versioning_manager.unit_of_work(self.session)
-        tx = uow.create_transaction(self.session)
+        uow = versioning_manager.unit_of_work(session)
+        tx = uow.create_transaction(session)
         tx.meta = meta
-        self.session.commit()
+        session.commit()
 
         tx = self.article.versions.all()[-1].transaction
         assert tx.meta["some_key"] == "some_value"

@@ -114,9 +114,7 @@ jobs:
 
       - name: Run tests
         run: |
-          uv run --no-sync pytest -v --maxfail=100 --cov --cov-report=lcov
-        env:
-          DB: ${{ matrix.DB }}
+          uv run --no-sync pytest --db=${{ matrix.DB }} -v --maxfail=100 --cov --cov-report=lcov
 
       - name: send coverage data to Coveralls
         env:

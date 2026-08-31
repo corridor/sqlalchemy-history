@@ -11,25 +11,25 @@ class ColumnExclusionTestCase(TestCase):
         manager = cls._sa_class_manager
         assert "content" not in manager
 
-    def test_versioning_with_column_exclusion(self):
+    def test_versioning_with_column_exclusion(self, session):
         item = self.TextItem(name="Some textitem", content="Some content")
-        self.session.add(item)
-        self.session.commit()
+        session.add(item)
+        session.commit()
 
         assert item.versions[0].name == "Some textitem"
 
-    def test_does_not_create_record_if_only_excluded_column_updated(self):
+    def test_does_not_create_record_if_only_excluded_column_updated(self, session):
         item = self.TextItem(name="Some textitem")
-        self.session.add(item)
-        self.session.commit()
+        session.add(item)
+        session.commit()
         item.content = "Some content"
-        self.session.commit()
+        session.commit()
         assert item.versions.count() == 1
 
 
 class TestColumnExclusion(ColumnExclusionTestCase):
-    def create_models(self):
-        class TextItem(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class TextItem(decl_base):
             __tablename__ = "text_item"
             __versioned__ = {"exclude": ["content"]}
 
@@ -43,8 +43,8 @@ class TestColumnExclusion(ColumnExclusionTestCase):
 
 
 class TestColumnExclusionWithAliasedColumn(ColumnExclusionTestCase):
-    def create_models(self):
-        class TextItem(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class TextItem(decl_base):
             __tablename__ = "text_item"
             __versioned__ = {"exclude": ["content"]}
 
@@ -58,15 +58,15 @@ class TestColumnExclusionWithAliasedColumn(ColumnExclusionTestCase):
 
 
 class TestColumnExclusionWithRelationship(TestCase):
-    def create_models(self):
-        class Word(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Word(decl_base):
             __tablename__ = "word"
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
             word = sa.Column(sa.Unicode(255))
 
-        class TextItemWord(self.Model):
+        class TextItemWord(decl_base):
             __tablename__ = "text_item_word"
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -74,7 +74,7 @@ class TestColumnExclusionWithRelationship(TestCase):
             text_item_id = sa.Column(sa.Integer, sa.ForeignKey("text_item.id"), nullable=False)
             word_id = sa.Column(sa.Integer, sa.ForeignKey("word.id"), nullable=False)
 
-        class TextItem(self.Model):
+        class TextItem(decl_base):
             __tablename__ = "text_item"
             __versioned__ = {"exclude": ["content"]}
 
@@ -92,17 +92,17 @@ class TestColumnExclusionWithRelationship(TestCase):
         manager = cls._sa_class_manager
         assert "content" not in manager
 
-    def test_versioning_with_column_exclusion(self):
+    def test_versioning_with_column_exclusion(self, session):
         item = self.TextItem(name="Some textitem", content=[self.Word(word="bird")])
-        self.session.add(item)
-        self.session.commit()
+        session.add(item)
+        session.commit()
 
         assert item.versions[0].name == "Some textitem"
 
-    def test_does_not_create_record_if_only_excluded_column_updated(self):
+    def test_does_not_create_record_if_only_excluded_column_updated(self, session):
         item = self.TextItem(name="Some textitem")
-        self.session.add(item)
-        self.session.commit()
+        session.add(item)
+        session.commit()
         item.content.append(self.Word(word="Some content"))
-        self.session.commit()
+        session.commit()
         assert item.versions.count() == 1

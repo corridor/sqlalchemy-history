@@ -3,30 +3,30 @@ from tests import TestCase
 
 
 class TestVacuum(TestCase):
-    def test_deletes_futile_versions(self):
+    def test_deletes_futile_versions(self, session):
         history_objects = [
             self.ArticleVersion(id=1, name="Some article", transaction_id=1, operation_type=1),
             self.ArticleVersion(id=1, name="Some article", transaction_id=2, operation_type=1),
             self.ArticleVersion(id=1, name="Some article", transaction_id=3, operation_type=1),
         ]
 
-        self.session.add_all(history_objects)
-        self.session.commit()
+        session.add_all(history_objects)
+        session.commit()
 
-        vacuum(self.session, self.Article)
-        assert history_objects[0] not in self.session.deleted
-        assert history_objects[1] in self.session.deleted
-        assert history_objects[2] in self.session.deleted
+        vacuum(session, self.Article)
+        assert history_objects[0] not in session.deleted
+        assert history_objects[1] in session.deleted
+        assert history_objects[2] in session.deleted
 
-    def test_does_not_delete_versions_with_actual_changes(self):
+    def test_does_not_delete_versions_with_actual_changes(self, session):
         history_objects = [
             self.ArticleVersion(id=1, name="Some article", transaction_id=1, operation_type=1),
             self.ArticleVersion(id=1, name="Some other article", transaction_id=2, operation_type=1),
         ]
 
-        self.session.add_all(history_objects)
-        self.session.commit()
+        session.add_all(history_objects)
+        session.commit()
 
-        vacuum(self.session, self.Article)
-        assert history_objects[0] not in self.session.deleted
-        assert history_objects[1] not in self.session.deleted
+        vacuum(session, self.Article)
+        assert history_objects[0] not in session.deleted
+        assert history_objects[1] not in session.deleted

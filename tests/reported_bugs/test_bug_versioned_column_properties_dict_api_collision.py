@@ -11,10 +11,10 @@ class TestVersionedColumnPropertiesDictAPICollision(TestCase):
     # names that shadow dict-API methods on ``mapper.attrs`` (e.g. ``values``,
     # ``keys``, ``items``). Attribute access used to return a bound method
     # instead of the column property, which made inserts on such models fail.
-    def create_models(self):
-        class Measurement(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Measurement(decl_base):
             __tablename__ = "measurement"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer,
@@ -28,13 +28,13 @@ class TestVersionedColumnPropertiesDictAPICollision(TestCase):
 
         self.Measurement = Measurement
 
-    def test_insert_with_shadowing_column_names(self):
+    def test_insert_with_shadowing_column_names(self, session):
         measurement = self.Measurement(values=42, keys="k", items="i")
-        self.session.add(measurement)
-        self.session.commit()
+        session.add(measurement)
+        session.commit()
 
         MeasurementVersion = version_class(self.Measurement)
-        version = self.session.scalars(sa.select(MeasurementVersion)).one()
+        version = session.scalars(sa.select(MeasurementVersion)).one()
         assert version.values == 42
         assert version.keys == "k"
         assert version.items == "i"

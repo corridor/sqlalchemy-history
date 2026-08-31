@@ -1,3 +1,4 @@
+import pytest
 import sqlalchemy as sa
 from sqlalchemy.orm import MappedColumn
 
@@ -19,8 +20,8 @@ class TestVersionModelBuilder(TestCase):
 class TestVersionModelBuilderWithCustomTableName(TestCase):
     """table_name configured via the class-level ``__versioned__`` dict."""
 
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {"table_name": "%s_user_defined"}
 
@@ -39,14 +40,13 @@ class TestVersionModelBuilderWithCustomTableName(TestCase):
 class TestVersionModelBuilderWithManagerTableName(TestCase):
     """table_name configured via ``make_versioned(options={"table_name": ...})``."""
 
-    @property
-    def options(self):
-        options = super().options
-        options["table_name"] = "%s_user_defined"
-        return options
+    @pytest.fixture(scope="class")
+    @classmethod
+    def versioning_options(cls, decl_base):
+        return {**super().get_default_versioning_options(decl_base), "table_name": "%s_user_defined"}
 
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {}
 
@@ -63,71 +63,72 @@ class TestVersionModelBuilderWithManagerTableName(TestCase):
 
 
 class TestVersionModelBuilderAsync(TestCase):
-    @property
-    def options(self):
-        options = super().options
-        options["support_async"] = True
-        return options
+    @pytest.fixture(scope="class")
+    @classmethod
+    def versioning_options(cls, decl_base):
+        return {**super().get_default_versioning_options(decl_base), "support_async": True}
 
     def test_versions_relationship_is_write_only_with_async_support(self):
         assert sa.inspect(self.Article).relationships.versions.lazy == "write_only"
 
-    def test_versions_can_be_loaded_with_select(self):
+    def test_versions_can_be_loaded_with_select(self, session):
         article = self.Article(name="testing")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
-        versions = self.session.scalars(article.versions.select()).all()
+        versions = session.scalars(article.versions.select()).all()
 
         assert len(versions) == 1
         assert versions[0].name == "testing"
 
 
 class TestGenericReprModelBuilder(TestCase):
-    @property
-    def options(self):
+    @pytest.fixture(scope="class")
+    @classmethod
+    def versioning_options(cls, decl_base):
         return {
-            "create_models": self.should_create_models,
+            "create_models": cls.should_create_models,
             "base_classes": None,
-            "strategy": self.versioning_strategy,
+            "strategy": cls.versioning_strategy,
             "support_async": False,
-            "transaction_column_name": self.transaction_column_name,
-            "end_transaction_column_name": self.end_transaction_column_name,
+            "transaction_column_name": cls.transaction_column_name,
+            "end_transaction_column_name": cls.end_transaction_column_name,
         }
 
-    def test_version_cls_repr(self):
+    def test_version_cls_repr(self, session):
         # If no base classes specified only then generic_repr should be set
         article = self.Article(name="testing")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert repr(article.versions[0]) == "ArticleVersion(id=1, transaction_id=1, operation_type=0)"
 
 
 class TestNoGenericReprModelBuilder(TestCase):
-    @property
-    def options(self):
+    @pytest.fixture(scope="class")
+    @classmethod
+    def versioning_options(cls, decl_base):
         class ReprMixin:
             def __repr__(self):
                 return f"Class_{self.__class__.__name__}(id={self.id})"
 
         return {
-            "create_models": self.should_create_models,
-            "base_classes": (self.Model, ReprMixin),
-            "strategy": self.versioning_strategy,
+            "create_models": cls.should_create_models,
+            "base_classes": (decl_base, ReprMixin),
+            "strategy": cls.versioning_strategy,
             "support_async": False,
-            "transaction_column_name": self.transaction_column_name,
-            "end_transaction_column_name": self.end_transaction_column_name,
+            "transaction_column_name": cls.transaction_column_name,
+            "end_transaction_column_name": cls.end_transaction_column_name,
         }
 
-    def test_version_cls_repr(self):
+    def test_version_cls_repr(self, session):
         # If no base classes specified only then generic_repr should be set
         article = self.Article(name="testing")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert repr(article.versions[0]) == "Class_ArticleVersion(id=1)"
 
 
-class TestCopyMapperArgs(TestCase):
+class TestCopyMapperArgs:
     def test_copy_mapper_args_with_mapped_column_polymorphic_on(self):
         # Test that copy_mapper_args handles MappedColumn for polymorphic_on
         class MockModel:

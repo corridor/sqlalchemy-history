@@ -9,10 +9,10 @@ from tests import TestCase
 
 class TestBug27(TestCase):
     # ref: https://github.com/corridor/sqlalchemy-history/issues/27
-    def create_models(self):
+    def create_models(self, decl_base, versioning_options):
         article_author_table = sa.Table(
             "article_author",
-            self.Model.metadata,
+            decl_base.metadata,
             sa.Column("article_id", sa.Integer, sa.ForeignKey("article.id"), primary_key=True, nullable=False),
             sa.Column("author_id", sa.Integer, sa.ForeignKey("author.id"), primary_key=True, nullable=False),
             sa.Column(
@@ -24,9 +24,9 @@ class TestBug27(TestCase):
             ),
         )
 
-        class Article(self.Model):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -34,9 +34,9 @@ class TestBug27(TestCase):
             name = sa.Column(sa.Unicode(255), nullable=False)
             content = sa.Column(sa.UnicodeText)
 
-        class Author(self.Model):
+        class Author(decl_base):
             __tablename__ = "author"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -49,13 +49,13 @@ class TestBug27(TestCase):
         self.Author = Author
         self.article_author_table = article_author_table
 
-    def test_inserting_entries(self):
+    def test_inserting_entries(self, session):
         article = self.Article(name="Article 1")
         author = self.Author(name="Author 1", articles=[article])
-        self.session.add(article)
-        self.session.add(author)
-        self.session.commit()
+        session.add(article)
+        session.add(author)
+        session.commit()
 
-        obj = self.session.execute(sa.select(self.article_author_table)).all()
+        obj = session.execute(sa.select(self.article_author_table)).all()
         assert len(obj) == 1
         assert isinstance(obj[0][-1], datetime.datetime)  # last col is a datetime!

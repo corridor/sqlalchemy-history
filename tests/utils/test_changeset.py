@@ -7,17 +7,17 @@ class TestChangeSet(TestCase):
         article = self.Article(name="Some article")
         assert changeset(article) == {"name": ["Some article", None]}
 
-    def test_changeset_for_deletion(self):
+    def test_changeset_for_deletion(self, session):
         article = self.Article(name="Some article")
-        self.session.add(article)
-        self.session.commit()
-        self.session.delete(article)
+        session.add(article)
+        session.commit()
+        session.delete(article)
         assert changeset(article) == {"name": [None, "Some article"]}
 
-    def test_changeset_for_update(self):
+    def test_changeset_for_update(self, session):
         article = self.Article(name="Some article")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         article.tags  # noqa: B018
         article.name = "Updated article"
         assert changeset(article) == {"name": ["Updated article", "Some article"]}

@@ -7,10 +7,10 @@ from tests import TestCase
 
 class TestBug97(TestCase):
     # ref: https://github.com/corridor/sqlalchemy-history/issues/97
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -20,13 +20,13 @@ class TestBug97(TestCase):
 
         self.Article = Article
 
-    def test_should_not_pick_default_entry_in_versions(self):
+    def test_should_not_pick_default_entry_in_versions(self, session):
         article = self.Article(name="Article 1")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         article.name = None
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert article.name is None
         assert article.versions.count() == 2
         assert article.versions.all()[-1].name is None

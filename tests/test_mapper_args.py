@@ -6,10 +6,10 @@ from tests import TestCase
 
 
 class TestColumnPrefix(TestCase):
-    def create_models(self):
-        class TextItem(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class TextItem(decl_base):
             __tablename__ = "text_item"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
@@ -21,7 +21,7 @@ class TestColumnPrefix(TestCase):
         self.TextItem = TextItem
 
     @pytest.fixture(autouse=True)
-    def setup_method_for_col_prefix(self, setup_session):
+    def setup_method_for_col_prefix(self, session):
         self.TextItemVersion = version_class(self.TextItem)
         yield
         del self.TextItemVersion

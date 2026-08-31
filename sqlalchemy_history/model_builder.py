@@ -4,7 +4,8 @@ from copy import copy
 
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import MappedColumn, column_property, relationship
+from sqlalchemy.orm import ColumnProperty, MappedColumn, column_property, relationship
+from sqlalchemy.sql.elements import ClauseElement
 from sqlalchemy_utils.functions import get_declarative_base, get_primary_keys
 from sqlalchemy_utils.models import generic_repr
 
@@ -86,9 +87,20 @@ def copy_mapper_args(model):
         if "polymorphic_on" in model.__mapper_args__:
             discriminator_column = model.__mapper_args__["polymorphic_on"]
             if isinstance(discriminator_column, str):
-                args["polymorphic_on"] = discriminator_column
+                mapper = sa.inspect(model, raiseerr=False)
+                args["polymorphic_on"] = (
+                    adapt_columns(mapper.polymorphic_on)
+                    if mapper is not None and mapper.polymorphic_on is not None
+                    else discriminator_column
+                )
             elif isinstance(discriminator_column, MappedColumn):
                 args["polymorphic_on"] = discriminator_column.column.key
+            elif isinstance(discriminator_column, ColumnProperty):
+                args["polymorphic_on"] = adapt_columns(discriminator_column.expression)
+            elif isinstance(discriminator_column, sa.Column):
+                args["polymorphic_on"] = discriminator_column.key
+            elif isinstance(discriminator_column, ClauseElement):
+                args["polymorphic_on"] = adapt_columns(discriminator_column)
             else:
                 args["polymorphic_on"] = discriminator_column.key
     return args

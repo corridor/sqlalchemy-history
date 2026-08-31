@@ -11,15 +11,15 @@ from tests import TestCase
 
 
 class TestVersioningManager(TestCase):
-    def create_models(self):
+    def create_models(self, decl_base, versioning_options):
         """
         Creates many-to-many relationship between Article and Tag
         Article is versioned. But Tag is not versioned
         """
 
-        class Article(self.Model):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -28,7 +28,7 @@ class TestVersioningManager(TestCase):
 
         article_tag = sa.Table(
             "article_tag",
-            self.Model.metadata,
+            decl_base.metadata,
             sa.Column(
                 "article_id",
                 sa.Integer,
@@ -38,7 +38,7 @@ class TestVersioningManager(TestCase):
             sa.Column("tag_id", sa.Integer, sa.ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True),
         )
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
 
             id = sa.Column(
@@ -78,6 +78,6 @@ class TestVersioningManager(TestCase):
         with pytest.raises(TableNotVersioned):
             get_versioning_manager(self.Tag.__table__)
 
-    def test_versioning_manager_uow(self):
+    def test_versioning_manager_uow(self, session):
         with pytest.raises(KeyError):
-            versioning_manager.get_uow(self.session.connection())
+            versioning_manager.get_uow(session.connection())

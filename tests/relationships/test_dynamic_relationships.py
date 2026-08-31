@@ -8,10 +8,10 @@ from tests import TestCase
 
 
 class TestDynamicOneToManyRelationships(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -20,9 +20,9 @@ class TestDynamicOneToManyRelationships(TestCase):
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -34,22 +34,22 @@ class TestDynamicOneToManyRelationships(TestCase):
         self.Article = Article
         self.Tag = Tag
 
-    def test_reflects_dynamic_relationships_as_dynamic(self):
+    def test_reflects_dynamic_relationships_as_dynamic(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         with pytest.deprecated_call(match='The lazy="dynamic" strategy is now legacy'):
             assert article.versions[0].tags
 
 
 class TestDynamicManyToManyRelationships(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -58,7 +58,7 @@ class TestDynamicManyToManyRelationships(TestCase):
 
         article_tag = sa.Table(
             "article_tag",
-            self.Model.metadata,
+            decl_base.metadata,
             sa.Column(
                 "article_id",
                 sa.Integer,
@@ -68,9 +68,9 @@ class TestDynamicManyToManyRelationships(TestCase):
             sa.Column("tag_id", sa.Integer, sa.ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True),
         )
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -82,11 +82,11 @@ class TestDynamicManyToManyRelationships(TestCase):
         self.Article = Article
         self.Tag = Tag
 
-    def test_version_relations(self):
+    def test_version_relations(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         with pytest.deprecated_call(match='The lazy="dynamic" strategy is now legacy'):
             assert article.versions[0].tags

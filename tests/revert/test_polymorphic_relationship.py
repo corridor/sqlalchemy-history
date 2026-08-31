@@ -5,8 +5,8 @@ from tests import TestCase
 
 
 class TestRevertPolymorphicRelationship(TestCase):
-    def create_models(self):
-        class Car(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Car(decl_base):
             __tablename__ = "car"
             __versioned__ = {}
 
@@ -15,7 +15,7 @@ class TestRevertPolymorphicRelationship(TestCase):
             )
             parts = relationship("Part", back_populates="car", cascade="all, delete-orphan", lazy="selectin")
 
-        class Part(self.Model):
+        class Part(decl_base):
             __tablename__ = "part"
             __versioned__ = {}
 
@@ -48,18 +48,18 @@ class TestRevertPolymorphicRelationship(TestCase):
         self.Part = Part
         self.Tire = Tire
 
-    def test_revert_polymorphic_relationship(self):
+    def test_revert_polymorphic_relationship(self, session):
         car = self.Car()
-        self.session.add(car)
-        self.session.commit()
+        session.add(car)
+        session.commit()
 
         tire = self.Tire(radius=15, width=200)
         car.parts.append(tire)
-        self.session.commit()
+        session.commit()
 
         initial_version = car.versions.all()[0]
         reverted_car = initial_version.revert(relations=["parts"])
 
         assert len(reverted_car.parts) == 0
 
-        self.session.flush()
+        session.flush()

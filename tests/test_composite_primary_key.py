@@ -5,8 +5,8 @@ from tests import TestCase
 
 
 class TestCompositePrimaryKey(TestCase):
-    def create_models(self):
-        class User(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class User(decl_base):
             __tablename__ = "user"
             __versioned__ = {}
             id = sa.Column(
@@ -14,7 +14,7 @@ class TestCompositePrimaryKey(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
 
-        class Team(self.Model):
+        class Team(decl_base):
             __tablename__ = "team"
             __versioned__ = {}
             id = sa.Column(
@@ -22,7 +22,7 @@ class TestCompositePrimaryKey(TestCase):
             )
             name = sa.Column(sa.Unicode(255))
 
-        class TeamMember(self.Model):
+        class TeamMember(decl_base):
             __tablename__ = "team_member"
             __versioned__ = {}
             user_id = sa.Column(
@@ -48,8 +48,8 @@ class TestCompositePrimaryKey(TestCase):
 
 
 class TestCompositePrimaryKeyWithPkConstraint(TestCase):
-    def create_models(self):
-        class TeamMember(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class TeamMember(decl_base):
             __tablename__ = "team_member"
             __versioned__ = {}
             user_id = sa.Column(sa.Integer, nullable=False)

@@ -9,8 +9,8 @@ from tests import TestCase
 
 
 class TestHybridProperty(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {}
 
@@ -36,7 +36,7 @@ class TestHybridProperty(TestCase):
             def author_name(cls):  # noqa: N805
                 return sa.select(ArticleAuthor.name).where(ArticleAuthor.id == cls.author_id).scalar_subquery()
 
-        class ArticleAuthor(self.Model):
+        class ArticleAuthor(decl_base):
             __tablename__ = "article_author"
             __versioned__ = {}
 

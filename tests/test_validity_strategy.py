@@ -6,19 +6,19 @@ from tests import TestCase
 
 
 class TestValidityStrategy(TestCase):
-    def create_models(self):
-        class BlogPost(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class BlogPost(decl_base):
             __tablename__ = "blog_post"
-            __versioned__ = {"base_classes": (self.Model,), "strategy": "validity"}
+            __versioned__ = {"base_classes": (decl_base,), "strategy": "validity"}
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
 
             name = sa.Column(sa.Unicode(255))
 
-        class Article(self.Model):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = {"base_classes": (self.Model,), "strategy": "validity"}
+            __versioned__ = {"base_classes": (decl_base,), "strategy": "validity"}
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
@@ -35,28 +35,28 @@ class TestValidityStrategy(TestCase):
         assert table.c.end_transaction_id.nullable
         assert not table.c.end_transaction_id.primary_key
 
-    def test_end_transaction_id_none_for_newly_inserted_record(self):
+    def test_end_transaction_id_none_for_newly_inserted_record(self, session):
         article = self.Article(name="Something")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert article.versions.all()[-1].end_transaction_id is None
 
-    def test_updated_end_transaction_id_of_previous_version(self):
+    def test_updated_end_transaction_id_of_previous_version(self, session):
         article = self.Article(name="Something")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         article.name = "Some other thing"
-        self.session.commit()
+        session.commit()
         assert article.versions.all()[-2].end_transaction_id == article.versions.all()[-1].transaction_id
 
 
 class TestJoinTableInheritanceWithValidityVersioning(TestCase):
-    def create_models(self):
-        class TextItem(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class TextItem(decl_base):
             __tablename__ = "text_item"
             __versioned__ = {
-                "base_classes": (self.Model,),
+                "base_classes": (decl_base,),
                 "strategy": "validity",
             }
             id = sa.Column(
@@ -96,7 +96,7 @@ class TestJoinTableInheritanceWithValidityVersioning(TestCase):
         self.BlogPost = BlogPost
 
     @pytest.fixture(autouse=True)
-    def setup_method_for_table_inhritance(self, setup_session):
+    def setup_method_for_table_inhritance(self, session):
         self.TextItemVersion = version_class(self.TextItem)
         self.ArticleVersion = version_class(self.Article)
         self.BlogPostVersion = version_class(self.BlogPost)

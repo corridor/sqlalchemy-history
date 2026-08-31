@@ -6,10 +6,10 @@ from tests import TestCase, create_test_cases
 
 
 class JoinTableInheritanceTestCase(TestCase):
-    def create_models(self):
-        class TextItem(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class TextItem(decl_base):
             __tablename__ = "text_item"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
             )
@@ -35,7 +35,7 @@ class JoinTableInheritanceTestCase(TestCase):
         self.BlogPost = BlogPost
 
     @pytest.fixture(autouse=True)
-    def setup_method_for_join_inheritance(self, setup_session):
+    def setup_method_for_join_inheritance(self, session):
         self.TextItemVersion = version_class(self.TextItem)
         self.ArticleVersion = version_class(self.Article)
         self.BlogPostVersion = version_class(self.BlogPost)
@@ -50,52 +50,52 @@ class JoinTableInheritanceTestCase(TestCase):
         assert issubclass(self.ArticleVersion, self.TextItemVersion)
         assert issubclass(self.BlogPostVersion, self.TextItemVersion)
 
-    def test_each_object_has_distinct_version_class(self):
+    def test_each_object_has_distinct_version_class(self, session):
         article = self.Article()
         blogpost = self.BlogPost()
         textitem = self.TextItem()
 
-        self.session.add(article)
-        self.session.add(blogpost)
-        self.session.add(textitem)
-        self.session.commit()
+        session.add(article)
+        session.add(blogpost)
+        session.add(textitem)
+        session.commit()
 
         # assert type(textitem.versions[0]) is self.TextItemVersion
         assert type(article.versions[0]) is self.ArticleVersion
         assert type(blogpost.versions[0]) is self.BlogPostVersion
 
-    def test_all_tables_contain_transaction_id_column(self):
-        tx_column = self.options["transaction_column_name"]
+    def test_all_tables_contain_transaction_id_column(self, versioning_options):
+        tx_column = versioning_options["transaction_column_name"]
 
         assert tx_column in self.TextItemVersion.__table__.c
         assert tx_column in self.ArticleVersion.__table__.c
         assert tx_column in self.BlogPostVersion.__table__.c
 
-    def test_with_polymorphic(self):
+    def test_with_polymorphic(self, session, decl_base):
         article = self.Article()
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
-        version_obj = self.session.scalars(sa.select(self.TextItemVersion)).first()
+        version_obj = session.scalars(sa.select(self.TextItemVersion)).first()
         assert isinstance(version_obj, self.ArticleVersion)
 
-    def test_consecutive_insert_and_delete(self):
+    def test_consecutive_insert_and_delete(self, session):
         article = self.Article()
-        self.session.add(article)
-        self.session.flush()
-        self.session.delete(article)
-        self.session.commit()
+        session.add(article)
+        session.flush()
+        session.delete(article)
+        session.commit()
 
-    def test_assign_transaction_id_to_both_parent_and_child_tables(self):
-        tx_column = self.options["transaction_column_name"]
+    def test_assign_transaction_id_to_both_parent_and_child_tables(self, session, versioning_options):
+        tx_column = versioning_options["transaction_column_name"]
         article = self.Article()
-        self.session.add(article)
-        self.session.commit()
-        assert self.session.execute(sa.text(f"SELECT {tx_column} FROM article_version")).fetchone()[0]
-        assert self.session.execute(sa.text(f"SELECT {tx_column} FROM text_item_version")).fetchone()[0]
+        session.add(article)
+        session.commit()
+        assert session.execute(sa.text(f"SELECT {tx_column} FROM article_version")).fetchone()[0]
+        assert session.execute(sa.text(f"SELECT {tx_column} FROM text_item_version")).fetchone()[0]
 
-    def test_primary_keys(self):
-        tx_column = self.options["transaction_column_name"]
+    def test_primary_keys(self, versioning_options):
+        tx_column = versioning_options["transaction_column_name"]
         table = self.TextItemVersion.__table__
         assert len(table.primary_key.columns)
         assert "id" in table.primary_key.columns
@@ -105,33 +105,33 @@ class JoinTableInheritanceTestCase(TestCase):
         assert "id" in table.primary_key.columns
         assert tx_column in table.primary_key.columns
 
-    def test_updates_end_transaction_id_to_all_tables(self):
-        if self.options["strategy"] == "subquery":
+    def test_updates_end_transaction_id_to_all_tables(self, session, versioning_options):
+        if versioning_options["strategy"] == "subquery":
             pytest.skip(reason="Skip end_tx_id test if not using validity strategy")
 
-        end_tx_column = self.options["end_transaction_column_name"]
-        tx_column = self.options["transaction_column_name"]
+        end_tx_column = versioning_options["end_transaction_column_name"]
+        tx_column = versioning_options["transaction_column_name"]
         article = self.Article()
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         article.name = "Updated article"
-        self.session.commit()
+        session.commit()
         assert article.versions.count() == 2
 
-        assert self.session.execute(
+        assert session.execute(
             sa.text(f"SELECT {end_tx_column} FROM text_item_version ORDER BY {tx_column}")
         ).fetchone()[0]
-        assert self.session.execute(
-            sa.text(f"SELECT {end_tx_column} FROM article_version ORDER BY {tx_column}")
-        ).fetchone()[0]
+        assert session.execute(sa.text(f"SELECT {end_tx_column} FROM article_version ORDER BY {tx_column}")).fetchone()[
+            0
+        ]
 
 
 create_test_cases(JoinTableInheritanceTestCase)
 
 
 class TestDeepJoinedTableInheritance(TestCase):
-    def create_models(self):
-        class Node(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Node(decl_base):
             __versioned__ = {}
             __tablename__ = "node"
             __mapper_args__ = {
@@ -171,10 +171,10 @@ class TestDeepJoinedTableInheritance(TestCase):
         self.Content = Content
         self.Document = Document
 
-    def test_insert(self):
+    def test_insert(self, session):
         document = self.Document()
-        self.session.add(document)
-        self.session.commit()
-        assert self.session.execute(sa.text("SELECT COUNT(1) FROM document_version")).scalar() == 1
-        assert self.session.execute(sa.text("SELECT COUNT(1) FROM content_version")).scalar() == 1
-        assert self.session.execute(sa.text("SELECT COUNT(1) FROM node_version")).scalar() == 1
+        session.add(document)
+        session.commit()
+        assert session.execute(sa.text("SELECT COUNT(1) FROM document_version")).scalar() == 1
+        assert session.execute(sa.text("SELECT COUNT(1) FROM content_version")).scalar() == 1
+        assert session.execute(sa.text("SELECT COUNT(1) FROM node_version")).scalar() == 1

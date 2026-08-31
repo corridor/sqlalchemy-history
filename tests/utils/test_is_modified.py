@@ -7,8 +7,8 @@ from tests import TestCase
 
 
 class TestIsModified(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {"exclude": "content"}
             id = sa.Column(

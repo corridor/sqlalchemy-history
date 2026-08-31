@@ -1,23 +1,25 @@
-import os
-
 import pytest
 import sqlalchemy as sa
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.exc import DatabaseError
+from sqlalchemy.orm import DeclarativeBase, relationship
 
 from tests import TestCase
 
 
-@pytest.mark.skipif(
-    os.environ.get("DB") == "sqlite",
-    reason="sqlite doesn't have a concept of schema",
-)
+@pytest.mark.skip_db("sqlite", reason="sqlite doesn't have a concept of schema")
 class TestCustomSchema(TestCase):
-    def create_models(self):
-        self.Model = declarative_base(metadata=sa.MetaData(schema="sqlahistory"))
+    @pytest.fixture(scope="class")
+    @classmethod
+    def decl_base(cls):
+        class Base(DeclarativeBase):
+            metadata = sa.MetaData(schema="sqlahistory")
 
-        class Article(self.Model):
+        return Base
+
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -26,7 +28,7 @@ class TestCustomSchema(TestCase):
 
         article_tag = sa.Table(
             "article_tag",
-            self.Model.metadata,
+            decl_base.metadata,
             sa.Column(
                 "article_id",
                 sa.Integer,
@@ -36,9 +38,9 @@ class TestCustomSchema(TestCase):
             sa.Column("tag_id", sa.Integer, sa.ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True),
         )
 
-        class Tag(self.Model):
+        class Tag(decl_base):
             __tablename__ = "tag"
-            __versioned__ = {"base_classes": (self.Model,)}
+            __versioned__ = {"base_classes": (decl_base,)}
 
             id = sa.Column(
                 sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
@@ -50,31 +52,31 @@ class TestCustomSchema(TestCase):
         self.Article = Article
         self.Tag = Tag
 
-    def create_tables(self):
+    def create_tables(self, connection, decl_base):
         try:
-            self.connection.execute(sa.text("DROP SCHEMA IF EXISTS sqlahistory"))
-            self.connection.execute(sa.text("CREATE SCHEMA sqlahistory"))
-        except sa.exc.DatabaseError:
+            connection.execute(sa.text("DROP SCHEMA IF EXISTS sqlahistory"))
+            connection.execute(sa.text("CREATE SCHEMA sqlahistory"))
+        except DatabaseError:
             try:
                 # Create a User for Oracle DataBase as it does not have concept of schema
                 # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa: E501
-                self.connection.execute(sa.text("CREATE USER sqlahistory identified by sqlahistory"))
+                connection.execute(sa.text("CREATE USER sqlahistory identified by sqlahistory"))
                 # need to give privilege to create table to this new user
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users
-                self.connection.execute(sa.text("GRANT UNLIMITED TABLESPACE TO sqlahistory"))
-            except sa.exc.DatabaseError as dbe:  # pragma: no cover
+                connection.execute(sa.text("GRANT UNLIMITED TABLESPACE TO sqlahistory"))
+            except DatabaseError as dbe:  # pragma: no cover
                 if "ORA-01920: user name 'SQLAHISTORY' conflicts with another user or role name" not in dbe.__str__():
                     # NOTE: prior to oracle 23c we don't have concept of if not exists
                     #       so we just try to create if fails we continue
                     raise
         finally:
-            self.connection.commit()
-        TestCase.create_tables(self)
+            connection.commit()
+        TestCase.create_tables(self, connection=connection, decl_base=decl_base)
 
-    def test_version_relations(self):
+    def test_version_relations(self, session):
         article = self.Article()
         article.name = "Some article"
         article.content = "Some content"
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         assert article.versions[0].tags == []
