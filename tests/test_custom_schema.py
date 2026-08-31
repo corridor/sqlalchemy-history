@@ -8,8 +8,9 @@ from tests import TestCase
 
 @pytest.mark.skip_db("sqlite", reason="sqlite doesn't have a concept of schema")
 class TestCustomSchema(TestCase):
-    @pytest.fixture
-    def decl_base(self):
+    @pytest.fixture(scope="class")
+    @classmethod
+    def decl_base(cls):
         class Base(DeclarativeBase):
             metadata = sa.MetaData(schema="sqlahistory")
 

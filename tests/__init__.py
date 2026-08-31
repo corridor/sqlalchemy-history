@@ -46,73 +46,105 @@ class TestCase:
     user_cls = None
     should_create_models = True
 
-    def get_default_versioning_options(self, decl_base):
+    @classmethod
+    def get_default_versioning_options(cls, decl_base):
         return {
-            "create_models": self.should_create_models,
+            "create_models": cls.should_create_models,
             "base_classes": (decl_base,),
-            "strategy": self.versioning_strategy,
+            "strategy": cls.versioning_strategy,
             "support_async": False,
-            "transaction_column_name": self.transaction_column_name,
-            "end_transaction_column_name": self.end_transaction_column_name,
+            "transaction_column_name": cls.transaction_column_name,
+            "end_transaction_column_name": cls.end_transaction_column_name,
         }
 
-    @pytest.fixture
-    def versioning_options(self, decl_base):
-        return self.get_default_versioning_options(decl_base)
+    @pytest.fixture(scope="class")
+    @classmethod
+    def versioning_options(cls, decl_base):
+        return cls.get_default_versioning_options(decl_base)
 
-    @pytest.fixture
-    def decl_base(self):
+    @pytest.fixture(scope="class")
+    @classmethod
+    def decl_base(cls):
         class Base(DeclarativeBase):
             pass
 
         return Base
 
-    @pytest.fixture
-    def setup_versioning(self, versioning_options):
-        make_versioned(options=versioning_options, plugins=self.plugins)
-        versioning_manager.transaction_cls = self.transaction_cls
-        versioning_manager.user_cls = self.user_cls
+    @pytest.fixture(scope="class")
+    @classmethod
+    def setup_versioning(cls, versioning_options):
+        make_versioned(options=versioning_options, plugins=cls.plugins)
+        versioning_manager.transaction_cls = cls.transaction_cls
+        versioning_manager.user_cls = cls.user_cls
 
-    @pytest.fixture(autouse=True)
-    def setup_models(self, setup_versioning, decl_base, versioning_options):
-        self.create_models(decl_base=decl_base, versioning_options=versioning_options)
+    @pytest.fixture(scope="class", autouse=True)
+    @classmethod
+    def setup_models(cls, setup_versioning, decl_base, versioning_options):
+        model_owner = cls()
+        model_owner.create_models(decl_base=decl_base, versioning_options=versioning_options)
+        for name, value in vars(model_owner).items():
+            setattr(cls, name, value)
         configure_mappers()
 
-        if hasattr(self, "Article"):
+        if hasattr(cls, "Article"):
             with contextlib.suppress(ClassNotVersioned):
-                self.ArticleVersion = version_class(self.Article)
-        if hasattr(self, "Tag"):
+                cls.ArticleVersion = version_class(cls.Article)
+        if hasattr(cls, "Tag"):
             with contextlib.suppress(ClassNotVersioned):
-                self.TagVersion = version_class(self.Tag)
+                cls.TagVersion = version_class(cls.Tag)
 
+        yield
+
+        remove_versioning()
+        versioning_manager.reset()
+
+    @pytest.fixture(autouse=True)
+    def cleanup_test_state(self, setup_models):
         yield
 
         uow_leaks = versioning_manager.units_of_work
         session_map_leaks = versioning_manager.session_connection_map
 
-        remove_versioning()
         QueryPool.queries = []
-        versioning_manager.reset()
         close_all_sessions()
 
         assert not uow_leaks
         assert not session_map_leaks
 
     @pytest.fixture
-    def connection(self, setup_models, engine):
+    def connection(self, setup_tables, engine):
         connection = engine.connect()
+        transaction = connection.begin()
         yield connection
+        if transaction.is_active:
+            transaction.rollback()
+        connection.close()
+
+    @pytest.fixture(scope="class", autouse=True)
+    @classmethod
+    def setup_tables(cls, request, setup_models, engine, decl_base):
+        # Keep classes containing only mapper-level tests from touching the database.
+        test_items = (item for item in request.session.items if item.cls is request.cls)
+        if not any(
+            "session" in item.fixturenames
+            or "connection" in item.fixturenames
+            or "setup_tables" in inspect.signature(item.obj).parameters
+            for item in test_items
+        ):
+            yield
+            return
+
+        table_owner = cls()
+        connection = engine.connect()
+        table_owner.create_tables(connection=connection, decl_base=decl_base)
+        yield
+        table_owner.drop_tables(connection=connection, decl_base=decl_base)
         connection.close()
 
     @pytest.fixture
-    def setup_tables(self, connection, decl_base):
-        self.create_tables(connection=connection, decl_base=decl_base)
-        yield
-        self.drop_tables(connection=connection, decl_base=decl_base)
-
-    @pytest.fixture
     def session(self, setup_tables, connection) -> t.Iterator[Session]:
-        session_factory = sessionmaker(bind=connection)
+        # Test commits must not commit the fixture-owned isolation transaction.
+        session_factory = sessionmaker(bind=connection, join_transaction_mode="rollback_only")
         session = session_factory(autoflush=False, future=True)
         yield session
         session.rollback()

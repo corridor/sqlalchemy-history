@@ -40,8 +40,9 @@ class TestVersionModelBuilderWithCustomTableName(TestCase):
 class TestVersionModelBuilderWithManagerTableName(TestCase):
     """table_name configured via ``make_versioned(options={"table_name": ...})``."""
 
-    @pytest.fixture
-    def versioning_options(self, decl_base):
+    @pytest.fixture(scope="class")
+    @classmethod
+    def versioning_options(cls, decl_base):
         return {**super().get_default_versioning_options(decl_base), "table_name": "%s_user_defined"}
 
     def create_models(self, decl_base, versioning_options):
@@ -62,8 +63,9 @@ class TestVersionModelBuilderWithManagerTableName(TestCase):
 
 
 class TestVersionModelBuilderAsync(TestCase):
-    @pytest.fixture
-    def versioning_options(self, decl_base):
+    @pytest.fixture(scope="class")
+    @classmethod
+    def versioning_options(cls, decl_base):
         return {**super().get_default_versioning_options(decl_base), "support_async": True}
 
     def test_versions_relationship_is_write_only_with_async_support(self):
@@ -81,15 +83,16 @@ class TestVersionModelBuilderAsync(TestCase):
 
 
 class TestGenericReprModelBuilder(TestCase):
-    @pytest.fixture
-    def versioning_options(self, decl_base):
+    @pytest.fixture(scope="class")
+    @classmethod
+    def versioning_options(cls, decl_base):
         return {
-            "create_models": self.should_create_models,
+            "create_models": cls.should_create_models,
             "base_classes": None,
-            "strategy": self.versioning_strategy,
+            "strategy": cls.versioning_strategy,
             "support_async": False,
-            "transaction_column_name": self.transaction_column_name,
-            "end_transaction_column_name": self.end_transaction_column_name,
+            "transaction_column_name": cls.transaction_column_name,
+            "end_transaction_column_name": cls.end_transaction_column_name,
         }
 
     def test_version_cls_repr(self, session):
@@ -101,19 +104,20 @@ class TestGenericReprModelBuilder(TestCase):
 
 
 class TestNoGenericReprModelBuilder(TestCase):
-    @pytest.fixture
-    def versioning_options(self, decl_base):
+    @pytest.fixture(scope="class")
+    @classmethod
+    def versioning_options(cls, decl_base):
         class ReprMixin:
             def __repr__(self):
                 return f"Class_{self.__class__.__name__}(id={self.id})"
 
         return {
-            "create_models": self.should_create_models,
+            "create_models": cls.should_create_models,
             "base_classes": (decl_base, ReprMixin),
-            "strategy": self.versioning_strategy,
+            "strategy": cls.versioning_strategy,
             "support_async": False,
-            "transaction_column_name": self.transaction_column_name,
-            "end_transaction_column_name": self.end_transaction_column_name,
+            "transaction_column_name": cls.transaction_column_name,
+            "end_transaction_column_name": cls.end_transaction_column_name,
         }
 
     def test_version_cls_repr(self, session):

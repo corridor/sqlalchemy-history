@@ -75,14 +75,15 @@ class TestVersionTableDefault(TestCase):
 
 
 class TestVersionTableUserDefined(TestVersionTableDefault):
-    @pytest.fixture
-    def versioning_options(self, decl_base):
+    @pytest.fixture(scope="class")
+    @classmethod
+    def versioning_options(cls, decl_base):
         return {
-            "create_models": self.should_create_models,
+            "create_models": cls.should_create_models,
             "base_classes": (decl_base,),
-            "strategy": self.versioning_strategy,
-            "transaction_column_name": self.transaction_column_name,
-            "end_transaction_column_name": self.end_transaction_column_name,
+            "strategy": cls.versioning_strategy,
+            "transaction_column_name": cls.transaction_column_name,
+            "end_transaction_column_name": cls.end_transaction_column_name,
             "table_name": "%s_user_defined",
         }
 

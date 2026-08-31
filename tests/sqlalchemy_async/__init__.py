@@ -30,63 +30,84 @@ class AsyncTestCase:
     should_create_models = True
     async_database_url = "sqlite+aiosqlite:///:memory:"
 
-    def get_default_versioning_options(self, decl_base):
+    @classmethod
+    def get_default_versioning_options(cls, decl_base):
         return {
-            "create_models": self.should_create_models,
+            "create_models": cls.should_create_models,
             "base_classes": (decl_base,),
-            "strategy": self.versioning_strategy,
+            "strategy": cls.versioning_strategy,
             "support_async": True,
-            "transaction_column_name": self.transaction_column_name,
-            "end_transaction_column_name": self.end_transaction_column_name,
+            "transaction_column_name": cls.transaction_column_name,
+            "end_transaction_column_name": cls.end_transaction_column_name,
         }
 
-    @pytest.fixture
-    def versioning_options(self, decl_base):
-        return self.get_default_versioning_options(decl_base)
+    @pytest.fixture(scope="class")
+    @classmethod
+    def versioning_options(cls, decl_base):
+        return cls.get_default_versioning_options(decl_base)
 
-    @pytest.fixture
-    async def decl_base(self):
+    @pytest.fixture(scope="class")
+    @classmethod
+    async def decl_base(cls):
         class Base(AsyncAttrs, DeclarativeBase):
             pass
 
         return Base
 
-    @pytest.fixture
-    async def setup_versioning(self, versioning_options):
-        make_versioned(options=versioning_options, plugins=self.plugins)
-        versioning_manager.transaction_cls = self.transaction_cls
-        versioning_manager.user_cls = self.user_cls
+    @pytest.fixture(scope="class")
+    @classmethod
+    async def setup_versioning(cls, versioning_options):
+        make_versioned(options=versioning_options, plugins=cls.plugins)
+        versioning_manager.transaction_cls = cls.transaction_cls
+        versioning_manager.user_cls = cls.user_cls
 
-    @pytest.fixture(autouse=True)
-    async def setup_models(self, setup_versioning, decl_base, versioning_options):
-        self.create_models(decl_base=decl_base, versioning_options=versioning_options)
+    @pytest.fixture(scope="class", autouse=True)
+    @classmethod
+    async def setup_models(cls, setup_versioning, decl_base, versioning_options):
+        model_owner = cls()
+        model_owner.create_models(decl_base=decl_base, versioning_options=versioning_options)
+        for name, value in vars(model_owner).items():
+            setattr(cls, name, value)
         configure_mappers()
 
-        if hasattr(self, "Article"):
+        if hasattr(cls, "Article"):
             with contextlib.suppress(ClassNotVersioned):
-                self.ArticleVersion = version_class(self.Article)
-        if hasattr(self, "Tag"):
+                cls.ArticleVersion = version_class(cls.Article)
+        if hasattr(cls, "Tag"):
             with contextlib.suppress(ClassNotVersioned):
-                self.TagVersion = version_class(self.Tag)
+                cls.TagVersion = version_class(cls.Tag)
 
+        yield
+
+        remove_versioning()
+        versioning_manager.reset()
+
+    @pytest.fixture(autouse=True)
+    async def cleanup_test_state(self, setup_models):
         yield
 
         uow_leaks = versioning_manager.units_of_work
         session_map_leaks = versioning_manager.session_connection_map
 
-        remove_versioning()
         QueryPool.queries = []
-        versioning_manager.reset()
         await close_all_sessions()
 
         assert not uow_leaks
         assert not session_map_leaks
 
-    @pytest.fixture
-    async def setup_tables(self, setup_models, async_engine, decl_base):
-        await self.create_tables(async_engine, decl_base)
+    @pytest.fixture(scope="class", autouse=True)
+    @classmethod
+    async def setup_tables(cls, request, setup_models, async_engine, decl_base):
+        # Keep classes containing only mapper-level tests from touching the database.
+        test_items = (item for item in request.session.items if item.cls is request.cls)
+        if not any("async_session" in item.fixturenames for item in test_items):
+            yield
+            return
+
+        table_owner = cls()
+        await table_owner.create_tables(async_engine, decl_base)
         yield
-        await self.drop_tables(async_engine, decl_base)
+        await table_owner.drop_tables(async_engine, decl_base)
 
     async def create_tables(self, async_engine, decl_base):
         async with async_engine.begin() as conn:
@@ -126,12 +147,23 @@ class AsyncTestCase:
 
     @pytest.fixture
     async def async_session(self, setup_tables, async_engine) -> t.AsyncIterator[AsyncSession]:
-        session_factory = async_sessionmaker(bind=async_engine, autoflush=False, expire_on_commit=False)
+        connection = await async_engine.connect()
+        transaction = await connection.begin()
+        # Test commits must not commit the fixture-owned isolation transaction.
+        session_factory = async_sessionmaker(
+            bind=connection,
+            autoflush=False,
+            expire_on_commit=False,
+            join_transaction_mode="rollback_only",
+        )
         session = session_factory()
         yield session
         await session.rollback()
         session.expunge_all()
         await session.close()
+        if transaction.is_active:
+            await transaction.rollback()
+        await connection.close()
 
     # Helper functions
 
