@@ -1,4 +1,26 @@
+import typing as t
+
 import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
+
+
+def get_sync_database_url(database: str) -> str:  # pragma: no cover
+    urls = {
+        "postgres": "postgresql://postgres:postgres@localhost/sqlalchemy_history_test",
+        "mysql": "mysql+pymysql://root@localhost/sqlalchemy_history_test",
+        "sqlite": "sqlite:///:memory:",
+        "mssql": "mssql+pyodbc://sa:MSsql2022@localhost:1433/master?driver=ODBC+Driver+17+for+SQL+Server&TrustServerCertificate=yes",
+        "oracle": "oracle+oracledb://SYSTEM:Oracle2022@localhost:1521/?service_name=XEPDB1",
+    }
+    return urls[database]
+
+
+@pytest.fixture(scope="session")
+def engine(pytestconfig) -> t.Iterator[Engine]:
+    engine = create_engine(get_sync_database_url(pytestconfig.getvalue("db")))
+    yield engine
+    engine.dispose()
 
 
 def pytest_addoption(parser):

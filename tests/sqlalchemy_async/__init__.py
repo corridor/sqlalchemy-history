@@ -4,7 +4,7 @@ from copy import copy
 
 import pytest
 import sqlalchemy as sa
-from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession, async_sessionmaker, close_all_sessions, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession, async_sessionmaker, close_all_sessions
 from sqlalchemy.orm import DeclarativeBase, column_property, configure_mappers, relationship
 
 from sqlalchemy_history import (
@@ -16,7 +16,7 @@ from sqlalchemy_history import (
 )
 from sqlalchemy_history.plugins import TransactionChangesPlugin, TransactionMetaPlugin
 from sqlalchemy_history.transaction import TransactionFactory
-from tests import QueryPool, get_dns_from_driver
+from tests import QueryPool
 
 
 class AsyncTestCase:
@@ -58,13 +58,7 @@ class AsyncTestCase:
         versioning_manager.user_cls = self.user_cls
 
     @pytest.fixture
-    async def async_engine(self, setup_versioning, anyio_backend, pytestconfig):
-        engine = create_async_engine(get_dns_from_driver(pytestconfig.getvalue("db"), mode="async"))
-        yield engine
-        await engine.dispose()
-
-    @pytest.fixture
-    async def setup_models(self, async_engine, decl_base, versioning_options):
+    async def setup_models(self, setup_versioning, async_engine, decl_base, versioning_options):
         self.create_models(decl_base=decl_base, versioning_options=versioning_options)
         configure_mappers()
 
