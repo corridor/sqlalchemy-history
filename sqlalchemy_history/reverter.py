@@ -6,7 +6,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import RelationshipProperty, object_session
 
 from sqlalchemy_history.operation import Operation
-from sqlalchemy_history.utils import parent_class, versioned_column_properties
+from sqlalchemy_history.utils import get_association_proxies, parent_class, versioned_column_properties
 
 
 def first_level(paths: t.Iterable[str]) -> t.Iterable[str]:
@@ -36,14 +36,29 @@ class Reverter:
         self.parent_mapper = sa.inspect(self.parent_class)
         self.session = object_session(self.obj)
 
-        self.relations = list(relations)
+        association_proxies = get_association_proxies(self.parent_class)
+        normalized_relations = []
         for path in relations:
             subpath = path.split(".")[0]
-            if subpath not in self.parent_mapper.relationships:
+            if subpath in self.parent_mapper.relationships:
+                normalized_path = path
+            elif subpath in association_proxies:
+                target_collection = association_proxies[subpath].target_collection
+                if target_collection not in self.parent_mapper.relationships:
+                    raise ReverterException(
+                        f"Could not initialize Reverter. Association proxy '{subpath}' on class "
+                        f"'{self.parent_class.__name__}' targets '{target_collection}', which is not a relationship."
+                    )
+                normalized_path = path.replace(subpath, target_collection, 1)
+            else:
                 raise ReverterException(
                     f"Could not initialize Reverter. Class '{parent_class(self.obj.__class__).__name__}' does not have "
                     f"relationship '{subpath}'."
                 )
+            if normalized_path not in normalized_relations:
+                normalized_relations.append(normalized_path)
+
+        self.relations = normalized_relations
 
     def revert_properties(self) -> None:
         for prop in versioned_column_properties(self.parent_class):
