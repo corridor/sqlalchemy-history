@@ -1,13 +1,24 @@
+import pytest
 import sqlalchemy as sa
 from sqlalchemy.ext.associationproxy import AssociationProxy, AssociationProxyInstance, association_proxy
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref, relationship
 
+from sqlalchemy_history.reverter import Reverter, ReverterException
 from sqlalchemy_history.utils import get_association_proxies, version_class
 from tests import TestCase
 
 
 class TestAssociationProxy(TestCase):
     def create_models(self):
+        class Category(self.Model):
+            __tablename__ = "category"
+            __versioned__ = {}
+
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+            )
+            name = sa.Column(sa.Unicode(255), nullable=False)
+
         class Article(self.Model):
             __tablename__ = "article"
             __versioned__ = {}
@@ -18,6 +29,8 @@ class TestAssociationProxy(TestCase):
             name = sa.Column(sa.Unicode(255), nullable=False)
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
+            category_id = sa.Column(sa.Integer, sa.ForeignKey(Category.id))
+            category = relationship(Category, backref="articles")
 
             upanaam = association_proxy("tags", "name")
 
@@ -34,6 +47,7 @@ class TestAssociationProxy(TestCase):
 
         self.Article = Article
         self.Tag = Tag
+        self.Category = Category
 
     def test_association_proxy_mapping(self):
         assoc_mapping = get_association_proxies(self.Article)
@@ -66,3 +80,153 @@ class TestAssociationProxy(TestCase):
         assert len(article.versions.all()[1].tags) == 2
         assert set(article.versions.all()[0].upanaam) == {"tag1"}
         assert set(article.versions.all()[1].upanaam) == {"tag1", "tag2"}
+
+    def test_revert_collection_association_proxy(self):
+        tag = self.Tag(name="tag1")
+        article = self.Article(name="article1", tags=[tag])
+        self.session.add(article)
+        self.session.commit()
+
+        tag.name = "renamed"
+        article.tags.append(self.Tag(name="tag2"))
+        self.session.commit()
+
+        article.versions[0].revert(relations=["upanaam"])
+        self.session.commit()
+
+        assert article.name == "article1"
+        assert article.upanaam == ["tag1"]
+
+    def test_revert_deduplicates_proxy_and_relationship(self):
+        article = self.Article(name="article1", tags=[self.Tag(name="tag1")])
+        self.session.add(article)
+        self.session.commit()
+
+        reverter = Reverter(article.versions[0], relations=["upanaam", "tags"])
+
+        assert reverter.relations == ["tags"]
+
+    def test_revert_nested_association_proxy(self):
+        article = self.Article(name="article1", tags=[self.Tag(name="tag1")])
+        category = self.Category(name="category1", articles=[article])
+        self.session.add(category)
+        self.session.commit()
+
+        category.name = "updated"
+        article.tags[0].name = "renamed"
+        article.tags.append(self.Tag(name="tag2"))
+        self.session.commit()
+
+        category.versions[0].revert(relations=["articles.upanaam"])
+        self.session.commit()
+
+        assert category.name == "category1"
+        assert article.upanaam == ["tag1"]
+
+    def test_revert_proxy_with_invalid_target_relationship(self):
+        article = self.Article(name="article1")
+        self.session.add(article)
+        self.session.commit()
+        self.Article.invalid_proxy = association_proxy("missing", "name")
+
+        with pytest.raises(
+            ReverterException,
+            match=r"Association proxy 'invalid_proxy'.*targets 'missing', which is not a relationship",
+        ):
+            Reverter(article.versions[0], relations=["invalid_proxy"])
+
+
+class TestScalarAssociationProxyRevert(TestCase):
+    def create_models(self):
+        class Article(self.Model):
+            __tablename__ = "article"
+            __versioned__ = {}
+
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+            )
+            name = sa.Column(sa.Unicode(255), nullable=False)
+            summary = association_proxy("details", "summary")
+
+        class ArticleDetails(self.Model):
+            __tablename__ = "article_details"
+            __versioned__ = {}
+
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+            )
+            article_id = sa.Column(sa.Integer, sa.ForeignKey(Article.id), nullable=False, unique=True)
+            summary = sa.Column(sa.Unicode(255), nullable=False)
+            article = relationship(Article, backref=backref("details", uselist=False))
+
+        self.Article = Article
+        self.ArticleDetails = ArticleDetails
+
+    def test_revert_scalar_association_proxy(self):
+        article = self.Article(name="article1")
+        article.details = self.ArticleDetails(summary="original")
+        self.session.add(article)
+        self.session.commit()
+
+        article.details.summary = "updated"
+        self.session.commit()
+
+        article.versions[0].revert(relations=["summary"])
+        self.session.commit()
+
+        assert article.summary == "original"
+
+
+class TestObjectAssociationProxyRevert(TestCase):
+    def create_models(self):
+        class User(self.Model):
+            __tablename__ = "user"
+            __versioned__ = {}
+
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+            )
+            name = sa.Column(sa.Unicode(255), nullable=False)
+            keywords = association_proxy(
+                "keyword_links",
+                "keyword",
+                creator=lambda keyword: UserKeyword(keyword=keyword),
+            )
+
+        class Keyword(self.Model):
+            __tablename__ = "keyword"
+            __versioned__ = {}
+
+            id = sa.Column(
+                sa.Integer, sa.Sequence(f"{__tablename__}_seq", start=1), autoincrement=True, primary_key=True
+            )
+            name = sa.Column(sa.Unicode(255), nullable=False)
+
+        class UserKeyword(self.Model):
+            __tablename__ = "user_keyword"
+            __versioned__ = {}
+
+            user_id = sa.Column(sa.Integer, sa.ForeignKey(User.id), primary_key=True)
+            keyword_id = sa.Column(sa.Integer, sa.ForeignKey(Keyword.id), primary_key=True)
+            user = relationship(User, backref=backref("keyword_links", cascade="all, delete-orphan"))
+            keyword = relationship(Keyword)
+
+        self.User = User
+        self.Keyword = Keyword
+        self.UserKeyword = UserKeyword
+
+    def test_revert_object_association_proxy(self):
+        keyword1 = self.Keyword(name="keyword1")
+        user = self.User(name="user1", keywords=[keyword1])
+        self.session.add(user)
+        self.session.commit()
+
+        user.name = "updated"
+        user.keywords.append(self.Keyword(name="keyword2"))
+        self.session.commit()
+
+        user.versions[0].revert(relations=["keywords"])
+        self.session.commit()
+
+        assert user.name == "user1"
+        assert user.keywords == [keyword1]

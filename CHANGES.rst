@@ -8,6 +8,7 @@ Unreleased
 
 -   Fix version-table generation for parent columns that use ``sa.Identity()``.
 -   Support SQL expressions such as ``sa.case()`` in ``polymorphic_on`` mappings.
+-   Support association proxy names in ``revert(relations=[...])`` (fixes #76).
 
 2.1.6 (2026-08-26)
 ^^^^^^^^^^^^^^^^^^
