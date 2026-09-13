@@ -182,8 +182,8 @@ class TestDeepJoinedTableInheritance(TestCase):
 
 
 class TestDeepJoinedTableInheritanceWithIdentity(TestCase):
-    def create_models(self):
-        class Node(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Node(decl_base):
             __versioned__ = {}
             __tablename__ = "node"
             __mapper_args__ = {

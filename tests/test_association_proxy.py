@@ -1,7 +1,7 @@
 import pytest
 import sqlalchemy as sa
 from sqlalchemy.ext.associationproxy import AssociationProxy, AssociationProxyInstance, association_proxy
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import Session, backref, relationship
 
 from sqlalchemy_history.reverter import Reverter, ReverterException
 from sqlalchemy_history.utils import get_association_proxies, version_class
@@ -81,52 +81,52 @@ class TestAssociationProxy(TestCase):
         assert set(article.versions.all()[0].upanaam) == {"tag1"}
         assert set(article.versions.all()[1].upanaam) == {"tag1", "tag2"}
 
-    def test_revert_collection_association_proxy(self):
+    def test_revert_collection_association_proxy(self, session: Session):
         tag = self.Tag(name="tag1")
         article = self.Article(name="article1", tags=[tag])
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         tag.name = "renamed"
         article.tags.append(self.Tag(name="tag2"))
-        self.session.commit()
+        session.commit()
 
         article.versions[0].revert(relations=["upanaam"])
-        self.session.commit()
+        session.commit()
 
         assert article.name == "article1"
         assert article.upanaam == ["tag1"]
 
-    def test_revert_deduplicates_proxy_and_relationship(self):
+    def test_revert_deduplicates_proxy_and_relationship(self, session: Session):
         article = self.Article(name="article1", tags=[self.Tag(name="tag1")])
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         reverter = Reverter(article.versions[0], relations=["upanaam", "tags"])
 
         assert reverter.relations == ["tags"]
 
-    def test_revert_nested_association_proxy(self):
+    def test_revert_nested_association_proxy(self, session: Session):
         article = self.Article(name="article1", tags=[self.Tag(name="tag1")])
         category = self.Category(name="category1", articles=[article])
-        self.session.add(category)
-        self.session.commit()
+        session.add(category)
+        session.commit()
 
         category.name = "updated"
         article.tags[0].name = "renamed"
         article.tags.append(self.Tag(name="tag2"))
-        self.session.commit()
+        session.commit()
 
         category.versions[0].revert(relations=["articles.upanaam"])
-        self.session.commit()
+        session.commit()
 
         assert category.name == "category1"
         assert article.upanaam == ["tag1"]
 
-    def test_revert_proxy_with_invalid_target_relationship(self):
+    def test_revert_proxy_with_invalid_target_relationship(self, session: Session):
         article = self.Article(name="article1")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
         self.Article.invalid_proxy = association_proxy("missing", "name")
 
         with pytest.raises(
@@ -137,8 +137,8 @@ class TestAssociationProxy(TestCase):
 
 
 class TestScalarAssociationProxyRevert(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
             __versioned__ = {}
 
@@ -148,7 +148,7 @@ class TestScalarAssociationProxyRevert(TestCase):
             name = sa.Column(sa.Unicode(255), nullable=False)
             summary = association_proxy("details", "summary")
 
-        class ArticleDetails(self.Model):
+        class ArticleDetails(decl_base):
             __tablename__ = "article_details"
             __versioned__ = {}
 
@@ -162,24 +162,24 @@ class TestScalarAssociationProxyRevert(TestCase):
         self.Article = Article
         self.ArticleDetails = ArticleDetails
 
-    def test_revert_scalar_association_proxy(self):
+    def test_revert_scalar_association_proxy(self, session: Session):
         article = self.Article(name="article1")
         article.details = self.ArticleDetails(summary="original")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         article.details.summary = "updated"
-        self.session.commit()
+        session.commit()
 
         article.versions[0].revert(relations=["summary"])
-        self.session.commit()
+        session.commit()
 
         assert article.summary == "original"
 
 
 class TestObjectAssociationProxyRevert(TestCase):
-    def create_models(self):
-        class User(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class User(decl_base):
             __tablename__ = "user"
             __versioned__ = {}
 
@@ -193,7 +193,7 @@ class TestObjectAssociationProxyRevert(TestCase):
                 creator=lambda keyword: UserKeyword(keyword=keyword),
             )
 
-        class Keyword(self.Model):
+        class Keyword(decl_base):
             __tablename__ = "keyword"
             __versioned__ = {}
 
@@ -202,7 +202,7 @@ class TestObjectAssociationProxyRevert(TestCase):
             )
             name = sa.Column(sa.Unicode(255), nullable=False)
 
-        class UserKeyword(self.Model):
+        class UserKeyword(decl_base):
             __tablename__ = "user_keyword"
             __versioned__ = {}
 
@@ -215,18 +215,18 @@ class TestObjectAssociationProxyRevert(TestCase):
         self.Keyword = Keyword
         self.UserKeyword = UserKeyword
 
-    def test_revert_object_association_proxy(self):
+    def test_revert_object_association_proxy(self, session: Session):
         keyword1 = self.Keyword(name="keyword1")
         user = self.User(name="user1", keywords=[keyword1])
-        self.session.add(user)
-        self.session.commit()
+        session.add(user)
+        session.commit()
 
         user.name = "updated"
         user.keywords.append(self.Keyword(name="keyword2"))
-        self.session.commit()
+        session.commit()
 
         user.versions[0].revert(relations=["keywords"])
-        self.session.commit()
+        session.commit()
 
         assert user.name == "user1"
         assert user.keywords == [keyword1]

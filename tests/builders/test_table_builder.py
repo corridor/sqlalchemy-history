@@ -4,6 +4,7 @@ from copy import copy
 import pytest
 import sqlalchemy as sa
 from sqlalchemy.exc import DatabaseError
+from sqlalchemy.orm import Session
 
 from sqlalchemy_history import version_class
 from tests import TestCase
@@ -82,10 +83,10 @@ class TestTableBuilderWithOnUpdate(TestCase):
 
 
 class TestTableBuilderWithIdentity(TestCase):
-    def create_models(self):
-        class Article(self.Model):
+    def create_models(self, decl_base, versioning_options):
+        class Article(decl_base):
             __tablename__ = "article"
-            __versioned__ = copy(self.options)
+            __versioned__ = copy(versioning_options)
 
             id = sa.Column(sa.Integer, sa.Identity(), primary_key=True, autoincrement=True)
             name = sa.Column(sa.Unicode(255))
@@ -108,16 +109,16 @@ class TestTableBuilderWithIdentity(TestCase):
 
         assert "IDENTITY" not in ddl
 
-    def test_populates_version_column_from_parent_identity(self):
+    def test_populates_version_column_from_parent_identity(self, session: Session):
         article = self.Article(name="First name")
-        self.session.add(article)
-        self.session.commit()
+        session.add(article)
+        session.commit()
 
         article.name = "Updated name"
-        self.session.commit()
+        session.commit()
 
         version_model = version_class(self.Article)
-        versions = self.session.scalars(sa.select(version_model).order_by(version_model.transaction_id)).all()
+        versions = session.scalars(sa.select(version_model).order_by(version_model.transaction_id)).all()
 
         assert article.id is not None
         assert len(versions) == 2
