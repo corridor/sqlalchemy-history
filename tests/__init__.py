@@ -99,9 +99,8 @@ class TestCase:
 
     @pytest.fixture
     def connection(self, setup_models, engine):
-        connection = engine.connect()
-        yield connection
-        connection.close()
+        with engine.connect() as connection:
+            yield connection
 
     @pytest.fixture
     def setup_tables(self, connection, decl_base):
@@ -112,11 +111,10 @@ class TestCase:
     @pytest.fixture
     def session(self, setup_tables, connection) -> t.Iterator[Session]:
         session_factory = sessionmaker(bind=connection)
-        session = session_factory(autoflush=False, future=True)
-        yield session
-        session.rollback()
-        session.expunge_all()
-        session.close()
+        with session_factory(autoflush=False, future=True) as session:
+            yield session
+            session.rollback()
+            session.expunge_all()
 
     def create_tables(self, connection, decl_base):
         with connection.begin():
