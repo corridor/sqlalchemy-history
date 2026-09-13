@@ -126,11 +126,10 @@ class AsyncTestCase:
     @pytest.fixture
     async def async_session(self, setup_tables, async_engine) -> t.AsyncIterator[AsyncSession]:
         session_factory = async_sessionmaker(bind=async_engine, autoflush=False, expire_on_commit=False)
-        session = session_factory()
-        yield session
-        await session.rollback()
-        session.expunge_all()
-        await session.close()
+        async with session_factory() as session:
+            yield session
+            await session.rollback()
+            session.expunge_all()
 
     # Helper functions
 
