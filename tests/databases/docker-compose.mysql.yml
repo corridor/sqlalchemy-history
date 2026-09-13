@@ -1,0 +1,18 @@
+services:
+    cor_mysql:
+        image: mysql
+        container_name: mysql
+        environment:
+            MYSQL_DATABASE: sqlalchemy_history_test
+            MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+        ports:
+            - "3306:3306"
+        # If you want to persist data for DB for next run use this
+        # volumes:
+        #   - ${PWD}/data/mysql/:/var/lib/mysql
+        healthcheck:
+            test: mysqladmin ping
+            interval: 5s
+            retries: 5
+            start_period: 20s
+            timeout: 10s
