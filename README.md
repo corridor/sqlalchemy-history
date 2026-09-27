@@ -194,3 +194,11 @@ We found multiple libraries which has an implementation of history tracking:
     - Uses django ORM, does not support sqlalchemy
 6. [sqlalchemy example versioning-objects](http://docs.sqlalchemy.org/en/latest/orm/examples.html#versioning-objects)
     - Simple example to demonstrate implementation - but very minimal
+
+## Contributing
+
+Thanks for considering contributions! Please run tests via `pytest` or `cargo test` and ensure lint passes (`ruff check .` / `cargo fmt`) before opening a PR. See `CONTRIBUTING.md` if present.
+
+
+> **Note:** Tested on Python 3.9–3.14, SQLAlchemy 2.x.
+
