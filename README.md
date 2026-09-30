@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/badge/PyPI-SQLAlchemy--History-blue?logo=pypi)](https://pypi.org/project/SQLAlchemy-History/)
 [![Documentation](https://img.shields.io/badge/Docs-latest-brightgreen)](https://corridor.github.io/sqlalchemy-history/)
 
-[![Ask DeepWiki](https://img.shields.io/badge/Ask%20DeepWiki-blue?logo=googlegemini&logoColor=white)](https://deepwiki.com/)
+[![Ask DeepWiki](https://img.shields.io/badge/Ask%20DeepWiki-blue?logo=googlegemini&logoColor=white)](https://deepwiki.com/corridor/sqlalchemy-history)
 
 SQLAlchemy-History is a fork of SQLAlchemy-Continuum. It is an auditing
 extension that tracks the history of SQLAlchemy models.
