@@ -10,8 +10,8 @@ from inspect import getmro
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapper, column_property
 from sqlalchemy.orm.descriptor_props import ConcreteInheritedProperty
-from sqlalchemy_utils.functions import get_declarative_base, get_hybrid_properties
 
+from sqlalchemy_history._compat.sqlalchemy_utils import get_declarative_base, get_hybrid_properties
 from sqlalchemy_history.model_builder import ModelBuilder
 from sqlalchemy_history.relationship_builder import RelationshipBuilder
 from sqlalchemy_history.table_builder import TableBuilder
