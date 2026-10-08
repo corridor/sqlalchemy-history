@@ -89,3 +89,5 @@ exclude-newer = "1 week" # Cooldown period for new vulnerabilities
 markers = [
     "skip_db(*databases: str, reason: str): skip the test for the selected --db backend",
 ]
+addopts = ["--strict-config", "--strict-markers"]
+filterwarnings = ["error::sqlalchemy.exc.SAWarning"]
