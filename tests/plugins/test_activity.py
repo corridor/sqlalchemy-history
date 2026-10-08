@@ -1,5 +1,3 @@
-import importlib_metadata
-import pytest
 import sqlalchemy as sa
 
 from sqlalchemy_history import versioning_manager
@@ -39,11 +37,6 @@ class ActivityTestCase(TestCase):
         return activity
 
 
-# ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
-@pytest.mark.skipif(
-    importlib_metadata.version("sqlalchemy").startswith("2."),
-    reason="sqla-utils generic relations has issue with sqla 2.x",
-)
 class TestActivityNotId(ActivityTestCase):
     def create_models(self, decl_base, versioning_options):
         TestCase.create_models(self, decl_base=decl_base, versioning_options=versioning_options)
@@ -72,12 +65,25 @@ class TestActivityNotId(ActivityTestCase):
         assert activity.object_version == not_id_model.versions.all()[-1]
 
 
-# ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
-@pytest.mark.skipif(
-    importlib_metadata.version("sqlalchemy").startswith("2."),
-    reason="sqla-utils generic relations has issue with sqla 2.x",
-)
 class TestActivity(ActivityTestCase):
+    def test_optional_relationship_versions(self, session):
+        activity = self.create_activity(session)
+        session.commit()
+        assert activity.object is None
+        assert activity.target is None
+        assert activity.object_version is None
+        assert activity.target_version is None
+
+    def test_query_version_relationships(self, session):
+        article = self.create_article(session)
+        session.flush()
+        activity = self.create_activity(session, object_=article, target=article)
+        session.commit()
+        version = article.versions.all()[-1]
+        Activity = versioning_manager.activity_cls
+        assert session.scalars(sa.select(Activity).where(Activity.object_version == version)).all() == [activity]
+        assert session.scalars(sa.select(Activity).where(Activity.target_version == version)).all() == [activity]
+
     def test_creates_activity_class(self):
         assert versioning_manager.activity_cls.__name__ == "Activity"
 
@@ -131,19 +137,14 @@ class TestActivity(ActivityTestCase):
         activities = session.scalars(
             sa.select(Activity).filter(sa.or_(Activity.object == article, Activity.target == article))
         )
-        assert activities.count() == 2
+        assert len(activities.all()) == 2
 
 
-# ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
-@pytest.mark.skipif(
-    importlib_metadata.version("sqlalchemy").startswith("2."),
-    reason="sqla-utils generic relations has issue with sqla 2.x",
-)
 class TestObjectTxIdGeneration(ActivityTestCase):
     def test_does_not_query_db_if_version_obj_in_session(self, session):
         article = self.create_article(session)
         session.flush()
-        self.create_activity(session, object=article)
+        self.create_activity(session, object_=article)
         query_count = len(QueryPool.queries)
         session.commit()
         assert query_count + 1 == len(QueryPool.queries)
@@ -161,11 +162,6 @@ class TestObjectTxIdGeneration(ActivityTestCase):
         assert activity.object_version == article.versions.all()[-1]
 
 
-# ref : https://github.com/kvesteri/sqlalchemy-utils/issues/719
-@pytest.mark.skipif(
-    importlib_metadata.version("sqlalchemy").startswith("2."),
-    reason="sqla-utils generic relations has issue with sqla 2.x",
-)
 class TestTargetTxIdGeneration(ActivityTestCase):
     def test_does_not_query_db_if_version_obj_in_session(self, session):
         article = self.create_article(session)

@@ -159,17 +159,17 @@ import sqlalchemy as sa
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import backref, object_session, relationship
-from sqlalchemy_utils import JSONType, generic_relationship
 
+from sqlalchemy_history._compat.sqlalchemy_utils import JSONType, generic_relationship
 from sqlalchemy_history.factory import ModelFactory
 from sqlalchemy_history.plugins.base import Plugin
-from sqlalchemy_history.utils import version_class, version_obj
+from sqlalchemy_history.utils import ordered_sequence, version_class, version_obj
 
 
 class ActivityBase:
     id = sa.Column(
         sa.BigInteger,
-        sa.schema.Sequence("activity_id_seq", start=1, order=True),
+        ordered_sequence("activity_id_seq"),
         primary_key=True,
         autoincrement=True,
     )
@@ -238,11 +238,11 @@ class ActivityFactory(ModelFactory):
 
             @hybrid_property
             def object_version_type(self):
-                return self.object_type + "Version"
+                return self.object_type + "Version" if self.object_type is not None else None
 
             @object_version_type.expression
             def object_version_type(cls):  # noqa: N805
-                return sa.func.concat(cls.object_type, "Version")
+                return cls.object_type + "Version"
 
             object_version = generic_relationship(object_version_type, (object_id, object_tx_id))
 
@@ -250,11 +250,11 @@ class ActivityFactory(ModelFactory):
 
             @hybrid_property
             def target_version_type(self):
-                return self.target_type + "Version"
+                return self.target_type + "Version" if self.target_type is not None else None
 
             @target_version_type.expression
             def target_version_type(cls):  # noqa: N805
-                return sa.func.concat(cls.target_type, "Version")
+                return cls.target_type + "Version"
 
             target_version = generic_relationship(target_version_type, (target_id, target_tx_id))
 

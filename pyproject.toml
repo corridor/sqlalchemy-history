@@ -30,7 +30,7 @@ classifiers = [
     "Typing :: Typed",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = ["SQLAlchemy>=2", "SQLAlchemy-Utils>=0.30.12", "anyio>3"]
+dependencies = ["SQLAlchemy>=2", "anyio>=4,<5"]
 
 [project.optional-dependencies]
 asyncio = ["SQLAlchemy[asyncio]>=2"]

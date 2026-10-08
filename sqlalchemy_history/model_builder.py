@@ -6,9 +6,8 @@ import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import ColumnProperty, MappedColumn, column_property, relationship
 from sqlalchemy.sql.elements import ClauseElement
-from sqlalchemy_utils.functions import get_declarative_base, get_primary_keys
-from sqlalchemy_utils.models import generic_repr
 
+from sqlalchemy_history._compat.sqlalchemy_utils import generic_repr, get_declarative_base, get_primary_keys
 from sqlalchemy_history.utils import adapt_columns, option
 from sqlalchemy_history.version import VersionClassBase
 

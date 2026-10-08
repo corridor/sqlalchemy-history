@@ -25,8 +25,8 @@ from copy import copy
 
 import sqlalchemy as sa
 from sqlalchemy.orm import object_session
-from sqlalchemy_utils.functions import has_changes
 
+from sqlalchemy_history._compat.sqlalchemy_utils import has_changes
 from sqlalchemy_history.plugins.base import Plugin
 from sqlalchemy_history.utils import versioned_column_properties
 

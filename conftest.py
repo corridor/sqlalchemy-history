@@ -7,7 +7,7 @@ from sqlalchemy.engine import Engine
 
 def get_sync_database_url(database: str) -> str:  # pragma: no cover
     urls = {
-        "postgres": "postgresql://postgres:postgres@localhost/sqlalchemy_history_test",
+        "postgres": "postgresql+psycopg2://postgres:postgres@localhost/sqlalchemy_history_test",
         "mysql": "mysql+pymysql://root@localhost/sqlalchemy_history_test",
         "sqlite": "sqlite:///:memory:",
         "mssql": "mssql+pyodbc://sa:MSsql2022@localhost:1433/master?driver=ODBC+Driver+17+for+SQL+Server&TrustServerCertificate=yes",

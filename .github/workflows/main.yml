@@ -12,19 +12,29 @@ on:
 
 jobs:
   test-sqlalchemy-history:
-    name: test-python${{ matrix.python-version }}-${{ matrix.DB }}
+    name: test-python${{ matrix.python-version }}-sqlalchemy${{ matrix.sqlalchemy-version }}-${{ matrix.DB }}
     strategy:
       fail-fast: false # This prevents other jobs from being canceled when one fails
       matrix:
         python-version:
           - "3.9"
           - "3.14"
+        sqlalchemy-version:
+          - "<2.1"
+          - ">=2.1"
         DB:
           - "sqlite"
           - "mssql"
           - "mysql"
           - "oracle"
           - "postgres"
+        exclude:
+          - python-version: "3.9"
+            sqlalchemy-version: ">=2.1"
+        include:
+          - python-version: "3.11"
+            sqlalchemy-version: ">=2.1"
+            DB: "sqlite"
     services:
       mysql:
         # Only start service for MySQL tests
@@ -111,6 +121,9 @@ jobs:
 
       - name: Install the project
         run: uv sync --locked --no-dev --group test
+
+      - name: Select SQLAlchemy series
+        run: uv pip install "SQLAlchemy[asyncio]${{ matrix.sqlalchemy-version }}"
 
       - name: Run tests
         run: |

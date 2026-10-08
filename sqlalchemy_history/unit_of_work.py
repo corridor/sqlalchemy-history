@@ -5,8 +5,8 @@ from copy import copy
 import sqlalchemy as sa
 from sqlalchemy.orm import Session, aliased, object_session
 from sqlalchemy.orm.exc import ObjectDeletedError
-from sqlalchemy_utils import get_primary_keys, identity
 
+from sqlalchemy_history._compat.sqlalchemy_utils import get_primary_keys, identity
 from sqlalchemy_history.operation import Operation, Operations
 from sqlalchemy_history.schema import update_end_tx_column
 from sqlalchemy_history.utils import (

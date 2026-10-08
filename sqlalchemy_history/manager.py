@@ -13,8 +13,8 @@ from functools import wraps
 import sqlalchemy as sa
 from sqlalchemy.orm import object_session
 from sqlalchemy.orm.exc import UnmappedColumnError
-from sqlalchemy_utils import get_column_key
 
+from sqlalchemy_history._compat.sqlalchemy_utils import get_column_key
 from sqlalchemy_history.builder import Builder
 from sqlalchemy_history.fetcher import SubqueryFetcher, ValidityFetcher
 from sqlalchemy_history.operation import Operation

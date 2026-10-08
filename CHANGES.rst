@@ -6,6 +6,9 @@ Here you can see the full list of changes between each release.
 Unreleased
 ^^^^^^^^^^
 
+-   Support SQLAlchemy 2.1 without the SQLAlchemy-Utils dependency. Restore
+    activity-plugin test coverage and fix generic relationship caching after
+    expiration, rollback, and deletion.
 -   Fix version-table generation for parent columns that use ``sa.Identity()``.
 -   Support SQL expressions such as ``sa.case()`` in ``polymorphic_on`` mappings.
 -   Support association proxy names in ``revert(relations=[...])`` (fixes #76).

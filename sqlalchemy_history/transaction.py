@@ -15,6 +15,7 @@ from sqlalchemy.orm import object_session, relationship
 
 from sqlalchemy_history.exc import ImproperlyConfigured, NoChangesAttribute
 from sqlalchemy_history.factory import ModelFactory
+from sqlalchemy_history.utils import ordered_sequence
 
 
 @compiles(sa.types.BigInteger, "sqlite")
@@ -82,7 +83,7 @@ class TransactionFactory(ModelFactory):
 
             id = sa.Column(
                 sa.types.BigInteger,
-                sa.schema.Sequence("transaction_id_seq", start=1, order=True),
+                ordered_sequence("transaction_id_seq"),
                 primary_key=True,
                 autoincrement=True,
             )
@@ -93,11 +94,11 @@ class TransactionFactory(ModelFactory):
             if manager.user_cls:
                 user_cls = manager.user_cls
                 Base = manager.declarative_base
-                registry = Base.registry._class_registry
+                class_registry = Base.registry._class_registry
 
                 if isinstance(user_cls, str):
                     try:
-                        user_cls = registry[user_cls]
+                        user_cls = class_registry[user_cls]
                     except KeyError:
                         raise ImproperlyConfigured(
                             "Could not build relationship between Transaction"

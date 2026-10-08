@@ -4,7 +4,8 @@ from collections import OrderedDict
 from copy import copy
 
 import sqlalchemy as sa
-from sqlalchemy_utils import identity
+
+from sqlalchemy_history._compat.sqlalchemy_utils import identity
 
 
 class Operation:
