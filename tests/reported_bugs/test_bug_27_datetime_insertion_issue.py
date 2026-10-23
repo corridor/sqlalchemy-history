@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 from copy import copy
 
 import sqlalchemy as sa
@@ -20,7 +20,7 @@ class TestBug27(TestCase):
                 sa.DateTime,
                 nullable=False,
                 server_default=sa.func.current_timestamp(),
-                default=lambda: datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None),
+                default=lambda: dt.datetime.now(dt.timezone.utc).replace(tzinfo=None),
             ),
         )
 
@@ -58,4 +58,4 @@ class TestBug27(TestCase):
 
         obj = session.execute(sa.select(self.article_author_table)).all()
         assert len(obj) == 1
-        assert isinstance(obj[0][-1], datetime.datetime)  # last col is a datetime!
+        assert isinstance(obj[0][-1], dt.datetime)  # last col is a datetime!

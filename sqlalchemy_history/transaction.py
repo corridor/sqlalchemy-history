@@ -6,7 +6,7 @@ import typing as t
 if t.TYPE_CHECKING:
     from sqlalchemy_history.manager import VersioningManager
 
-import datetime
+import datetime as dt
 from collections import OrderedDict
 
 import sqlalchemy as sa
@@ -24,9 +24,7 @@ def compile_big_integer(element, compiler, **kw):
 
 
 class TransactionBase:
-    issued_at = sa.Column(
-        sa.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
-    )
+    issued_at = sa.Column(sa.DateTime, default=lambda: dt.datetime.now(dt.timezone.utc).replace(tzinfo=None))
 
     @property
     def entity_names(self) -> list[str]:
