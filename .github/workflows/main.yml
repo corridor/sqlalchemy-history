@@ -10,8 +10,12 @@ on:
     paths-ignore:
       - "docs/**"
 
+permissions: {}
+
 jobs:
   test-sqlalchemy-history:
+    permissions:
+      contents: read
     name: test-python${{ matrix.python-version }}-sqlalchemy${{ matrix.sqlalchemy-version }}-${{ matrix.DB }}
     strategy:
       fail-fast: false # This prevents other jobs from being canceled when one fails
@@ -139,6 +143,8 @@ jobs:
           parallel: true
 
   lint:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
