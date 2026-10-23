@@ -177,7 +177,9 @@ def create_test_cases(base_class, setting_variants=setting_variants):
         values as list of possible option values.
     """
     names = sorted(setting_variants)
-    combinations = [dict(zip(names, prod)) for prod in it.product(*(setting_variants[name] for name in names))]
+    combinations = [
+        dict(zip(names, prod, strict=False)) for prod in it.product(*(setting_variants[name] for name in names))
+    ]
 
     # Get the module where this function was called in.
     frm = inspect.stack()[1]

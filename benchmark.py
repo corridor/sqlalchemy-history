@@ -114,6 +114,8 @@ setting_variants = {
 
 
 names = sorted(setting_variants)
-combinations = [dict(zip(names, prod)) for prod in it.product(*(setting_variants[name] for name in names))]
+combinations = [
+    dict(zip(names, prod, strict=False)) for prod in it.product(*(setting_variants[name] for name in names))
+]
 for combination in combinations:
     test_versioning(**combination)

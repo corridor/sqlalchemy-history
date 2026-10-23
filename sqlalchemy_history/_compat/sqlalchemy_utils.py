@@ -490,7 +490,7 @@ class GenericComparator(Comparator):
     def __eq__(self, other):
         discriminator, ids = self.relationship._attributes(self.cls)
         q = discriminator == type(other).__name__
-        for column, value in zip(ids, identity(other)):
+        for column, value in zip(ids, identity(other), strict=False):
             q &= column == value
         return q
 
@@ -605,7 +605,7 @@ class GenericRelationship:
                 setattr(obj, key, None)
             setattr(obj, discriminator_key, None)
         else:
-            for key, pk in zip(id_keys, identity(value)):
+            for key, pk in zip(id_keys, identity(value), strict=False):
                 setattr(obj, key, pk)
             setattr(obj, discriminator_key, type(value).__name__)
 

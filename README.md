@@ -10,7 +10,7 @@ extension that tracks the history of SQLAlchemy models.
 
 ## Features
 
-- Supports SQLAlchemy 2+ and Python 3.9+
+- Supports SQLAlchemy 2+ and Python 3.10+
 - Tracks history for inserts, deletes, and updates
 - Does not store updates which don't change anything
 - Supports Alembic migrations

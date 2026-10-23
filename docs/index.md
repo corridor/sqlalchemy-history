@@ -5,7 +5,7 @@ icon: lucide/home
 # SQLAlchemy-History
 
 SQLAlchemy-History is an auditing extension that tracks the history of
-SQLAlchemy models. It supports SQLAlchemy 2+, Python 3.9+, synchronous and
+SQLAlchemy models. It supports SQLAlchemy 2+, Python 3.10+, synchronous and
 asynchronous sessions, temporal relationship reflection, and object reverts.
 
 See the [project overview and quickstart](https://github.com/corridor/sqlalchemy-history#readme),

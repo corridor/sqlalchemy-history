@@ -70,7 +70,7 @@ case-sensitive = true
 "__future__.annotations".msg = "__future__.annotations is discouraged. See PEP-649 and PEP-749"
 
 [lint.pyupgrade]
-# This is required for runtime typing evaluation for sqlalchemy in py3.9 and py3.10
+# This is required for runtime typing evaluation for sqlalchemy in Python 3.10
 keep-runtime-typing = true
 
 [lint.per-file-ignores]

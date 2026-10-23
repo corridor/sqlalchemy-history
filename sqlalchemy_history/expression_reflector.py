@@ -1,7 +1,5 @@
 """This is ExpressionReflector used for generating expression queries."""
 
-import typing as t
-
 import sqlalchemy as sa
 from sqlalchemy.orm import RelationshipProperty
 from sqlalchemy.sql.expression import bindparam
@@ -16,7 +14,7 @@ class VersionExpressionReflector(ReplacingCloningVisitor):
         self.parent = parent
         self.relationship = relationship
 
-    def replace(self, elem: ExternallyTraversible) -> t.Optional[ExternallyTraversible]:
+    def replace(self, elem: ExternallyTraversible) -> ExternallyTraversible | None:
         if not isinstance(elem, sa.Column):
             return None
         try:

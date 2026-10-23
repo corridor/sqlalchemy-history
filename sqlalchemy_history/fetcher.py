@@ -24,7 +24,7 @@ def parent_identity(obj_or_class) -> tuple:
 
 
 def eqmap(callback, iterable) -> t.Iterator[bool]:
-    for a, b in zip(*map(callback, iterable)):
+    for a, b in zip(*map(callback, iterable), strict=False):
         yield a == b
 
 
