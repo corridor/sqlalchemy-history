@@ -2,7 +2,6 @@
 phase by the manager
 """
 
-import typing as t
 from copy import copy
 from functools import wraps
 from inspect import getmro
@@ -58,7 +57,7 @@ class Builder:
                     table = builder()
                     self.manager.tables[cls] = table
 
-    def closest_matching_table(self, model) -> t.Optional[sa.Table]:
+    def closest_matching_table(self, model) -> sa.Table | None:
         """
         Returns the closest matching table from the generated tables dictionary
         for given model. First tries to fetch an exact match for given model.

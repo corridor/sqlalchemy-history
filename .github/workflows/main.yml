@@ -17,7 +17,7 @@ jobs:
       fail-fast: false # This prevents other jobs from being canceled when one fails
       matrix:
         python-version:
-          - "3.9"
+          - "3.10"
           - "3.14"
         sqlalchemy-version:
           - "<2.1"
@@ -29,7 +29,7 @@ jobs:
           - "oracle"
           - "postgres"
         exclude:
-          - python-version: "3.9"
+          - python-version: "3.10"
             sqlalchemy-version: ">=2.1"
         include:
           - python-version: "3.11"

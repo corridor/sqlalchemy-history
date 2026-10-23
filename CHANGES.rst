@@ -6,6 +6,8 @@ Here you can see the full list of changes between each release.
 Unreleased
 ^^^^^^^^^^
 
+-   Drop Python 3.9 support. The minimum supported Python version is now 3.10.
+
 -   Support SQLAlchemy 2.1 without the SQLAlchemy-Utils dependency. Restore
     activity-plugin test coverage and fix generic relationship caching after
     expiration, rollback, and deletion.

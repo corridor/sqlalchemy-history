@@ -146,7 +146,7 @@ def version_class(model):
     return manager.version_class_map.get(model, None)
 
 
-def version_table(table: sa.Table) -> t.Optional[sa.Table]:
+def version_table(table: sa.Table) -> sa.Table | None:
     """
     Return associated version table for given SQLAlchemy Table object.
 
@@ -390,14 +390,14 @@ def changeset(obj) -> dict[str, list[t.Any]]:
 
 
 class VersioningClauseAdapter(ReplacingCloningVisitor):
-    def replace(self, col: sa.Column) -> t.Optional[sa.Column]:
+    def replace(self, col: sa.Column) -> sa.Column | None:
         if isinstance(col, sa.Column):
             table = version_table(col.table)
             return table.c.get(col.key)
         return None
 
 
-def adapt_columns(expr: ClauseElement) -> t.Optional[ClauseElement]:
+def adapt_columns(expr: ClauseElement) -> ClauseElement | None:
     return VersioningClauseAdapter().traverse(expr)
 
 

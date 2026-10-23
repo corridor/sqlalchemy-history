@@ -10,7 +10,7 @@ if t.TYPE_CHECKING:
 
 
 class ModelFactory:
-    model_name: t.Optional[str] = None
+    model_name: str | None = None
 
     def __call__(self, manager: "VersioningManager") -> type:
         """Create model class but only if it doesn't already exist
