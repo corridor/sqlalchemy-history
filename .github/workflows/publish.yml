@@ -27,5 +27,8 @@ jobs:
       - name: Build distribution
         run: uv build
 
+      - name: Generate PyPI attestations
+        run: uvx pypi-attestations sign dist/*
+
       - name: Publish to PyPI
-        run: uv publish
+        run: uv publish --trusted-publishing always
