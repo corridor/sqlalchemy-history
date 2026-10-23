@@ -51,7 +51,7 @@ docker compose -f tests/databases/docker-compose.mssql.yml up -d
 ```
 
 The test suite connects with
-`mssql+pyodbc://sa:MSsql2022@localhost:1433/master?driver=ODBC+Driver+17+for+SQL+Server&TrustServerCertificate=yes`.
+`mssql+pyodbc://sa:MSsql2022@localhost:1433/master?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes`.
 
 Image Details : https://mcr.microsoft.com/en-us/product/mssql/server/about
 
