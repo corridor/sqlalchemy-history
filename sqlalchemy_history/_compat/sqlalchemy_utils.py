@@ -15,7 +15,7 @@ from inspect import isclass
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql.base import ischema_names
 from sqlalchemy.ext.hybrid import Comparator, hybrid_property
-from sqlalchemy.orm import ColumnProperty, Mapper, object_session
+from sqlalchemy.orm import ColumnProperty, MappedColumn, Mapper, object_session
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.exc import UnmappedColumnError
 from sqlalchemy.orm.util import AliasedClass, AliasedInsp
@@ -534,6 +534,8 @@ class GenericRelationship:
             return column.key
         if isinstance(column, hybrid_property):
             return column.__name__
+        if isinstance(column, MappedColumn):
+            column = column.column
 
         inspected = sa.inspect(cls)
 

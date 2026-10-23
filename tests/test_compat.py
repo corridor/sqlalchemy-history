@@ -2,7 +2,7 @@ import pytest
 import sqlalchemy as sa
 from sqlalchemy.dialects import oracle, postgresql, sqlite
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import DeclarativeBase, Session, aliased
+from sqlalchemy.orm import DeclarativeBase, Session, aliased, mapped_column
 
 from sqlalchemy_history._compat.sqlalchemy_utils import (
     JSONType,
@@ -15,16 +15,18 @@ from sqlalchemy_history._compat.sqlalchemy_utils import (
 from sqlalchemy_history.utils import ordered_sequence
 
 
-@pytest.fixture
-def models():
+@pytest.fixture(params=[sa.Column, mapped_column], ids=["column", "mapped_column"])
+def models(request):
+    column = request.param
+
     class Base(DeclarativeBase):
         pass
 
     class Target(Base):
         __tablename__ = "compat_target"
-        tenant = sa.Column(sa.Integer, primary_key=True)
-        id = sa.Column("target_pk", sa.Integer, primary_key=True)
-        kind = sa.Column(sa.String(30))
+        tenant = column(sa.Integer, primary_key=True)
+        id = column("target_pk", sa.Integer, primary_key=True)
+        kind = column(sa.String(30))
         __mapper_args__ = {"polymorphic_on": kind, "polymorphic_identity": "target"}
 
         @hybrid_property
@@ -39,10 +41,10 @@ def models():
 
     class Reference(Base):
         __tablename__ = "compat_reference"
-        id = sa.Column(sa.Integer, primary_key=True)
-        kind = sa.Column("target_kind", sa.String(30))
-        tenant = sa.Column(sa.Integer)
-        target_id = sa.Column("target_pk", sa.Integer)
+        id = column(sa.Integer, primary_key=True)
+        kind = column("target_kind", sa.String(30))
+        tenant = column(sa.Integer)
+        target_id = column("target_pk", sa.Integer)
         target = generic_relationship(kind, (tenant, target_id))
         by_name = generic_relationship("kind", ("tenant", "target_id"))
 
@@ -182,3 +184,37 @@ def test_ordered_sequence_preserves_oracle_ordering():
     ddl = str(sa.schema.CreateSequence(ordered_sequence("compat_seq")).compile(dialect=oracle.dialect()))
     assert "START WITH 1" in ddl
     assert "ORDER" in ddl
+
+
+def test_generic_relationship_mapped_column_with_hybrid_discriminator(engine):
+    class Base(DeclarativeBase):
+        pass
+
+    class Node(Base):
+        __tablename__ = "compat_node"
+        id = mapped_column(sa.Integer, primary_key=True)
+        parent_id = mapped_column("parent_pk", sa.Integer)
+
+        @hybrid_property
+        def parent_type(self):
+            return "Node"
+
+        @parent_type.expression
+        def parent_type(self):
+            return sa.literal("Node")
+
+        parent = generic_relationship(parent_type, parent_id)
+
+    Base.metadata.create_all(engine)
+    try:
+        with Session(engine) as session:
+            parent = Node(id=1)
+            child = Node(id=2, parent_id=1)
+            session.add_all([parent, child])
+            session.commit()
+            assert child.parent is parent
+            alias = aliased(Node)
+            assert session.scalars(sa.select(alias).where(alias.parent == parent)).all() == [child]
+    finally:
+        Base.metadata.drop_all(engine)
+        Base.registry.dispose()
