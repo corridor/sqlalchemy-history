@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 from copy import copy
 
 import pytest
@@ -11,7 +11,7 @@ from tests import TestCase
 
 
 def utcnow():
-    return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+    return dt.datetime.now(dt.timezone.utc).replace(tzinfo=None)
 
 
 class TestTableBuilder(TestCase):
@@ -148,7 +148,7 @@ class TestTableBuilderInOtherSchema(TestCase):
         except DatabaseError:
             try:
                 # Create a User for Oracle DataBase as it does not have concept of schema
-                # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema # noqa: E501
+                # ref: https://stackoverflow.com/questions/10994414/missing-authorization-clause-while-creating-schema
                 connection.execute(sa.text("CREATE USER other identified by other"))
                 # need to give privilege to create table to this new user
                 # ref: https://stackoverflow.com/questions/27940522/no-privileges-on-tablespace-users

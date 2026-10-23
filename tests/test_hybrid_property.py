@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 
 import sqlalchemy as sa
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -18,15 +18,13 @@ class TestHybridProperty(TestCase):
             name = sa.Column(sa.Unicode(255), nullable=False)
             content = sa.Column(sa.UnicodeText)
             description = sa.Column(sa.UnicodeText)
-            publish = sa.Column(
-                sa.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
-            )
+            publish = sa.Column(sa.DateTime, default=lambda: dt.datetime.now(dt.timezone.utc).replace(tzinfo=None))
 
             author_id = sa.Column(sa.Integer, sa.ForeignKey("article_author.id"), nullable=False)
 
             @hybrid_property
             def time_from_publish(self):
-                return datetime.datetime.today() - self.publish
+                return dt.datetime.today() - self.publish
 
             @hybrid_property
             def author_name(self):
