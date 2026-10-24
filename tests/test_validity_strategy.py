@@ -1,3 +1,5 @@
+import importlib.metadata
+
 import pytest
 import sqlalchemy as sa
 
@@ -53,6 +55,10 @@ class TestValidityStrategy(TestCase):
 
 class TestJoinTableInheritanceWithValidityVersioning(TestCase):
     def create_models(self, decl_base, versioning_options):
+        # SQLAlchemy 2.1 moved this Oracle-specific option to dialect kwargs.
+        sqlalchemy_series = tuple(map(int, importlib.metadata.version("SQLAlchemy").split(".")[:2]))
+        identity_options = {"oracle_on_null": True} if sqlalchemy_series >= (2, 1) else {"on_null": True}
+
         class TextItem(decl_base):
             __tablename__ = "text_item"
             __versioned__ = {
@@ -75,7 +81,7 @@ class TestJoinTableInheritanceWithValidityVersioning(TestCase):
             id = sa.Column(
                 sa.Integer,
                 sa.ForeignKey(TextItem.id),
-                sa.Identity(always=False, on_null=True),
+                sa.Identity(always=False, **identity_options),
                 autoincrement=True,
                 primary_key=True,
             )
@@ -86,7 +92,7 @@ class TestJoinTableInheritanceWithValidityVersioning(TestCase):
             id = sa.Column(
                 sa.Integer,
                 sa.ForeignKey(TextItem.id),
-                sa.Identity(always=False, on_null=True),
+                sa.Identity(always=False, **identity_options),
                 autoincrement=True,
                 primary_key=True,
             )
