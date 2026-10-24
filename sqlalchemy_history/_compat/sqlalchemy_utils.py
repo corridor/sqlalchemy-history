@@ -16,7 +16,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql.base import ischema_names
 from sqlalchemy.ext.hybrid import Comparator, hybrid_property
 from sqlalchemy.orm import ColumnProperty, MappedColumn, Mapper, object_session
-from sqlalchemy.orm.attributes import InstrumentedAttribute
+from sqlalchemy.orm.attributes import InstrumentedAttribute, QueryableAttribute
 from sqlalchemy.orm.exc import UnmappedColumnError
 from sqlalchemy.orm.util import AliasedClass, AliasedInsp
 
@@ -512,6 +512,10 @@ class GenericRelationship:
     Implemented as a hybrid property on top of the discriminator and id
     attributes, so it only relies on public SQLAlchemy APIs.
 
+    A read-only hybrid discriminator is derived from other application fields.
+    Assignment updates the id attributes and leaves those fields unchanged;
+    callers must configure them to identify the assigned target's class.
+
     :param discriminator:
         Field to discriminate which model we are referring to.
     :param id:
@@ -530,7 +534,7 @@ class GenericRelationship:
     def _key(self, cls, column):
         if isinstance(column, str):
             return column
-        if isinstance(column, InstrumentedAttribute):
+        if isinstance(column, QueryableAttribute):
             return column.key
         if isinstance(column, hybrid_property):
             return column.__name__
@@ -599,17 +603,15 @@ class GenericRelationship:
 
     def set(self, obj, value):
         discriminator_key, id_keys = self._keys(type(obj))
+        primary_key = (None,) * len(id_keys) if value is None else identity(value)
+        descriptor = sa.inspect(type(obj)).all_orm_descriptors[discriminator_key]
+        # A hybrid can derive a model name from an application enum.
+        # That mapping can be many-to-one, so it cannot be reversed on assignment.
+        if not isinstance(descriptor, hybrid_property) or descriptor.fset is not None:
+            setattr(obj, discriminator_key, None if value is None else type(value).__name__)
+        for key, pk in zip(id_keys, primary_key, strict=False):
+            setattr(obj, key, pk)
         obj.__dict__[self.cache_key] = value
-
-        if value is None:
-            # Nullify relationship args
-            for key in id_keys:
-                setattr(obj, key, None)
-            setattr(obj, discriminator_key, None)
-        else:
-            for key, pk in zip(id_keys, identity(value), strict=False):
-                setattr(obj, key, pk)
-            setattr(obj, discriminator_key, type(value).__name__)
 
     def comparator(self, cls):
         return GenericComparator(self, cls)
