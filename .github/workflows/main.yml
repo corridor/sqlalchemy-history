@@ -122,6 +122,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
+          cache-suffix: "${{ matrix.sqlalchemy-version }}-${{ matrix.DB }}"
+          prune-cache: true
 
       - name: Install the project
         run: uv sync --locked --no-dev --group test
